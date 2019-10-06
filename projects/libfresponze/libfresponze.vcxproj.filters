@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{a760eaed-c991-44c6-9d97-fa4425c9ee97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Base">
+      <UniqueIdentifier>{0bff5f2c-1b4d-4b35-9cc8-720fe7880608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Platform">
+      <UniqueIdentifier>{e69f23e1-224b-4b49-a76d-099848c04522}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Platform\Windows">
+      <UniqueIdentifier>{314f99be-223b-4e79-a053-00be0ab61dfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Platform\Windows\WASAPI">
+      <UniqueIdentifier>{5159146f-ee30-45e0-aeb2-d89930c93755}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\FresponzeFabric.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeWasapiNotifications.cpp">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeWasapiEndpoint.cpp">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeWasapiEnumerator.cpp">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeWindows.cpp">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\FresponzeWasapi.h">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeWasapiEndpoint.h">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeWasapiEnumerator.h">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeWasapiNotification.h">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Fresponze.h">
+      <Filter>src\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeEndpoint.h">
+      <Filter>src\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeEnumerator.h">
+      <Filter>src\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeTypes.h">
+      <Filter>src\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeHardware.h">
+      <Filter>src\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeWasapiHardware.h">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

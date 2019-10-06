@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+.vs/Fresponze/v15/.suo
+*.db
+*.ipch
+*.lastbuildstate
+*.tlog
+*.pdb
+*.idb
+*.log
+*.dll
+*.opendb
