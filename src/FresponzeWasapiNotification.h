@@ -30,6 +30,7 @@ private:
 public:
 	CWASAPIAudioNotification(IAudioNotificationCallback* pParentCallback)
 	{
+		_InterlockedIncrement(&Ref);
 		if (SUCCEEDED(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDeviceEnumerator)))) {
 			pCallback = pParentCallback;
 			pDeviceEnumerator->RegisterEndpointNotificationCallback(this);

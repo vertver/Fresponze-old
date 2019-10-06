@@ -58,6 +58,6 @@ public:
 	virtual void SetCallback(IAudioCallback* pCallback) = 0;
 	virtual bool Open(fr_f32 Delay) = 0;
 	virtual bool Close() = 0;
-	virtual bool Start(fr_f32 Delay) = 0;
+	virtual bool Start() = 0;
 	virtual bool Stop() = 0;
 };

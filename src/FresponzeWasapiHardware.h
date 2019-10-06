@@ -18,6 +18,68 @@
 #pragma once
 #include "FresponzeWasapiNotification.h"
 
+class CWASAPIAudioNotificationCallback final : public IAudioNotificationCallback
+{
+private:
+	wchar_t* pInputStringUUID = nullptr;
+	wchar_t* pOutputStringUUID = nullptr;
+	IAudioHardware* pParentHardware = nullptr;
+
+public:
+	bool SetCurrentDevice(fr_i32 DeviceType, bool IsDefaultDevice, void* pDevicePointer) override
+	{
+		wchar_t** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputStringUUID : DeviceType == CaptureType ? &pInputStringUUID : nullptr);
+		IMMDevice* pTempDevice = (IMMDevice*)pDevicePointer;
+
+		if (*ppThisEndpoint) {
+			CoTaskMemFree(*ppThisEndpoint);
+			*ppThisEndpoint = nullptr;
+		}
+
+		if (DeviceType == RenderType) {
+			bDefaultOutputDevice = IsDefaultDevice;
+		} else if (DeviceType == CaptureType) {
+			bDefaultInputDevice = IsDefaultDevice;
+		}
+
+		if (FAILED(pTempDevice->GetId(ppThisEndpoint))) return false;	  
+		return true;
+	}
+
+	bool DeviceDisabled(void* pDeviceDisabled) override
+	{
+		wchar_t* pThisEndpoint = (wchar_t*)pDeviceDisabled;
+		if (!pParentHardware->Enumerate()) return false;
+		if (!wcscmp(pThisEndpoint, pOutputStringUUID)) {
+			if (!pParentHardware->Restart(RenderType, -1)) return false;
+			return true;
+		}
+
+		if (!wcscmp(pThisEndpoint, pInputStringUUID)) {
+			if (!pParentHardware->Restart(CaptureType, -1)) return false;
+			return true;
+		}
+
+		return true;
+	}
+
+	bool DefaultDeviceChanged(fr_i32 DeviceType) override
+	{
+		if (DeviceType == RenderType) {
+			if (bDefaultOutputDevice) if (!pParentHardware->Restart(RenderType, -1)) return false;
+		} else if (DeviceType == CaptureType) {
+			if (bDefaultInputDevice) if (!pParentHardware->Restart(CaptureType, -1)) return false;
+		}
+
+		return true;
+	}
+
+	bool ListOfDevicesChanded() override
+	{
+		return pParentHardware->Enumerate();
+	}
+};
+
 class CWASAPIAudioHardware final : public IAudioHardware
 {
 private:
@@ -26,9 +88,10 @@ private:
 public:
 	CWASAPIAudioHardware(IAudioCallback* pParentAudioCallback)
 	{
+		_InterlockedIncrement(&Counter);
 		pAudioCallback = pParentAudioCallback;
 		pAudioEnumerator = new CWASAPIAudioEnumerator();
-		pNotificationCallback = nullptr;
+		pNotificationCallback = new CWASAPIAudioNotificationCallback();
 		pNotifyClient = new CWASAPIAudioNotification(pNotificationCallback);
 	}
 
@@ -36,9 +99,14 @@ public:
 	{
 		_RELEASE(pInputEndpoint);
 		_RELEASE(pOutputEndpoint);
-		_RELEASE(pNotificationCallback)
 		_RELEASE(pNotifyClient);
+		_RELEASE(pNotificationCallback)
 		_RELEASE(pAudioEnumerator);
+	}
+
+	bool Enumerate() override
+	{
+		return pAudioEnumerator->EnumerateDevices();
 	}
 
 	bool Open(fr_i32 DeviceType, fr_f32 DelayTime) override
@@ -51,6 +119,7 @@ public:
 			_RELEASE(pThisEndpoint);
 			return false;
 		}
+
 		pThisEndpoint->SetCallback(pAudioCallback);
 		return true;
 	}
@@ -65,6 +134,7 @@ public:
 			_RELEASE(pThisEndpoint);
 			return false;
 		}
+
 		pThisEndpoint->SetCallback(pAudioCallback);
 		return true;
 	}
@@ -79,6 +149,7 @@ public:
 			_RELEASE(pThisEndpoint);
 			return false;
 		}
+
 		pThisEndpoint->SetCallback(pAudioCallback);
 		return true;
 	}
@@ -107,24 +178,28 @@ public:
 		IAudioEndpoint*& pThisEndpoint = *ppThisEndpoint;
 
 		pThisEndpoint->Close();
-		return Open(DeviceType,DelayTime, DeviceId);
+		return Open(DeviceType, DelayTime, DeviceId);
 	}
 
 	bool Start() override
 	{
-
+		if (pInputEndpoint) if (!pInputEndpoint->Start()) return false;
+		if (pOutputEndpoint) if (!pOutputEndpoint->Start()) return false;
+		return true;
 	}
 
 	bool Stop() override
 	{
-
+		if (pInputEndpoint) if (!pInputEndpoint->Stop()) return false;
+		if (pOutputEndpoint) if (!pOutputEndpoint->Stop()) return false;
+		return true;
 	}
-
 
 	bool Close() override
 	{
-
+		if (pInputEndpoint) if (!pInputEndpoint->Close()) return false;
+		if (pOutputEndpoint) if (!pOutputEndpoint->Close()) return false;
+		return true;
 	}
 
 };
-

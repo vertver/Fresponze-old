@@ -40,3 +40,5 @@
 *.log
 *.dll
 *.opendb
+*.ilk
+*.exp

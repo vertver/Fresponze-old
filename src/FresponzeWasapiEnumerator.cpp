@@ -30,6 +30,17 @@ FRDEFINE_IID(KSDATAFORMAT_SUBTYPE_PCM, 00000001, 0000, 0010, 80, 00, 00, aa, 00,
 
 extern const PROPERTYKEY FRRPKEY_Device_FriendlyName = { { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } }, 14 };
 
+CWASAPIAudioEnumerator::CWASAPIAudioEnumerator()
+{
+	_InterlockedIncrement(&Counter);
+	CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDeviceEnumerator));
+}
+
+CWASAPIAudioEnumerator::~CWASAPIAudioEnumerator()
+{
+	_RELEASE(pDeviceEnumerator);
+}
+
 bool
 CWASAPIAudioEnumerator::GetDeviceInfoByDevice(
 	EndpointInformation* pEndpointStruct,
@@ -166,16 +177,6 @@ CWASAPIAudioEnumerator::OpenDeviceAndGetInfo(
 
 	return true;
 
-}
-
-CWASAPIAudioEnumerator::CWASAPIAudioEnumerator()
-{
-	CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDeviceEnumerator));
-}
-
-CWASAPIAudioEnumerator::~CWASAPIAudioEnumerator()
-{
-	_RELEASE(pDeviceEnumerator);
 }
 
 bool

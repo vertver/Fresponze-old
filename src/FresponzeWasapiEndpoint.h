@@ -60,16 +60,14 @@ public:
 		IMMDevice* pTempDevice = (IMMDevice*)pMMDevice;
 		if (!pTempDevice) return;
 
-		if (InitializeClient(pTempDevice)) {
-			pTempDevice->QueryInterface(IID_PPV_ARGS(&pCurrentDevice));
-			InitalizeEndpoint();
-			memcpy(&EndpointInfo, &Info, sizeof(EndpointInformation));
-		}
+		pTempDevice->QueryInterface(IID_PPV_ARGS(&pCurrentDevice));
+		InitalizeEndpoint();
+		memcpy(&EndpointInfo, &Info, sizeof(EndpointInformation));
 	}
 
 	~CWASAPIAudioEnpoint()
 	{
-		Stop();
+		Close();
 		_RELEASE(pAudioCallback);
 		_RELEASE(pCaptureClient);
 		_RELEASE(pRenderClient);
@@ -85,6 +83,6 @@ public:
 	void SetCallback(IAudioCallback* pCallback) override;
 	bool Open(fr_f32 Delay) override;
 	bool Close() override;
-	bool Start(fr_f32 Delay) override;
+	bool Start() override;
 	bool Stop() override;
 };

@@ -159,6 +159,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 	}
 
 	pSyncEvent->Raise();
+	pStartEvent->Wait();
 
 	while (!pThreadEvent->Wait(dwFlushTime)) {
 		try {
@@ -279,14 +280,13 @@ void
 CWASAPIAudioEnpoint::SetCallback(IAudioCallback* pCallback)
 {
 	pCallback->Clone((void**)&pAudioCallback);
-}
+} 
 
 bool
 CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 {
 	LPWSTR lpwDeviceId = nullptr;
 	IPropertyStore* pPropertyStore = nullptr;
-	WAVEFORMATEX* pWaveFormat = nullptr;
 	PROPVARIANT value = { 0 };
 
 	if (!pCurrentDevice) return false;
@@ -333,6 +333,7 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 		strcpy_s(EndpointInfo.EndpointName, "Unknown Device UUID");
 	}
 
+	_RELEASE(pPropertyStore);
 	return true;
 }
 
@@ -347,6 +348,7 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	WAVEFORMATEX* pWaveFormat = nullptr;
 
 	Close();
+	if (!InitializeClient(pCurrentDevice)) return false;
 	if (!GetEndpointDeviceInfo()) return false;
 	if (FAILED(pAudioClient->GetMixFormat(&pWaveFormat))) return false;
 
@@ -408,20 +410,22 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 bool
 CWASAPIAudioEnpoint::Open(fr_f32 Delay)
 {
-	InitializeToPlay(Delay);
+	if (!InitializeToPlay(Delay)) return false;
+	return true;
 }
 
 bool
 CWASAPIAudioEnpoint::Close()
 {
 	Stop();
+	_RELEASE(pAudioClient);
 	_RELEASE(pCaptureClient);
 	_RELEASE(pRenderClient);
 	return true;
 }
 
 bool 
-CWASAPIAudioEnpoint::Start(fr_f32 Delay)
+CWASAPIAudioEnpoint::Start()
 {
 	pStartEvent->Raise();
 	return SUCCEEDED(pAudioClient->Start());
