@@ -34,7 +34,6 @@
 #define FRAPI
 #endif
 
-
 #ifdef USE_FUNCS_PROTOTYPES
 typedef fr_err(FrInitializeInstance_t)(void** ppInstance);
 typedef fr_err(FrDestroyInstance_t)(void* pInstance);
@@ -45,3 +44,4 @@ extern "C"
 	fr_err FRAPI FrDestroyInstance(void* pInstance);
 }
 #endif
+

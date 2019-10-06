@@ -293,6 +293,8 @@
     <ClInclude Include="..\..\src\FresponzeWasapiEnumerator.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiHardware.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiNotification.h" />
+    <ClInclude Include="FresponzeEffects.h" />
+    <ClInclude Include="FresponzeMixer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

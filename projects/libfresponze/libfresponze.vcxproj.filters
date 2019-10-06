@@ -16,6 +16,9 @@
     <Filter Include="src\Platform\Windows\WASAPI">
       <UniqueIdentifier>{5159146f-ee30-45e0-aeb2-d89930c93755}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Platform\Windows\XAudio2">
+      <UniqueIdentifier>{bf01cc9f-63b3-446d-8fce-de3e6e57f1f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\FresponzeFabric.cpp">
@@ -64,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\FresponzeWasapiHardware.h">
       <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="FresponzeMixer.h">
+      <Filter>src\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="FresponzeEffects.h">
+      <Filter>src\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
