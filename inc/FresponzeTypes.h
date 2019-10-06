@@ -278,6 +278,168 @@ typedef struct
 	fr_i32 SampleRate;
 } PcmFormat;
 
+enum ETypeEndpoint : fr_i32
+{
+	NoneType,
+	RenderType,
+	CaptureType,
+	ProxyType
+};
+
+struct EndpointInformation
+{
+	fr_i32 Type;
+	fr_i32 EndpointId;
+	PcmFormat EndpointFormat;
+	fr_string256 EndpointName;
+	fr_string256 EndpointUUID;
+};
+
+template
+<typename TYPE>
+class CBuffer
+{
+private:
+	fr_i32 DataSize = 0;
+	TYPE* pLocalData = nullptr;
+
+public:
+	CBuffer() {}
+	CBuffer(fr_i32 SizeToResize)
+	{
+		pLocalData = FastMemAlloc(SizeToResize * sizeof(TYPE));
+		DataSize = SizeToResize;
+	}
+
+	void Resize(fr_i32 SizeToResize)
+	{
+		if (SizeToResize > DataSize) {
+			if (pLocalData) FreeFastMemory(pLocalData);
+			pLocalData = FastMemAlloc(SizeToResize * sizeof(TYPE));
+			DataSize = SizeToResize;
+		}
+	}
+
+	void Push(TYPE* pData, fr_i32 SizeToResize)
+	{
+		if (SizeToResize > DataSize) Resize(SizeToResize);
+		memcpy(pLocalData, pData, SizeToResize * sizeof(TYPE));
+	}
+
+	fr_i32 Size()
+	{
+		return DataSize;
+	}
+
+	TYPE* Data()
+	{
+		return pLocalData;
+	}
+
+	~CBuffer()
+	{
+		if (pLocalData) FreeFastMemory(pLocalData);
+	}
+};
+
+template
+<typename TYPE>
+class CRingBuffer
+{
+private:
+	fr_i32 CurrentBuffer = 0;
+	fr_i32 BuffersCount = 0;
+	fr_i32 BuffersSize = 0;
+	CBuffer<TYPE>** ppBuffers = nullptr;
+
+public:
+	CRingBuffer() {}
+	CRingBuffer(fr_i32 CountOfBuffers, fr_i32 SizeOfBuffers)
+	{
+		SetBuffersCount(CountOfBuffers);
+		Resize(SizeOfBuffers);
+	}
+
+	void SetBuffersCount(fr_i32 CountOfBuffers)
+	{
+		CBuffer<TYPE>** ppTempBuffers = nullptr;
+		if (BuffersCount < CountOfBuffers) {
+			ppTempBuffers = FastMemAlloc(sizeof(CBuffer*) * CountOfBuffers);
+			if (ppBuffers) {
+				for (size_t i = 0; i < BuffersCount; i++) {
+					if (ppBuffers[i]) ppTempBuffers[i] = ppBuffers[i];
+				}
+			}
+
+			ppBuffers = ppTempBuffers;
+			BuffersCount = CountOfBuffers;
+		}
+	}
+
+	void Resize(fr_i32 SizeToResize)
+	{
+		if (ppBuffers) {
+			for (size_t i = 0; i < BuffersCount; i++) {
+				if (!ppBuffers[i]) ppBuffers[i] = new CBuffer<TYPE>(SizeToResize);
+				else ppBuffers[i]->Resize(SizeToResize);
+			}
+		}
+	}
+
+	void PushBuffer(TYPE* InData, fr_i32 SizeOfData)
+	{
+		ppBuffers[CurrentBuffer]->Push(InData, SizeOfData);
+	}
+
+	void PushToNextBuffer(TYPE* InData, fr_i32 SizeOfData)
+	{
+		fr_i32 BufIndex = CurrentBuffer;
+		if (++BufIndex >= BuffersCount) {
+			BufIndex = 0;
+		}
+
+		ppBuffers[BufIndex]->Push(InData, SizeOfData);
+	}
+
+	void NextBuffer()
+	{
+		if (++CurrentBuffer >= BuffersCount) {
+			CurrentBuffer = 0;
+		}
+	}
+
+	TYPE* GetData()
+	{
+		return ppBuffers[CurrentBuffer]->Data();
+	}
+
+	fr_i32 BufferSize()
+	{
+		return BuffersSize;
+	}
+
+	~CRingBuffer()
+	{
+		if (ppBuffers) {
+			for (size_t i = 0; i < BuffersCount; i++) {
+				if (ppBuffers[i]) delete ppBuffers[i];
+			}
+
+			FreeFastMemory(ppBuffers);
+		}
+	}
+};
+
+typedef CBuffer<fr_f32> CFloatBuffer;
+typedef CBuffer<fr_i32> CIntBuffer;
+typedef CBuffer<fr_i16> CShortBuffer;
+typedef CBuffer<fr_i8>  CByteBufffer;
+
+typedef CRingBuffer<fr_f32> CRingFloatBuffer;
+typedef CRingBuffer<fr_i32> CRingIntBuffer;
+typedef CRingBuffer<fr_i16> CRingShortBuffer;
+typedef CRingBuffer<fr_i8>  CRingByteBufffer;
+
 class IBaseInterface
 {
 protected:
@@ -313,6 +475,13 @@ public:
 	virtual void Wait() = 0;
 	virtual bool Wait(fr_i32 TimeToWait) = 0;
 	virtual bool IsRaised() = 0;
+};
+
+class IAudioCallback : public IBaseInterface
+{
+public:
+	virtual fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) = 0;
+	virtual fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };
 
 bool InitMemory();

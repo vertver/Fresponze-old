@@ -18,30 +18,6 @@
 #pragma once
 #include "FresponzeTypes.h"
 
-enum ETypeEndpoint : fr_i32
-{
-	NoneType,
-	RenderType,
-	CaptureType,
-	ProxyType
-};
-
-struct EndpointInformation
-{
-	fr_i32 Type;
-	fr_i32 EndpointId;
-	PcmFormat EndpointFormat;
-	fr_string256 EndpointName;
-	fr_string256 EndpointUUID;
-};
-
-class IAudioCallback : public IBaseInterface
-{
-public:
-	virtual fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) = 0;
-	virtual fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
-};
-
 class IAudioEndpoint : public IBaseInterface
 {
 protected:

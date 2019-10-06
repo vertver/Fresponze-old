@@ -27,6 +27,7 @@ extern "C"
 	FRAPI
 	FrInitializeInstance(void** ppOutInstance)
 	{
+		if (!InitMemory()) return -1;
 #if defined(WINDOWS_PLATFORM) && defined(DLL_PLATFORM)
 		GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&hModule, &hModule);
 #endif
@@ -36,6 +37,14 @@ extern "C"
 	fr_err 
 	FRAPI
 	FrDestroyInstance(void* pInstance)
+	{
+		DestroyMemory();
+		return 0;
+	}
+
+	fr_err
+	FRAPI
+	FrGetRemoteInterface(void** ppRemoteInterface)
 	{
 		return 0;
 	}
