@@ -52,8 +52,6 @@ public:
 	virtual bool Restart(fr_i32 DeviceType, fr_f32 DelayTime, char* pUUID) = 0;
 	virtual bool Restart(fr_i32 DeviceType, fr_f32 DelayTime, fr_i32 DeviceId) = 0;
 
-	virtual bool PushData(fr_f32* pData, fr_i32 Frames) = 0;
-
 	virtual bool Start() = 0;
 	virtual bool Stop() = 0;
 

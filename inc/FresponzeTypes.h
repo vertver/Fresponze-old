@@ -305,10 +305,24 @@ private:
 
 public:
 	CBuffer() {}
+	CBuffer(CBuffer&& TempBuffer) = default;
 	CBuffer(fr_i32 SizeToResize)
 	{
 		pLocalData = FastMemAlloc(SizeToResize * sizeof(TYPE));
 		DataSize = SizeToResize;
+	}
+
+	CBuffer(TYPE* pData, fr_i32 SizeToResize)
+	{
+		pLocalData = FastMemAlloc(SizeToResize * sizeof(TYPE));
+		memcpy(pLocalData, pData, SizeToResize * sizeof(TYPE));
+		DataSize = SizeToResize;
+	}
+
+	void Free()
+	{
+		if (pLocalData) FreeFastMemory(pLocalData);
+		DataSize = 0;
 	}
 
 	void Resize(fr_i32 SizeToResize)
@@ -338,9 +352,14 @@ public:
 
 	~CBuffer()
 	{
-		if (pLocalData) FreeFastMemory(pLocalData);
+		Free();
 	}
 };
+
+typedef CBuffer<fr_f32> CFloatBuffer;
+typedef CBuffer<fr_i32> CIntBuffer;
+typedef CBuffer<fr_i16> CShortBuffer;
+typedef CBuffer<fr_i8>  CByteBufffer;
 
 template
 <typename TYPE>
@@ -430,15 +449,37 @@ public:
 	}
 };
 
-typedef CBuffer<fr_f32> CFloatBuffer;
-typedef CBuffer<fr_i32> CIntBuffer;
-typedef CBuffer<fr_i16> CShortBuffer;
-typedef CBuffer<fr_i8>  CByteBufffer;
-
 typedef CRingBuffer<fr_f32> CRingFloatBuffer;
 typedef CRingBuffer<fr_i32> CRingIntBuffer;
 typedef CRingBuffer<fr_i16> CRingShortBuffer;
 typedef CRingBuffer<fr_i8>  CRingByteBufffer;
+
+class CBaseSound
+{
+private:
+	PcmFormat DataFormat;
+	CFloatBuffer Buffer;
+
+public:
+	CBaseSound() {}
+	CBaseSound(CBaseSound&& parent) = default;
+	CBaseSound(fr_f32* pData, fr_i32 SizeToResize, PcmFormat Fmt) : Buffer(pData, SizeToResize), DataFormat(Fmt) {}
+
+	void Load(fr_f32* pData, fr_i32 Frames, PcmFormat& Fmt)
+	{
+		DataFormat = Fmt;
+		Buffer.Push(pData, Frames * DataFormat.Channels);
+	}
+
+	CFloatBuffer& Get() { return Buffer; }
+	PcmFormat& Format() { return DataFormat; }
+
+	void Free()
+	{
+		memset(&DataFormat, 0, sizeof(PcmFormat));
+		Buffer.Free();
+	}
+};
 
 class IBaseInterface
 {

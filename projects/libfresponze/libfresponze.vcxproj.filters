@@ -68,10 +68,10 @@
     <ClInclude Include="..\..\src\FresponzeWasapiHardware.h">
       <Filter>src\Platform\Windows\WASAPI</Filter>
     </ClInclude>
-    <ClInclude Include="FresponzeMixer.h">
+    <ClInclude Include="..\..\inc\FresponzeMixer.h">
       <Filter>src\Base</Filter>
     </ClInclude>
-    <ClInclude Include="FresponzeEffects.h">
+    <ClInclude Include="..\..\inc\FresponzeEffect.h">
       <Filter>src\Base</Filter>
     </ClInclude>
   </ItemGroup>

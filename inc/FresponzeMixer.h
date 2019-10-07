@@ -22,20 +22,47 @@ class IAudioCallback;
 class IAudioMixer : public IBaseInterface
 {
 protected:
+	EffectNodeStruct* pFirstEffect = nullptr;
 	IAudioCallback* pAudioCallback = nullptr;
 	CRingFloatBuffer InputBuffer;
 	CRingFloatBuffer OutputBuffer;
+	CBaseSound* pSoundsArray[256] = {};
+
+public:
+	/*
+		Function for adding or deleting sound from sound node
+	*/
+	virtual bool AddSound(CBaseSound* pNeedySound, fr_i32& SoundIndex) = 0;
+	virtual bool DeleteSound(fr_i32 SoundIndex) = 0;
 
 	/*
-		#TODO: Mixer
+		Function for manipulating with capture device and effect for it
 	*/
-public:
+	virtual bool EnableInputPlay(bool bPlay) = 0;
+	virtual bool AddInputEffect(IBaseEffect* pEffectToClone) = 0;
+	virtual bool RemoveInputEffect(IBaseEffect* pEffectToRemove) = 0;
+
+	/*
+		Function for manipulating with sound options
+	*/
+	virtual bool SetSoundOption(fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) = 0;
+	virtual bool ResetSoundOption(fr_i32 OptionIndex) = 0;
+
+	/*
+		Function for manipulating with effects for sound
+	*/
+	virtual bool AddEffect(fr_i32 SoundIndex, IBaseEffect* pEffectToClone) = 0;
+	virtual bool RemoveEffect(fr_i32 SoundIndex, IBaseEffect* pEffectToRemove) = 0;
+
+	/*
+		Function for internal use
+	*/
 	virtual bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 	virtual bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 	virtual bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };
 
-class CAudioCallback : public IAudioCallback
+class CAudioCallback final : public IAudioCallback
 {
 protected:
 	IAudioMixer* pAudioMixer = nullptr;

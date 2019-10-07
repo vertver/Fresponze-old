@@ -47,5 +47,5 @@ typedef struct
 	EffectNodeStruct* pNext;
 	IBaseEffect* pEffect;  
 	void* pModuleHandle;  
-		
+	void* pReserved;
 } EffectNodeStruct;
