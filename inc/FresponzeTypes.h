@@ -534,7 +534,28 @@ void FreeVirtMemory(void* Ptr, size_t Size);
 
 #ifdef WINDOWS_PLATFORM
 #define IsInvalidHandle(x) (x == 0 || x == INVALID_HANDLE_VALUE)
+inline 
+void
+PcmFormatToWaveFormatEx(PcmFormat& pcmFmt, WAVEFORMATEX& waveEx)
+{
+	waveEx.cbSize = sizeof(WAVEFORMATEX);
+	waveEx.nChannels = pcmFmt.Channels;
+	waveEx.nSamplesPerSec = pcmFmt.SampleRate;
+	waveEx.wBitsPerSample = pcmFmt.Bits;
+	waveEx.wFormatTag = pcmFmt.IsFloat ? 3 : 1;
+	waveEx.nBlockAlign = waveEx.wBitsPerSample * waveEx.nChannels;
+	waveEx.nAvgBytesPerSec = waveEx.nBlockAlign * waveEx.nSamplesPerSec;
+}
 
+inline
+void
+WaveFormatExToPcmFormat(WAVEFORMATEX& waveEx, PcmFormat& pcmFmt)
+{
+	pcmFmt.Bits = waveEx.wBitsPerSample;
+	pcmFmt.Channels = waveEx.nChannels;
+	pcmFmt.IsFloat = waveEx.wFormatTag == 3 ? true : false;
+	pcmFmt.SampleRate = waveEx.nSamplesPerSec;
+}
 
 class CWinEvent : public IBaseEvent
 {
