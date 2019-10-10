@@ -454,9 +454,18 @@ typedef CRingBuffer<fr_i32> CRingIntBuffer;
 typedef CRingBuffer<fr_i16> CRingShortBuffer;
 typedef CRingBuffer<fr_i8>  CRingByteBufffer;
 
+enum SoundState : fr_i32
+{
+	NoneState,
+	PlayingState,
+	PausedState,
+	StoppedState
+};
+
 class CBaseSound
 {
 private:
+	SoundState CurrentSoundState = NoneState;
 	PcmFormat DataFormat;
 	CFloatBuffer Buffer;
 
@@ -471,6 +480,7 @@ public:
 		Buffer.Push(pData, Frames * DataFormat.Channels);
 	}
 
+	SoundState GetState() { return CurrentSoundState; }
 	CFloatBuffer& Get() { return Buffer; }
 	PcmFormat& Format() { return DataFormat; }
 
@@ -505,6 +515,11 @@ public:
 		if (_InterlockedDecrement(&Counter) <= 0) {
 			delete this;
 		}
+	}
+
+	virtual ~IBaseInterface()
+	{
+
 	}
 };
 

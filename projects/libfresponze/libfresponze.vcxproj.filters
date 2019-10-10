@@ -19,6 +19,12 @@
     <Filter Include="src\Platform\Windows\XAudio2">
       <UniqueIdentifier>{bf01cc9f-63b3-446d-8fce-de3e6e57f1f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Base\API">
+      <UniqueIdentifier>{ed51b67e-67b5-4865-8501-8234be145335}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Base\Private">
+      <UniqueIdentifier>{c82842b3-b35a-48b9-b9d4-3bdfa540698e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\FresponzeFabric.cpp">
@@ -50,29 +56,32 @@
     <ClInclude Include="..\..\src\FresponzeWasapiNotification.h">
       <Filter>src\Platform\Windows\WASAPI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\Fresponze.h">
-      <Filter>src\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\FresponzeEndpoint.h">
-      <Filter>src\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\FresponzeEnumerator.h">
-      <Filter>src\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\FresponzeTypes.h">
-      <Filter>src\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\FresponzeHardware.h">
-      <Filter>src\Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\FresponzeWasapiHardware.h">
       <Filter>src\Platform\Windows\WASAPI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\FresponzeMixer.h">
-      <Filter>src\Base</Filter>
+    <ClInclude Include="..\..\inc\Fresponze.h">
+      <Filter>src\Base\API</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeEffect.h">
-      <Filter>src\Base</Filter>
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeEndpoint.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeEnumerator.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeHardware.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeMixer.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeTypes.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeInterface.h">
+      <Filter>src\Base\API</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -30,10 +30,13 @@ protected:
 
 public:
 	/*
-		Function for adding or deleting sound from sound node
+		Function for adding, managming or deleting sound from sound node
 	*/
 	virtual bool AddSound(CBaseSound* pNeedySound, fr_i32& SoundIndex) = 0;
 	virtual bool DeleteSound(fr_i32 SoundIndex) = 0;
+	virtual bool PlaySoundById(fr_i32 SoundIndex) = 0;
+	virtual bool PauseSound(fr_i32 SoundIndex) = 0;  
+	virtual bool StopSound(fr_i32 SoundIndex) = 0;
 
 	/*
 		Function for manipulating with capture device and effect for it

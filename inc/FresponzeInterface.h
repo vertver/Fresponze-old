@@ -17,22 +17,27 @@
 *****************************************************************/
 #pragma once
 #include "FresponzeTypes.h"
+#include "FresponzeHardware.h"
+#include "FresponzeMixer.h"
 
-class IAudioEnumerator : public IBaseInterface
+class IFresponze : public IBaseInterface
 {
 protected:
-	fr_i32 InputDevices = 0;
-	fr_i32 OutputDevices = 0;
-	EndpointInformation DefaultInputInfo = {};
-	EndpointInformation DefaultOutputInfo = {};
-	EndpointInformation* InputDevicesInfo = nullptr;
-	EndpointInformation* OutputDevicesInfo = nullptr;
+	IAudioCallback* pAudioCallback = nullptr;
+	IAudioHardware* pAudioHardware = nullptr;
+	IAudioMixer* pAudioMixer = nullptr;
 
 public:
-	virtual bool EnumerateDevices() = 0;
-	virtual bool GetDevicesCount(fr_i32 EndpointType, fr_i32& Count) = 0;
+	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime) = 0;
+	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime, char* pUUID) = 0;
+	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime, fr_i32 DeviceId) = 0;
 
-	virtual bool GetDefaultDevice(fr_i32 EndpointType, IAudioEndpoint*& pOutDevice) = 0;
-	virtual bool GetDeviceById(fr_i32 EndpointType, fr_i32 DeviceId, IAudioEndpoint*& pOutDevice) = 0;
-	virtual bool GetDeviceByUUID(fr_i32 EndpointType, char* DeviceUUID, IAudioEndpoint*& pOutDevice) = 0;
+	virtual bool Restart(fr_i32 DeviceType, fr_f32 DelayTime) = 0;
+	virtual bool Restart(fr_i32 DeviceType, fr_f32 DelayTime, char* pUUID) = 0;
+	virtual bool Restart(fr_i32 DeviceType, fr_f32 DelayTime, fr_i32 DeviceId) = 0;
+
+	virtual bool Start() = 0;
+	virtual bool Stop() = 0;
+
+	virtual bool Close() = 0;
 };

@@ -427,6 +427,7 @@ CWASAPIAudioEnpoint::Close()
 bool 
 CWASAPIAudioEnpoint::Start()
 {
+	CreateWasapiThread();
 	pStartEvent->Raise();
 	return SUCCEEDED(pAudioClient->Start());
 }
