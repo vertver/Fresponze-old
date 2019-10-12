@@ -22,21 +22,28 @@ class IAudioCallback;
 class IAudioMixer : public IBaseInterface
 {
 protected:
-	EffectNodeStruct* pFirstEffect = nullptr;
+	fr_i32 SoundsCount = 0;
+	SoundState InputState = NoneState;
+	SoundNodeStruct* pSoundsNode = nullptr;
+	EffectNodeStruct* pInputFirstEffect = nullptr;
+	EffectNodeStruct* pMasterFirstEffect = nullptr;
 	IAudioCallback* pAudioCallback = nullptr;
-	CRingFloatBuffer InputBuffer;
-	CRingFloatBuffer OutputBuffer;
-	CBaseSound* pSoundsArray[256] = {};
+	CFloatBuffer InputBuffer;
+	CFloatBuffer OutputBuffer;
+	PcmFormat MixFormat = {};
+	PcmFormat InputFormat = {};
 
 public:
+	virtual bool SetMixFormat(PcmFormat& NewFormat) = 0;
+
 	/*
 		Function for adding, managming or deleting sound from sound node
 	*/
-	virtual bool AddSound(CBaseSound* pNeedySound, fr_i32& SoundIndex) = 0;
-	virtual bool DeleteSound(fr_i32 SoundIndex) = 0;
-	virtual bool PlaySoundById(fr_i32 SoundIndex) = 0;
-	virtual bool PauseSound(fr_i32 SoundIndex) = 0;  
-	virtual bool StopSound(fr_i32 SoundIndex) = 0;
+	virtual bool AddSound(CBaseSound* pNeedySound) = 0;
+	virtual bool DeleteSound(CBaseSound* pNeedySound) = 0;
+	virtual bool PlaySoundById(CBaseSound* pNeedySound) = 0;
+	virtual bool PauseSound(CBaseSound* pNeedySound) = 0;
+	virtual bool StopSound(CBaseSound* pNeedySound) = 0;
 
 	/*
 		Function for manipulating with capture device and effect for it
@@ -44,18 +51,20 @@ public:
 	virtual bool EnableInputPlay(bool bPlay) = 0;
 	virtual bool AddInputEffect(IBaseEffect* pEffectToClone) = 0;
 	virtual bool RemoveInputEffect(IBaseEffect* pEffectToRemove) = 0;
+	virtual bool SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, )
 
 	/*
 		Function for manipulating with sound options
 	*/
-	virtual bool SetSoundOption(fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) = 0;
-	virtual bool ResetSoundOption(fr_i32 OptionIndex) = 0;
+	virtual bool SetDefaultSoundOptions(fr_f32* pOptions) = 0;
+	virtual bool SetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) = 0;
+	virtual bool ResetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex) = 0;
 
 	/*
 		Function for manipulating with effects for sound
 	*/
-	virtual bool AddEffect(fr_i32 SoundIndex, IBaseEffect* pEffectToClone) = 0;
-	virtual bool RemoveEffect(fr_i32 SoundIndex, IBaseEffect* pEffectToRemove) = 0;
+	virtual bool AddEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToClone) = 0;
+	virtual bool RemoveEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToRemove) = 0;
 
 	/*
 		Function for internal use

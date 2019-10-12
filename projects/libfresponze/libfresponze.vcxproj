@@ -277,6 +277,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\FresponzeFabric.cpp" />
+    <ClCompile Include="..\..\src\FresponzeGameMixer.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiEndpoint.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiEnumerator.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiNotifications.cpp" />
@@ -287,6 +288,7 @@
     <ClInclude Include="..\..\inc\FresponzeEffect.h" />
     <ClInclude Include="..\..\inc\FresponzeEndpoint.h" />
     <ClInclude Include="..\..\inc\FresponzeEnumerator.h" />
+    <ClInclude Include="..\..\inc\FresponzeGameMixer.h" />
     <ClInclude Include="..\..\inc\FresponzeHardware.h" />
     <ClInclude Include="..\..\inc\FresponzeInterface.h" />
     <ClInclude Include="..\..\inc\FresponzeMixer.h" />

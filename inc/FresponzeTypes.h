@@ -461,36 +461,6 @@ enum SoundState : fr_i32
 	PausedState,
 	StoppedState
 };
-
-class CBaseSound
-{
-private:
-	SoundState CurrentSoundState = NoneState;
-	PcmFormat DataFormat;
-	CFloatBuffer Buffer;
-
-public:
-	CBaseSound() {}
-	CBaseSound(CBaseSound&& parent) = default;
-	CBaseSound(fr_f32* pData, fr_i32 SizeToResize, PcmFormat Fmt) : Buffer(pData, SizeToResize), DataFormat(Fmt) {}
-
-	void Load(fr_f32* pData, fr_i32 Frames, PcmFormat& Fmt)
-	{
-		DataFormat = Fmt;
-		Buffer.Push(pData, Frames * DataFormat.Channels);
-	}
-
-	SoundState GetState() { return CurrentSoundState; }
-	CFloatBuffer& Get() { return Buffer; }
-	PcmFormat& Format() { return DataFormat; }
-
-	void Free()
-	{
-		memset(&DataFormat, 0, sizeof(PcmFormat));
-		Buffer.Free();
-	}
-};
-
 class IBaseInterface
 {
 protected:
@@ -523,6 +493,37 @@ public:
 	}
 };
 
+class CBaseSound : public IBaseInterface
+{
+private:
+	SoundState CurrentSoundState = NoneState;
+	PcmFormat DataFormat;
+	CFloatBuffer Buffer;
+
+public:
+	CBaseSound() { _InterlockedIncrement(&Counter); }
+	CBaseSound(CBaseSound&& parent) = default;
+	CBaseSound(fr_f32* pData, fr_i32 SizeToResize, PcmFormat Fmt) : Buffer(pData, SizeToResize), DataFormat(Fmt) { _InterlockedIncrement(&Counter); }
+
+	void Load(fr_f32* pData, fr_i32 Frames, PcmFormat& Fmt)
+	{
+		DataFormat = Fmt;
+		Buffer.Push(pData, Frames * DataFormat.Channels);
+	}
+
+	void SetState(SoundState ThisState) { CurrentSoundState = ThisState; }
+	SoundState GetState() { return CurrentSoundState; }
+	CFloatBuffer& Get() { return Buffer; }
+	PcmFormat& Format() { return DataFormat; }
+
+	void Free()
+	{
+		memset(&DataFormat, 0, sizeof(PcmFormat));
+		Buffer.Free();
+	}
+};
+
+
 class IBaseEvent
 {
 public:
@@ -546,6 +547,9 @@ void* FastMemAlloc(fr_i32 SizeToAllocate);
 void* VirtMemAlloc(fr_i64 SizeToAllocate);
 void FreeFastMemory(void* Ptr);
 void FreeVirtMemory(void* Ptr, size_t Size);
+
+#define _RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr;} }
+#define ELEMENTSCOUNT(x) sizeof(x) / sizeof(sizeof(x[0]))
 
 #ifdef WINDOWS_PLATFORM
 #define IsInvalidHandle(x) (x == 0 || x == INVALID_HANDLE_VALUE)

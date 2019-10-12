@@ -17,9 +17,7 @@
 *****************************************************************/
 #include "Fresponze.h"
 
-#if defined(WINDOWS_PLATFORM) && defined(DLL_PLATFORM)
-HMODULE hModule = nullptr;
-#endif
+void* hModule = nullptr;
 
 extern "C"
 {
@@ -29,7 +27,7 @@ extern "C"
 	{
 		if (!InitMemory()) return -1;
 #if defined(WINDOWS_PLATFORM) && defined(DLL_PLATFORM)
-		GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&hModule, &hModule);
+		GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&hModule, (HMODULE*)&hModule);
 #endif
 		return 0;
 	}

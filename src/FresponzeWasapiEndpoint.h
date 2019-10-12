@@ -22,8 +22,6 @@
 #include <mmdeviceapi.h>
 #include <endpointvolume.h>
 
-#define _RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr;} }
-
 class CWASAPIAudioEnpoint final : public IAudioEndpoint
 {
 private:

@@ -28,6 +28,8 @@ protected:
 	IAudioMixer* pAudioMixer = nullptr;
 
 public:
+	virtual bool GetRemoteInterface(void** ppOutInterface) = 0;
+
 	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime) = 0;
 	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime, char* pUUID) = 0;
 	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime, fr_i32 DeviceId) = 0;
