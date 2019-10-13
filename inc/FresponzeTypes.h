@@ -98,6 +98,13 @@ typedef fr_utf16 fr_wstring4k[4096];
 typedef fr_utf16 fr_wstring8k[8192];
 #endif
 
+bool InitMemory();
+void DestroyMemory();
+void* FastMemAlloc(fr_i32 SizeToAllocate);
+void* VirtMemAlloc(fr_i64 SizeToAllocate);
+void FreeFastMemory(void* Ptr);
+void FreeVirtMemory(void* Ptr, size_t Size);
+
 typedef struct
 {
 	fr_i32 top;
@@ -308,13 +315,13 @@ public:
 	CBuffer(CBuffer&& TempBuffer) = default;
 	CBuffer(fr_i32 SizeToResize)
 	{
-		pLocalData = FastMemAlloc(SizeToResize * sizeof(TYPE));
+		pLocalData = (TYPE*)FastMemAlloc(SizeToResize * sizeof(TYPE));
 		DataSize = SizeToResize;
 	}
 
 	CBuffer(TYPE* pData, fr_i32 SizeToResize)
 	{
-		pLocalData = FastMemAlloc(SizeToResize * sizeof(TYPE));
+		pLocalData = (TYPE*)FastMemAlloc(SizeToResize * sizeof(TYPE));
 		memcpy(pLocalData, pData, SizeToResize * sizeof(TYPE));
 		DataSize = SizeToResize;
 	}
@@ -329,7 +336,7 @@ public:
 	{
 		if (SizeToResize > DataSize) {
 			if (pLocalData) FreeFastMemory(pLocalData);
-			pLocalData = FastMemAlloc(SizeToResize * sizeof(TYPE));
+			pLocalData = (TYPE*)FastMemAlloc(SizeToResize * sizeof(TYPE));
 			DataSize = SizeToResize;
 		}
 	}
@@ -383,7 +390,7 @@ public:
 	{
 		CBuffer<TYPE>** ppTempBuffers = nullptr;
 		if (BuffersCount < CountOfBuffers) {
-			ppTempBuffers = FastMemAlloc(sizeof(CBuffer*) * CountOfBuffers);
+			ppTempBuffers = FastMemAlloc(sizeof(void*) * CountOfBuffers);
 			if (ppBuffers) {
 				for (size_t i = 0; i < BuffersCount; i++) {
 					if (ppBuffers[i]) ppTempBuffers[i] = ppBuffers[i];
@@ -540,13 +547,6 @@ public:
 	virtual fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) = 0;
 	virtual fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };
-
-bool InitMemory();
-void DestroyMemory();
-void* FastMemAlloc(fr_i32 SizeToAllocate);
-void* VirtMemAlloc(fr_i64 SizeToAllocate);
-void FreeFastMemory(void* Ptr);
-void FreeVirtMemory(void* Ptr, size_t Size);
 
 #define _RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr;} }
 #define ELEMENTSCOUNT(x) sizeof(x) / sizeof(sizeof(x[0]))

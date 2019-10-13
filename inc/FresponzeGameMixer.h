@@ -50,6 +50,7 @@ public:
 	bool EnableInputPlay(bool bPlay) override;
 	bool AddInputEffect(IBaseEffect* pEffectToClone) override;
 	bool RemoveInputEffect(IBaseEffect* pEffectToRemove) override;
+	bool SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize)  override;
 
 	bool SetDefaultSoundOptions(fr_f32* pOptions) override;
 	bool SetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) override;

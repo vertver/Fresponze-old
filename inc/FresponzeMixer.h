@@ -51,7 +51,7 @@ public:
 	virtual bool EnableInputPlay(bool bPlay) = 0;
 	virtual bool AddInputEffect(IBaseEffect* pEffectToClone) = 0;
 	virtual bool RemoveInputEffect(IBaseEffect* pEffectToRemove) = 0;
-	virtual bool SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, )
+	virtual bool SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) = 0;
 
 	/*
 		Function for manipulating with sound options

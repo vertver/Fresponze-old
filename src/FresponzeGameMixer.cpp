@@ -19,7 +19,7 @@
 #include "FresponzeGameMixer.h"
 
 #ifdef WINDOWS_PLATFORM
-extern void* hModule = nullptr;
+extern void* hModule;
 #endif
 
 EffectNodeStruct* 
@@ -236,11 +236,18 @@ CGameMixer::RemoveInputEffect(IBaseEffect* pEffectToRemove)
 }
 
 bool
+CGameMixer::SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize)
+{
+	return false;
+}
+
+bool
 CGameMixer::SetDefaultSoundOptions(fr_f32* pOptions)
 {
 	/*
 		#TODO
 	*/
+	return false;
 }
 
 bool 
