@@ -282,6 +282,7 @@
     <ClCompile Include="..\..\src\FresponzeWasapiEnumerator.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiNotifications.cpp" />
     <ClCompile Include="..\..\src\FresponzeWindows.cpp" />
+    <ClCompile Include="FresponzeXAudio2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\Fresponze.h" />

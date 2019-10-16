@@ -45,6 +45,9 @@
     <ClCompile Include="..\..\src\FresponzeGameMixer.cpp">
       <Filter>src\Base\Private</Filter>
     </ClCompile>
+    <ClCompile Include="FresponzeXAudio2.cpp">
+      <Filter>src\Platform\Windows\XAudio2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -95,10 +98,10 @@
     <ClInclude Include="..\..\src\FresponzeWasapiVolumeLevel.h">
       <Filter>src\Platform\Windows\WASAPI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\FresponzeXAudio2.h">
+    <ClInclude Include="..\..\src\FresponzeXAudio2Endpoint.h">
       <Filter>src\Platform\Windows\XAudio2</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\FresponzeXAudio2Endpoint.h">
+    <ClInclude Include="..\..\src\FresponzeXAudio2.h">
       <Filter>src\Platform\Windows\XAudio2</Filter>
     </ClInclude>
   </ItemGroup>

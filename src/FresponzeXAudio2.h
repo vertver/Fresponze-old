@@ -16,3 +16,4 @@
 * limitations under the License.
 *****************************************************************/
 #pragma once
+#include "FresponzeXAudio2Endpoint.h"
