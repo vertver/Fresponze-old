@@ -89,5 +89,17 @@
     <ClInclude Include="..\..\inc\FresponzeGameMixer.h">
       <Filter>src\Base\API</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeVolumeLevel.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeWasapiVolumeLevel.h">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeXAudio2.h">
+      <Filter>src\Platform\Windows\XAudio2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeXAudio2Endpoint.h">
+      <Filter>src\Platform\Windows\XAudio2</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

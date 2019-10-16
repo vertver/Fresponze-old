@@ -27,17 +27,24 @@
 
 #define MAX_CHANNELS 64
 
-inline double l2dB(double fLin)
+inline
+float
+dbtol(float Decibels)
 {
-	return log(fLin) * 8.6858896380650365530225783783321;		// 20 / ln( 10 )
+	return powf(10.0f, Decibels / 20.0f);
 }
 
-inline double dB2l(double fDB)
+inline
+float
+ltodb(float Volume)
 {
-	return exp(fDB * 0.11512925464970228420089957273422);		// ln( 10 ) / 20
+	if (Volume == 0) return -3.402823466e+38f; 
+	return 20.0f * log10f(Volume);
 }
 
-inline double fastatan(double x)
+inline
+double
+fastatan(double x)
 {
 	return (x / (1.0 + 0.28 * (x * x)));
 }

@@ -28,8 +28,8 @@ class CGameMixer final : public IAudioMixer
 private:
 	EffectNodeStruct* pReverbBusFirstEffect = nullptr;
 	EffectNodeStruct* pBeforeMixingBusFirstEffect = nullptr;
-	CFloatBuffer ReverbBus;
-	CFloatBuffer BeforeMixingBus;
+	CRingFloatBuffer ReverbBus;
+	CRingFloatBuffer BeforeMixingBus;
 
 	EffectNodeStruct* FindEffectNode(IBaseEffect* pEffect);
 	SoundNodeStruct* FindSoundNode(CBaseSound* pSound);

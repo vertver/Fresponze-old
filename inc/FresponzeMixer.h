@@ -28,8 +28,8 @@ protected:
 	EffectNodeStruct* pInputFirstEffect = nullptr;
 	EffectNodeStruct* pMasterFirstEffect = nullptr;
 	IAudioCallback* pAudioCallback = nullptr;
-	CFloatBuffer InputBuffer;
-	CFloatBuffer OutputBuffer;
+	CRingFloatBuffer InputBuffer;
+	CRingFloatBuffer OutputBuffer;
 	PcmFormat MixFormat = {};
 	PcmFormat InputFormat = {};
 

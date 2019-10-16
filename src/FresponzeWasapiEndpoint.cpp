@@ -357,15 +357,22 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	EndpointInfo.EndpointFormat.Bits = pWaveFormat->wBitsPerSample;
 	EndpointInfo.EndpointFormat.Channels = pWaveFormat->nChannels;
 	EndpointInfo.EndpointFormat.SampleRate = pWaveFormat->nSamplesPerSec;
+
+	/*
+		The device can send or recieve signal by short samples (16-bit signed) 
+		or float samples (32-bit float). We must verify format before submitting to deivce.
+	*/
 	if (pWaveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
 		WAVEFORMATEXTENSIBLE* pTmp = (WAVEFORMATEXTENSIBLE*)pWaveFormat;
 		EndpointInfo.EndpointFormat.IsFloat = pTmp->SubFormat == FR_IID_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
 	}
 
+	/* Verify to fail because this method can be failed on AC97 codecs. */
 	if (FAILED(pAudioClient->GetDevicePeriod(&refTimeDefault, &refTimeMin))) {
 		refTimeDefault = 1000000;
 	}
 
+	/* We can't accept lower than minimal latency */
 	if (refTimeAccepted < refTimeMin) {
 		refTimeAccepted = refTimeDefault;
 	}

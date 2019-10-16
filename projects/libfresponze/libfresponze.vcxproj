@@ -293,11 +293,15 @@
     <ClInclude Include="..\..\inc\FresponzeInterface.h" />
     <ClInclude Include="..\..\inc\FresponzeMixer.h" />
     <ClInclude Include="..\..\inc\FresponzeTypes.h" />
+    <ClInclude Include="..\..\inc\FresponzeVolumeLevel.h" />
     <ClInclude Include="..\..\src\FresponzeWasapi.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEndpoint.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEnumerator.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiHardware.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiNotification.h" />
+    <ClInclude Include="..\..\src\FresponzeWasapiVolumeLevel.h" />
+    <ClInclude Include="..\..\src\FresponzeXAudio2.h" />
+    <ClInclude Include="..\..\src\FresponzeXAudio2Endpoint.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
