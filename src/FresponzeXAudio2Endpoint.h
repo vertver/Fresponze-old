@@ -65,4 +65,12 @@ GetDeviceInformation(IMMDevice* pDevicePtr, PcmFormat& fmt)
 	return true;
 }
 
+enum EXAudio2Versions : fr_i32
+{
+	eNoneVersion,
+	eXAudio27,
+	eXAudio28,
+	eXAudio29
+};
+
 IXAudio2* InitializeXAudio2(fr_i32& Version);
