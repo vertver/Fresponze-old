@@ -74,3 +74,39 @@ enum EXAudio2Versions : fr_i32
 };
 
 IXAudio2* InitializeXAudio2(fr_i32& Version);
+
+class CXAudio2AudioEndpoint final : public IAudioEndpoint
+{
+private:
+	IXAudio2* pXAudio2 = nullptr;
+	IXAudio2MasteringVoice* pMasteringVoice = nullptr;
+
+public:
+	CXAudio2AudioEndpoint(IXAudio2* pTempXAudio2, IXAudio2MasteringVoice* pTempMasteringVoice, EndpointInformation& Info)
+	{
+		if (pTempXAudio2) {
+			pXAudio2 = pTempXAudio2;
+			pMasteringVoice = pTempMasteringVoice;
+			pXAudio2->AddRef();
+			SetDeviceInfo(Info);
+			_InterlockedIncrement(&Counter);
+		}
+	}
+
+	~CXAudio2AudioEndpoint()
+	{
+		Close();
+		_RELEASE(pAudioCallback);
+		_RELEASE(pMasteringVoice);
+		_RELEASE(pXAudio2);
+	}
+
+	void ThreadProc();
+	void SetDeviceInfo(EndpointInformation& DeviceInfo) override;
+	void GetDeviceInfo(EndpointInformation& DeviceInfo) override;
+	void SetCallback(IAudioCallback* pCallback) override;
+	bool Open(fr_f32 Delay) override;
+	bool Close() override;
+	bool Start() override;
+	bool Stop() override;
+};

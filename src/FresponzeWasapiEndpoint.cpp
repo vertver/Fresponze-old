@@ -340,6 +340,7 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 bool
 CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 {	
+	DWORD dwStreamFlags = (AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
 	UINT32 BufferFrames = 0;
 	HRESULT hr = 0;
 	REFERENCE_TIME refTimeDefault = 0;
@@ -360,7 +361,7 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 
 	/*
 		The device can send or recieve signal by short samples (16-bit signed) 
-		or float samples (32-bit float). We must verify format before submitting to deivce.
+		or float samples (32-bit float). We must verify format before submitting to device.
 	*/
 	if (pWaveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
 		WAVEFORMATEXTENSIBLE* pTmp = (WAVEFORMATEXTENSIBLE*)pWaveFormat;
@@ -378,14 +379,20 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	}
 
 	/* Try to initalize with custom delay time */
-	hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, refTimeAccepted, 0, pWaveFormat, nullptr);
+	hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, dwStreamFlags, refTimeAccepted, 0, pWaveFormat, nullptr);
 	if (FAILED(hr)) {
-		/* The delay time can be unaligned, so we use default device time */
-		if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED) {
-			hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, refTimeDefault, 0, pWaveFormat, nullptr);
-			if (FAILED(hr)) {
-				CoTaskMemFree(pWaveFormat);
-				return false;
+		hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, refTimeAccepted, 0, pWaveFormat, nullptr);
+		if (FAILED(hr)) {
+			/* The delay time can be unaligned, so we use default device time */
+			if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED) {
+				hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, dwStreamFlags, refTimeDefault, 0, pWaveFormat, nullptr);
+				if (FAILED(hr)) {
+					hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, refTimeDefault, 0, pWaveFormat, nullptr);
+					if (FAILED(hr)) {
+						CoTaskMemFree(pWaveFormat);
+						return false;
+					}
+				}
 			}
 		}
 	}

@@ -21,7 +21,7 @@
 
 #define DEFINE_IID(interfaceName, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
             interface DECLSPEC_UUID_WRAPPER(l##-##w1##-##w2##-##b1##b2##-##b3##b4##b5##b6##b7##b8) interfaceName; \
-            extern const GUID DECLSPEC_SELECTANY IID_##interfaceName = __uuidof(interfaceName)
+            const GUID IID_##interfaceName = __uuidof(interfaceName)
 
 DEFINE_IID(IXAudio2Legacy, 8bcf1f58, 9fe7, 4583, 8a, c6, e2, ad, c4, 65, c8, bb);
 
@@ -81,7 +81,7 @@ DECLARE_INTERFACE_(IXAudio2Legacy, IUnknown)
 
 DEFINE_IID(XAudio2Legacy, 5a508685, a254, 4fba, 9b, 82, 9a, 24, b0, 03, 06, af);
 
-class ÑXAudio2DownlevelWrap final : public IXAudio2
+class CXAudio2DownlevelWrap final : public IXAudio2
 {
 private:
 	long Ref = 0;
@@ -191,7 +191,7 @@ private:
 	}
 
 public:
-	ÑXAudio2DownlevelWrap()
+	CXAudio2DownlevelWrap()
 	{
 		_InterlockedIncrement(&Ref);
 	}
@@ -286,7 +286,7 @@ public:
 	ULONG STDMETHODCALLTYPE Release() override
 	{
 		ULONG ulRef = _InterlockedDecrement(&Ref);
-		if (0 == ulRef)
+		if (0 <= ulRef)
 		{
 			delete this;
 		}
@@ -331,7 +331,7 @@ InitializeXAudio2(fr_i32& Version)
 
 	HMODULE hLibrary = nullptr;
 	IXAudio2* pRetEngine = nullptr;
-	ÑXAudio2DownlevelWrap* pWrappedEngine = nullptr;
+	CXAudio2DownlevelWrap* pWrappedEngine = nullptr;
 	PXAudio2CreateInfoFunc pXAudio2Create = nullptr;
 	PXAudio2CreateWithVersionInfoFunc pXAudio2CreateWithVersion = nullptr;
 
@@ -410,7 +410,7 @@ tryTo27:
 	hLibrary = LoadLibraryW(L"xaudio2_7.dll");
 	if (IsInvalidHandle(hLibrary)) goto EndOfFunction;
 
-	pWrappedEngine = new ÑXAudio2DownlevelWrap;
+	pWrappedEngine = new CXAudio2DownlevelWrap;
 	if (!pWrappedEngine->Initialize()) {
 		_RELEASE(pWrappedEngine);
 		FreeLibrary(hLibrary);
