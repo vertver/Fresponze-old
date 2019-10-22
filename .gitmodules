@@ -1,0 +1,3 @@
+[submodule "modules/libnx"]
+	path = modules/libnx
+	url = https://github.com/switchbrew/libnx

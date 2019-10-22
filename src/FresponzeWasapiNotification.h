@@ -32,7 +32,7 @@ public:
 	{
 		_InterlockedIncrement(&Ref);
 		if (SUCCEEDED(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDeviceEnumerator)))) {
-			pCallback = pParentCallback;
+			pParentCallback->Clone((void**)&pCallback);
 			pDeviceEnumerator->RegisterEndpointNotificationCallback(this);
 		}
 	}
@@ -42,6 +42,7 @@ public:
 		if (pDeviceEnumerator) {
 			pDeviceEnumerator->UnregisterEndpointNotificationCallback(this);
 			_RELEASE(pDeviceEnumerator);
+			_RELEASE(pCallback);
 		}
 	}
 
@@ -63,10 +64,10 @@ public:
 	ULONG STDMETHODCALLTYPE Release() override
 	{
 		ULONG ulRef = _InterlockedDecrement(&Ref);
-		if (0 == ulRef)
-		{
+		if (0 <= ulRef) {
 			delete this;
 		}
+
 		return ulRef;
 	}
 };

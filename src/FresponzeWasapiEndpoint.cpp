@@ -178,7 +178,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 					*/
 					hr = pRenderClient->GetBuffer(AvailableFrames, &pByte);
 					if (SUCCEEDED(hr)) {
-						/* Process soundworker and copy data to main buffer */
+						/* Process and copy data to main buffer */
 						if (!pByte) continue;
 						if (SUCCEEDED(errCode)) 
 							CopyDataToBuffer(&pTempBuffer[FramesInBuffer - AvailableFrames], pByte, AvailableFrames, isFloat, Bits, CurrentChannels);
@@ -324,8 +324,7 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 		if (StringSize && StringSize < 259) {
 			if (WideCharToMultiByte(CP_UTF8, 0, value.pwszVal, -1, lpNewString, 260, NULL, NULL)) {
 				strcpy_s(EndpointInfo.EndpointName, lpNewString);
-			}
-			else {
+			} else {
 				strcpy_s(EndpointInfo.EndpointName, "Unknown Device UUID");
 			}
 		}

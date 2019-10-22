@@ -41,7 +41,10 @@ public:
 	}
 
 	bool SetMixFormat(PcmFormat& NewFormat) override;
+	bool GetMixFormat(PcmFormat& ThisFormat) override;
+
 	bool AddSound(CBaseSound* pNeedySound) override;
+	bool LoadSound(CBaseSound* pNeedySound, CBaseSound* pNewSound) override;
 	bool DeleteSound(CBaseSound* pNeedySound) override;
 	bool PlaySoundById(CBaseSound* pNeedySound) override;
 	bool PauseSound(CBaseSound* pNeedySound) override;

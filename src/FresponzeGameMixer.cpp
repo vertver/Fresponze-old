@@ -18,9 +18,7 @@
 #pragma once
 #include "FresponzeGameMixer.h"
 
-#ifdef WINDOWS_PLATFORM
 extern void* hModule;
-#endif
 
 EffectNodeStruct* 
 CGameMixer::FindEffectNode(IBaseEffect* pEffect)
@@ -28,6 +26,7 @@ CGameMixer::FindEffectNode(IBaseEffect* pEffect)
 	EffectNodeStruct* pParentEffectNode = pInputFirstEffect;
 	EffectNodeStruct* pThisEffectNode = nullptr;
 
+	if (!pEffect || !pParentEffectNode) return nullptr;
 	if (pParentEffectNode->pEffect == pEffect) {
 		return pParentEffectNode;
 	}
@@ -74,6 +73,13 @@ CGameMixer::SetMixFormat(PcmFormat& NewFormat)
 }
 
 bool
+CGameMixer::GetMixFormat(PcmFormat& ThisFormat)
+{
+	memcpy(&ThisFormat, &MixFormat, sizeof(PcmFormat));
+	return true;
+}
+
+bool
 CGameMixer::AddSound(CBaseSound* pNeedySound)
 {
 	SoundNodeStruct* pParentNode = pSoundsNode;
@@ -93,6 +99,34 @@ CGameMixer::AddSound(CBaseSound* pNeedySound)
 		pParentNode = pThisNode;
 		pSoundsNode = pParentNode;
 	}
+	return true;
+}
+
+bool
+CGameMixer::LoadSound(CBaseSound* pNeedySound, CBaseSound* pNewSound)
+{
+	SoundNodeStruct* pParentNode = pSoundsNode;
+	SoundNodeStruct* pThisNode = nullptr;
+	EffectNodeStruct* pThisEffectNode = nullptr;
+	EffectNodeStruct* pNextEffectNode = nullptr;
+
+	/* Try to find node with our sound */
+	if (!pNeedySound || !pParentNode || !pNewSound) return false;
+	if (pParentNode->pSound == pNeedySound) {
+		pThisNode = pParentNode;
+		pParentNode = nullptr;
+	}
+	else {
+		while (true) {
+			pThisNode = pParentNode->pNext;
+			if (!pThisNode) return false;
+			if (pThisNode->pSound == pNeedySound) break;
+			pParentNode = pThisNode;
+		}
+	}
+
+	_RELEASE(pThisNode->pSound);
+	pNewSound->Clone((void**)&pThisNode->pSound);
 	return true;
 }
 

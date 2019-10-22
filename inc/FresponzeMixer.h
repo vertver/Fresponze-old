@@ -18,11 +18,11 @@
 #pragma once
 #include "FresponzeEffect.h"
 
-class IAudioCallback;
 class IAudioMixer : public IBaseInterface
 {
 protected:
 	fr_i32 SoundsCount = 0;
+	fr_i32 QueuedBuffers = 0;
 	SoundState InputState = NoneState;
 	SoundNodeStruct* pSoundsNode = nullptr;
 	EffectNodeStruct* pInputFirstEffect = nullptr;
@@ -35,11 +35,13 @@ protected:
 
 public:
 	virtual bool SetMixFormat(PcmFormat& NewFormat) = 0;
+	virtual bool GetMixFormat(PcmFormat& ThisFormat) = 0;
 
 	/*
 		Function for adding, managming or deleting sound from sound node
 	*/
 	virtual bool AddSound(CBaseSound* pNeedySound) = 0;
+	virtual bool LoadSound(CBaseSound* pNeedySound, CBaseSound* pNewSound) = 0;
 	virtual bool DeleteSound(CBaseSound* pNeedySound) = 0;
 	virtual bool PlaySoundById(CBaseSound* pNeedySound) = 0;
 	virtual bool PauseSound(CBaseSound* pNeedySound) = 0;

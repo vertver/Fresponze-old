@@ -511,6 +511,7 @@ class CBaseSound : public IBaseInterface
 {
 private:
 	SoundState CurrentSoundState = NoneState;
+	fr_i64 SamplePosition;
 	PcmFormat DataFormat;
 	CFloatBuffer Buffer;
 

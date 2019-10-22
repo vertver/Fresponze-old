@@ -96,8 +96,8 @@ public:
 	~CXAudio2AudioEndpoint()
 	{
 		Close();
-		_RELEASE(pAudioCallback);
-		_RELEASE(pMasteringVoice);
+		if (pMasteringVoice) pMasteringVoice->DestroyVoice();
+		_RELEASE(pAudioCallback);	
 		_RELEASE(pXAudio2);
 	}
 
