@@ -23,5 +23,6 @@ class IAudioVolume : public IBaseInterface
 public:
 	virtual bool GetVolume(fr_f32& fVolume) = 0;
 	virtual bool SetVolume(fr_f32 fVolume) = 0;
+	virtual bool IsMuted() = 0;
 	virtual bool Mute(bool bState) = 0;
 };

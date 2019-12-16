@@ -134,6 +134,13 @@ public:
 		if (!pSimpleAudioVolume) return false;
 		return SUCCEEDED(pSimpleAudioVolume->SetMasterVolume(fVolume, nullptr));
 	}
+	
+	bool IsMuted() override
+	{
+		BOOL bMute = FALSE;
+		bool isPassed = SUCCEEDED(pSimpleAudioVolume->GetMute(&bMute));
+		return isPassed ? !!bMute : false;
+	}
 
 	bool Mute(bool bState) override
 	{
