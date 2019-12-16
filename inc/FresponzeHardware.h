@@ -18,6 +18,7 @@
 #pragma once
 #include "FresponzeEndpoint.h"
 #include "FresponzeEnumerator.h"
+#include "FresponzeVolumeLevel.h"
 
 class IAudioNotificationCallback : public IBaseInterface
 {
@@ -35,6 +36,7 @@ public:
 class IAudioHardware : public IBaseInterface
 {
 protected:
+	IAudioVolume* pAudioVolume = nullptr;
 	IAudioEnumerator* pAudioEnumerator = nullptr;
 	IAudioEndpoint* pInputEndpoint = nullptr;
 	IAudioEndpoint* pOutputEndpoint = nullptr;
@@ -54,6 +56,9 @@ public:
 
 	virtual bool Start() = 0;
 	virtual bool Stop() = 0;
+
+	virtual void SetVolume(fr_f32 VolumeLevel) = 0;
+	virtual void GetVolume(fr_f32& VolumeLevel) = 0;
 
 	virtual void GetEndpointInfo(fr_i32 DeviceType, EndpointInformation& endpointInfo) = 0;
 

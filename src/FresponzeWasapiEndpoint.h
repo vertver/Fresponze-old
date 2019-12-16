@@ -75,6 +75,7 @@ public:
 		if (pThreadEvent) delete pThreadEvent;
 	}
 
+	void GetDevicePointer(void*& pDevice) override;
 	void ThreadProc();
 	void SetDeviceInfo(EndpointInformation& DeviceInfo) override;
 	void GetDeviceInfo(EndpointInformation& DeviceInfo) override;

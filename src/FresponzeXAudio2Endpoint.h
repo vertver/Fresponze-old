@@ -101,6 +101,7 @@ public:
 		_RELEASE(pXAudio2);
 	}
 
+	void GetDevicePointer(void*& pDevice) override;
 	void ThreadProc();
 	void SetDeviceInfo(EndpointInformation& DeviceInfo) override;
 	void GetDeviceInfo(EndpointInformation& DeviceInfo) override;

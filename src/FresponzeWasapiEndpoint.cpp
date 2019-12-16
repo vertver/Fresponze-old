@@ -113,10 +113,20 @@ CopyDataFromBuffer(
 
 void
 WINAPIV
-WASAPIThreadProc(void* pData)
+WASAPIThreadProc(
+	void* pData
+)
 {
 	CWASAPIAudioEnpoint* pThis = (CWASAPIAudioEnpoint*)pData;
 	pThis->ThreadProc();
+}
+
+void
+CWASAPIAudioEnpoint::GetDevicePointer(
+	void*& pDevice
+)
+{
+	pDevice = pCurrentDevice;
 }
 
 void
@@ -441,7 +451,7 @@ bool
 CWASAPIAudioEnpoint::Start()
 {
 	CreateWasapiThread();
-	pStartEvent->Raise();
+	 ->Raise();
 	return SUCCEEDED(pAudioClient->Start());
 }
 

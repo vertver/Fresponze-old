@@ -29,6 +29,7 @@ protected:
 	EndpointInformation EndpointInfo = {};
 
 public:	
+	virtual void GetDevicePointer(void*& pDevice) = 0;
 	virtual void SetDeviceInfo(EndpointInformation& DeviceInfo) = 0;
 	virtual void GetDeviceInfo(EndpointInformation& DeviceInfo) = 0;
 	virtual void SetCallback(IAudioCallback* pCallback) = 0;

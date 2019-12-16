@@ -17,6 +17,7 @@
 *****************************************************************/
 #pragma once
 #include "FresponzeWasapiNotification.h"
+#include "FresponzeWasapiVolumeLevel.h"
 
 class CWASAPIAudioNotificationCallback final : public IAudioNotificationCallback
 {
@@ -31,9 +32,11 @@ public:
 		wchar_t** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputStringUUID : DeviceType == CaptureType ? &pInputStringUUID : nullptr);
 		IMMDevice* pTempDevice = (IMMDevice*)pDevicePointer;
 
-		if (*ppThisEndpoint) {
-			CoTaskMemFree(*ppThisEndpoint);
-			*ppThisEndpoint = nullptr;
+		if (ppThisEndpoint) {
+			if (*ppThisEndpoint) {
+				CoTaskMemFree(*ppThisEndpoint);
+				*ppThisEndpoint = nullptr;
+			}
 		}
 
 		if (DeviceType == RenderType) {
@@ -85,6 +88,12 @@ class CWASAPIAudioHardware final : public IAudioHardware
 private:
 	IMMNotificationClient* pNotifyClient = nullptr;
 
+	void FreeAndRestoreVolumeShit(void* pPointer)
+	{
+		if (pAudioVolume) _RELEASE(pAudioVolume);
+		pAudioVolume = new CWASAPIAudioVolume((IMMDevice*)pPointer);
+	}
+
 public:
 	CWASAPIAudioHardware(IAudioCallback* pParentAudioCallback)
 	{
@@ -102,6 +111,7 @@ public:
 		_RELEASE(pNotifyClient);
 		_RELEASE(pNotificationCallback)
 		_RELEASE(pAudioEnumerator);
+		_RELEASE(pAudioVolume);
 	}
 
 	bool Enumerate() override
@@ -112,6 +122,7 @@ public:
 	bool Open(fr_i32 DeviceType, fr_f32 DelayTime) override
 	{
 		IAudioEndpoint** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputEndpoint : DeviceType == CaptureType ? &pInputEndpoint : nullptr);
+		if (!ppThisEndpoint) return false;
 		IAudioEndpoint*& pThisEndpoint = *ppThisEndpoint;
 
 		if (!pAudioEnumerator->GetDefaultDevice(DeviceType, pThisEndpoint)) return false;
@@ -127,12 +138,19 @@ public:
 	bool Open(fr_i32 DeviceType, fr_f32 DelayTime, char* pUUID) override
 	{
 		IAudioEndpoint** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputEndpoint : DeviceType == CaptureType ? &pInputEndpoint : nullptr);
+		if (!ppThisEndpoint) return false;
 		IAudioEndpoint*& pThisEndpoint = *ppThisEndpoint;
 
 		if (!pAudioEnumerator->GetDeviceByUUID(DeviceType, pUUID, pThisEndpoint)) return false;
 		if (!pThisEndpoint->Open(DelayTime)) {
 			_RELEASE(pThisEndpoint);
 			return false;
+		}
+
+		if (DeviceType == RenderType) {
+			void* pPointer = nullptr;
+			pThisEndpoint->GetDevicePointer(pPointer);
+			FreeAndRestoreVolumeShit(pPointer);
 		}
 
 		pThisEndpoint->SetCallback(pAudioCallback);
@@ -142,12 +160,19 @@ public:
 	bool Open(fr_i32 DeviceType, fr_f32 DelayTime, fr_i32 DeviceId) override
 	{
 		IAudioEndpoint** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputEndpoint : DeviceType == CaptureType ? &pInputEndpoint : nullptr);
+		if (!ppThisEndpoint) return false;
 		IAudioEndpoint*& pThisEndpoint = *ppThisEndpoint;
 
 		if (!pAudioEnumerator->GetDeviceById(DeviceType, DeviceId, pThisEndpoint)) return false;
 		if (!pThisEndpoint->Open(DelayTime)) {
 			_RELEASE(pThisEndpoint);
 			return false;
+		}
+
+		if (DeviceType == RenderType) {
+			void* pPointer = nullptr;
+			pThisEndpoint->GetDevicePointer(pPointer);
+			FreeAndRestoreVolumeShit(pPointer);
 		}
 
 		pThisEndpoint->SetCallback(pAudioCallback);
@@ -157,6 +182,7 @@ public:
 	bool Restart(fr_i32 DeviceType, fr_f32 DelayTime) override
 	{
 		IAudioEndpoint** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputEndpoint : DeviceType == CaptureType ? &pInputEndpoint : nullptr);
+		if (!ppThisEndpoint) return false;
 		IAudioEndpoint*& pThisEndpoint = *ppThisEndpoint;
 
 		pThisEndpoint->Close();
@@ -166,6 +192,7 @@ public:
 	bool Restart(fr_i32 DeviceType, fr_f32 DelayTime, char* pUUID) override
 	{
 		IAudioEndpoint** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputEndpoint : DeviceType == CaptureType ? &pInputEndpoint : nullptr);
+		if (!ppThisEndpoint) return false;
 		IAudioEndpoint*& pThisEndpoint = *ppThisEndpoint;
 
 		pThisEndpoint->Close();
@@ -175,6 +202,7 @@ public:
 	bool Restart(fr_i32 DeviceType, fr_f32 DelayTime, fr_i32 DeviceId) override
 	{
 		IAudioEndpoint** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputEndpoint : DeviceType == CaptureType ? &pInputEndpoint : nullptr);
+		if (!ppThisEndpoint) return false;
 		IAudioEndpoint*& pThisEndpoint = *ppThisEndpoint;
 
 		pThisEndpoint->Close();
@@ -193,6 +221,16 @@ public:
 		if (pInputEndpoint) if (!pInputEndpoint->Stop()) return false;
 		if (pOutputEndpoint) if (!pOutputEndpoint->Stop()) return false;
 		return true;
+	}
+
+	void SetVolume(fr_f32 VolumeLevel) override
+	{
+		if (pAudioVolume) pAudioVolume->SetVolume(VolumeLevel);
+	}
+
+	void GetVolume(fr_f32& VolumeLevel) override
+	{
+		if (pAudioVolume) pAudioVolume->GetVolume(VolumeLevel);
 	}
 
 	void GetEndpointInfo(fr_i32 DeviceType, EndpointInformation& endpointInfo) override
