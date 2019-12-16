@@ -510,8 +510,9 @@ public:
 class CBaseSound : public IBaseInterface
 {
 private:
+	bool IsLooped = false;
 	SoundState CurrentSoundState = NoneState;
-	fr_i64 SamplePosition;
+	fr_i32 SamplePosition;
 	PcmFormat DataFormat;
 	CFloatBuffer Buffer;
 
@@ -520,15 +521,35 @@ public:
 	CBaseSound(CBaseSound&& parent) = default;
 	CBaseSound(fr_f32* pData, fr_i32 SizeToResize, PcmFormat Fmt) : Buffer(pData, SizeToResize), DataFormat(Fmt) { _InterlockedIncrement(&Counter); }
 
+	void SetLooped(bool bLooped) { IsLooped = bLooped; }
 	void Load(fr_f32* pData, fr_i32 Frames, PcmFormat& Fmt)
 	{
 		DataFormat = Fmt;
 		Buffer.Push(pData, Frames * DataFormat.Channels);
 	}
 
+	bool GetData(fr_f32*& pOutData, fr_i32 Frames, fr_i32& OutFrames)
+	{
+		fr_i32 BufSize = Buffer.Size();
+		fr_i32 BufDelta = BufSize - SamplePosition;
+
+		if (!BufDelta) {
+			if (IsLooped) Reset();
+			else return false;
+		}
+		if (!BufSize) return false;
+
+		OutFrames = Frames;
+		if (BufDelta < Frames) OutFrames = BufDelta;
+		pOutData = (fr_f32*)(((fr_u8*)(Buffer.Data())) + OutFrames);
+		SamplePosition += OutFrames;
+
+		return true;
+	}
+
+	void Reset() { SamplePosition = 0; }
 	void SetState(SoundState ThisState) { CurrentSoundState = ThisState; }
 	SoundState GetState() { return CurrentSoundState; }
-	CFloatBuffer& Get() { return Buffer; }
 	PcmFormat& Format() { return DataFormat; }
 
 	void Free()
@@ -537,7 +558,6 @@ public:
 		Buffer.Free();
 	}
 };
-
 
 class IBaseEvent
 {
@@ -556,14 +576,54 @@ public:
 	virtual fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };
 
+inline 
+bool
+ConvertComplexToArray(
+	fr_f32* pComplex,
+	fr_f32** ppArray,
+	fr_i32 Channels,
+	fr_i32 FramesToConvert
+)
+{
+	if (!pComplex || !ppArray || !*ppArray) return false;
+
+	for (size_t i = 0; i < FramesToConvert / Channels; i++) {
+		for (size_t o = 0; o < Channels; o++) {
+			ppArray[o][i] = pComplex[i * Channels + o];
+		}
+	}
+}
+
+inline
+bool
+MixComplexToArray(
+	fr_f32* pComplex,
+	fr_f32** ppArray,
+	fr_i32 Channels,
+	fr_i32 FramesToConvert
+)
+{
+	if (!pComplex || !ppArray || !*ppArray) return false;
+
+	for (size_t i = 0; i < FramesToConvert / Channels; i++) {
+		for (size_t o = 0; o < Channels; o++) {
+			ppArray[o][i] += pComplex[i * Channels + o];
+		}
+	}
+}
+
 #define _RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr;} }
 #define ELEMENTSCOUNT(x) sizeof(x) / sizeof(sizeof(x[0]))
 
 #ifdef WINDOWS_PLATFORM
 #define IsInvalidHandle(x) (x == 0 || x == INVALID_HANDLE_VALUE)
+
 inline 
 void
-PcmFormatToWaveFormatEx(PcmFormat& pcmFmt, WAVEFORMATEX& waveEx)
+PcmFormatToWaveFormatEx(
+	PcmFormat& pcmFmt, 
+	WAVEFORMATEX& waveEx
+)
 {
 	waveEx.cbSize = sizeof(WAVEFORMATEX);
 	waveEx.nChannels = pcmFmt.Channels;
@@ -576,7 +636,10 @@ PcmFormatToWaveFormatEx(PcmFormat& pcmFmt, WAVEFORMATEX& waveEx)
 
 inline
 void
-WaveFormatExToPcmFormat(WAVEFORMATEX& waveEx, PcmFormat& pcmFmt)
+WaveFormatExToPcmFormat(
+	WAVEFORMATEX& waveEx,
+	PcmFormat& pcmFmt
+)
 {
 	pcmFmt.Bits = waveEx.wBitsPerSample;
 	pcmFmt.Channels = waveEx.nChannels;

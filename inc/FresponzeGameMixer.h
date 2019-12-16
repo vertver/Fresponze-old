@@ -20,12 +20,20 @@
 
 enum GameMixerSoundOptions
 {
-	
+	NoneOption,
+	OutputGain,		// 0.f to 1.f
+	Position3D,		// < 1.f - disabled, 1.f >= - enabled
+	PositionX,
+	PositionY,
+	PositionZ,		
+	PositionFOV,	// 45.f to 180.f degrees
+	Reverb
 };
 
 class CGameMixer final : public IAudioMixer
 {
 private:
+	fr_f32* FloatMixBuffers[MAX_CHANNELS] = {};
 	EffectNodeStruct* pReverbBusFirstEffect = nullptr;
 	EffectNodeStruct* pBeforeMixingBusFirstEffect = nullptr;
 	CRingFloatBuffer ReverbBus;
@@ -38,6 +46,11 @@ public:
 	CGameMixer()
 	{
 		pAudioCallback = new CAudioCallback(this);
+	}
+
+	~CGameMixer()
+	{
+		if (pAudioCallback) delete pAudioCallback;
 	}
 
 	bool SetMixFormat(PcmFormat& NewFormat) override;

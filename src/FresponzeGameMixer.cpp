@@ -272,6 +272,9 @@ CGameMixer::RemoveInputEffect(IBaseEffect* pEffectToRemove)
 bool
 CGameMixer::SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize)
 {
+	/*
+		#TODO
+	*/
 	return false;
 }
 
@@ -391,17 +394,38 @@ CGameMixer::RemoveEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToRemove)
 bool 
 CGameMixer::Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
+
 	return false;
 }
 
 bool 
 CGameMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
-	return false;
+	if (!OutputBuffer.BufferSize()) {
+		OutputBuffer.Resize(Frames * Channels);
+		return false;
+	}
+	if (QueuedBuffers <= 0) return false;
+
 }
 
 bool 
 CGameMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
+	if (!FloatMixBuffers[0]) {
+		for (size_t i = 0; i < Channels; i++) {
+			FloatMixBuffers[i] = (fr_f32*)malloc(Frames * sizeof(fr_f32));
+		}
+	}
+
+	if (pSoundsNode && pSoundsNode->pSound) {
+		fr_f32* pLocalData = nullptr;
+		fr_i32 FramesRenderedForSample = 0;
+
+		if (pSoundsNode->pSound->GetData(pLocalData, Frames, FramesRenderedForSample)) {
+			MixComplexToArray(pLocalData, FloatMixBuffers, Channels, FramesRenderedForSample);
+		}
+	}
+
 	return false;
 }
