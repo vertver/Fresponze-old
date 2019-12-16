@@ -32,6 +32,9 @@ public:
 	virtual bool EnumerateDevices() = 0;
 	virtual bool GetDevicesCount(fr_i32 EndpointType, fr_i32& Count) = 0;
 
+	virtual void GetInputDeviceList(EndpointInformation*& InputDevices) = 0;
+	virtual void GetOutputDeviceList(EndpointInformation*& OutputDevices) = 0;
+
 	virtual bool GetDefaultDevice(fr_i32 EndpointType, IAudioEndpoint*& pOutDevice) = 0;
 	virtual bool GetDeviceById(fr_i32 EndpointType, fr_i32 DeviceId, IAudioEndpoint*& pOutDevice) = 0;
 	virtual bool GetDeviceByUUID(fr_i32 EndpointType, char* DeviceUUID, IAudioEndpoint*& pOutDevice) = 0;

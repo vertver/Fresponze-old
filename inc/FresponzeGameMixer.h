@@ -78,9 +78,4 @@ public:
 	bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
 	bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
 	bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
-
-	~CGameMixer()
-	{
-		if (pAudioCallback) delete pAudioCallback;
-	}
 };

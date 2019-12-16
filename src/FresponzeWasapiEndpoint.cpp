@@ -451,7 +451,7 @@ bool
 CWASAPIAudioEnpoint::Start()
 {
 	CreateWasapiThread();
-	 ->Raise();
+	pStartEvent->Raise();
 	return SUCCEEDED(pAudioClient->Start());
 }
 

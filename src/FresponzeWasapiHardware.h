@@ -119,6 +119,13 @@ public:
 		return pAudioEnumerator->EnumerateDevices();
 	}
 
+	void GetDevicesList(EndpointInformation*& InputList, EndpointInformation*& OutputList)
+	{
+		Enumerate();
+		pAudioEnumerator->GetInputDeviceList(InputList);
+		pAudioEnumerator->GetOutputDeviceList(OutputList);
+	}
+
 	bool Open(fr_i32 DeviceType, fr_f32 DelayTime) override
 	{
 		IAudioEndpoint** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputEndpoint : DeviceType == CaptureType ? &pInputEndpoint : nullptr);

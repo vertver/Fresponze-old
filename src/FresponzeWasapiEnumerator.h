@@ -35,6 +35,9 @@ public:
 	bool EnumerateDevices() override;
 	bool GetDevicesCount(fr_i32 EndpointType, fr_i32& Count) override;
 
+	void GetInputDeviceList(EndpointInformation*& InputDevices) override;
+	void GetOutputDeviceList(EndpointInformation*& OutputDevices) override;
+
 	bool GetDefaultDevice(fr_i32 EndpointType, IAudioEndpoint*& pOutDevice) override;
 	bool GetDeviceById(fr_i32 EndpointType, fr_i32 DeviceId, IAudioEndpoint*& pOutDevice) override;
 	bool GetDeviceByUUID(fr_i32 EndpointType, char* DeviceUUID, IAudioEndpoint*& pOutDevice) override;

@@ -281,6 +281,18 @@ CWASAPIAudioEnumerator::GetDevicesCount(fr_i32 EndpointType, fr_i32& Count)
 	return true;
 }
 
+void 
+CWASAPIAudioEnumerator::GetInputDeviceList(EndpointInformation*& InputDevices)
+{
+	InputDevices = InputDevicesInfo;
+}
+
+void 
+CWASAPIAudioEnumerator::GetOutputDeviceList(EndpointInformation*& OutputDevices)
+{
+	OutputDevices = OutputDevicesInfo;
+}
+
 bool
 CWASAPIAudioEnumerator::GetDefaultDevice(fr_i32 EndpointType, IAudioEndpoint*& pOutDevice)
 {
