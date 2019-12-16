@@ -16,34 +16,92 @@
 * limitations under the License.
 *****************************************************************/
 #include "Fresponze.h"
+#include "FresponzeWasapiHardware.h"
 
 void* hModule = nullptr;
+
+void
+CFresponze::GetHardwareInterface(
+	EndpointType endpointType, 
+	void* pCustomCallback,
+	void** ppHardwareInterface
+)
+{
+	switch (endpointType)
+	{
+	case eEndpointNoneType:
+	case eEndpointWASAPIType:
+		*ppHardwareInterface = (void*)(new CWASAPIAudioHardware((IAudioCallback*)pCustomCallback));
+		break;
+	case eEndpointXAudio2Type:
+#if 0
+		*ppHardwareInterface = (void*)(new CXAudio2AudioHardware((IAudioCallback*)pCustomCallback));
+#endif
+		break;
+	default:
+		break;
+	}
+}
+
+void 
+CFresponze::GetMixerInterface(
+	MixerType mixerType,
+	void** ppMixerInterface
+)
+{
+
+}
+
+void* 
+AllocateInstance()
+{
+	return new CFresponze;
+}
+
+void 
+DeleteInstance(
+	void* pInstance
+)
+{
+	CFresponze* pFresponze = (CFresponze*)pInstance;
+	_RELEASE(pFresponze);
+}
 
 extern "C"
 {
 	fr_err
 	FRAPI
-	FrInitializeInstance(void** ppOutInstance)
+	FrInitializeInstance(
+		void** ppOutInstance
+	)
 	{
 		if (!InitMemory()) return -1;
 #if defined(WINDOWS_PLATFORM) && defined(DLL_PLATFORM)
 		GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&hModule, (HMODULE*)&hModule);
 #endif
+		*ppOutInstance = AllocateInstance();
+		if (!*ppOutInstance) return -1;
+
 		return 0;
 	}
 
 	fr_err 
 	FRAPI
-	FrDestroyInstance(void* pInstance)
+	FrDestroyInstance(
+		void* pInstance
+	)
 	{
 		DestroyMemory();
+		DeleteInstance(pInstance);
 		return 0;
 	}
 
 	fr_err
 	FRAPI
-	FrGetRemoteInterface(void** ppRemoteInterface)
+	FrGetRemoteInterface(
+		void** ppRemoteInterface
+	)
 	{
-		return 0;
+		return -1;
 	}
 }

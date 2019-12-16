@@ -41,11 +41,34 @@
 #ifdef USE_FUNCS_PROTOTYPES
 typedef fr_err(FrInitializeInstance_t)(void** ppInstance);
 typedef fr_err(FrDestroyInstance_t)(void* pInstance);
+typedef fr_err(FrGetRemoteInterface_t)(void** ppRemoteInterface);
 #else
 extern "C"
 {
 	fr_err FRAPI FrInitializeInstance(void** ppInstance);
 	fr_err FRAPI FrDestroyInstance(void* pInstance);
+	fr_err FRAPI FrGetRemoteInterface(void** ppRemoteInterface);
 }
 #endif
 
+enum MixerType
+{
+	eMixerNoneType,
+	eMixerGameType,
+	eMixerEditType,
+	eMixerCustomType
+};
+
+enum EndpointType
+{
+	eEndpointNoneType,
+	eEndpointWASAPIType,
+	eEndpointXAudio2Type
+};
+
+class CFresponze : public IBaseInterface
+{
+public:
+	void GetMixerInterface(MixerType mixerType, void** ppMixerInterface);
+	void GetHardwareInterface(EndpointType endpointType, void* pCustomCallback, void** ppHardwareInterface);
+};

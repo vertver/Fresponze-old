@@ -55,5 +55,7 @@ public:
 	virtual bool Start() = 0;
 	virtual bool Stop() = 0;
 
+	virtual void GetEndpointInfo(fr_i32 DeviceType, EndpointInformation& endpointInfo) = 0;
+
 	virtual bool Close() = 0;
 };

@@ -195,6 +195,20 @@ public:
 		return true;
 	}
 
+	void GetEndpointInfo(fr_i32 DeviceType, EndpointInformation& endpointInfo) override
+	{
+		switch (DeviceType)
+		{
+		case CaptureType:
+			if (pInputEndpoint) pInputEndpoint->GetDeviceInfo(endpointInfo);
+			break;
+		case RenderType:
+		default:
+			if (pOutputEndpoint) pOutputEndpoint->GetDeviceInfo(endpointInfo);
+			break;
+		}
+	}
+
 	bool Close() override
 	{
 		if (pInputEndpoint) if (!pInputEndpoint->Close()) return false;
