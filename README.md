@@ -8,9 +8,11 @@ This library lets you write audio without any problems with system audio in C or
 will compile and run on Windows, macOS and Linux. 
 
 # Audio backends
-* WASAPI (75%, tested)
+* WASAPI (80%, tested in production)
 * XAudio2 (10%, in development)
 * ALSA (5%, in development)
+* AAudio (0%, in development)
+* AVAudioEngine (0%, in development)
 * CoreAudio (0%, in development)
 * PortAudio (0%, in development)
 
