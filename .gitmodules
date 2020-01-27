@@ -1,5 +1,3 @@
 [submodule "modules/libnx"]
 	path = modules/libnx
 	url = https://github.com/switchbrew/libnx
-[submodule "modules/opusfile"]
-	url = https://github.com/xiph/opusfile.git
