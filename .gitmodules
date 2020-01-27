@@ -3,5 +3,3 @@
 	url = https://github.com/switchbrew/libnx
 [submodule "modules/opusfile"]
 	url = https://github.com/xiph/opusfile.git
-[submodule "modules/r8brain-free-src"]
-	url = https://github.com/avaneev/r8brain-free-src.git
