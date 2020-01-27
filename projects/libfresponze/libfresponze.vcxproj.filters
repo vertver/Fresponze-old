@@ -63,12 +63,6 @@
     <ClCompile Include="..\..\src\FresponzeXAudio2.cpp">
       <Filter>src\Platform\Windows\XAudio2</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\r8brain-free-src\pffft.cpp">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\r8brain-free-src\r8bbase.cpp">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\FresponzeOpusFile.cpp">
       <Filter>src\Base\API</Filter>
     </ClCompile>
@@ -540,6 +534,12 @@
     <ClCompile Include="..\..\modules\opus\celt\modes.c">
       <Filter>src\3rd-party\opus</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\modules\r8brain-free-src\r8bbase.cpp">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\modules\r8brain-free-src\pffft.cpp">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -604,48 +604,6 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeResampler.h">
       <Filter>src\Base\API</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPBlockConvolver.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPFIRFilter.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPFracInterpolator.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPHBDownsampler.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPHBUpsampler.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPProcessor.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPRealFFT.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPResampler.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPSincFilterGen.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\fft4g.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\pffft.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\r8bbase.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\r8bconf.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\r8brain-free-src\r8butil.h">
-      <Filter>src\3rd-party\Vaneev Resampler</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeMediaResource.h">
       <Filter>src\Base\API</Filter>
@@ -865,6 +823,48 @@
     </ClInclude>
     <ClInclude Include="..\..\modules\opus\celt\vq.h">
       <Filter>src\3rd-party\opus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPBlockConvolver.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPFIRFilter.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPFracInterpolator.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPHBDownsampler.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPHBUpsampler.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPProcessor.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPRealFFT.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPResampler.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPSincFilterGen.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\fft4g.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\pffft.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\r8bbase.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\r8bconf.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\r8brain-free-src\r8butil.h">
+      <Filter>src\3rd-party\Vaneev Resampler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

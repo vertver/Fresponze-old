@@ -276,8 +276,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\r8brain-free-src\pffft.cpp" />
-    <ClCompile Include="..\..\..\r8brain-free-src\r8bbase.cpp" />
     <ClCompile Include="..\..\modules\ogg\src\bitwise.c" />
     <ClCompile Include="..\..\modules\ogg\src\framing.c" />
     <ClCompile Include="..\..\modules\opusfile\src\http.c" />
@@ -434,6 +432,8 @@
     <ClCompile Include="..\..\modules\opus\src\opus_projection_decoder.c" />
     <ClCompile Include="..\..\modules\opus\src\opus_projection_encoder.c" />
     <ClCompile Include="..\..\modules\opus\src\repacketizer.c" />
+    <ClCompile Include="..\..\modules\r8brain-free-src\pffft.cpp" />
+    <ClCompile Include="..\..\modules\r8brain-free-src\r8bbase.cpp" />
     <ClCompile Include="..\..\src\FresponzeFabric.cpp" />
     <ClCompile Include="..\..\src\FresponzeGameMixer.cpp" />
     <ClCompile Include="..\..\src\FresponzeOpusFile.cpp" />
@@ -444,20 +444,6 @@
     <ClCompile Include="..\..\src\FresponzeXAudio2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPBlockConvolver.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPFIRFilter.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPFracInterpolator.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPHBDownsampler.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPHBUpsampler.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPProcessor.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPRealFFT.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPResampler.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\CDSPSincFilterGen.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\fft4g.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\pffft.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\r8bbase.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\r8bconf.h" />
-    <ClInclude Include="..\..\..\r8brain-free-src\r8butil.h" />
     <ClInclude Include="..\..\inc\config.h" />
     <ClInclude Include="..\..\inc\Fresponze.h" />
     <ClInclude Include="..\..\inc\FresponzeAdvancedMixer.h" />
@@ -544,6 +530,20 @@
     <ClInclude Include="..\..\modules\opus\src\mlp.h" />
     <ClInclude Include="..\..\modules\opus\src\opus_private.h" />
     <ClInclude Include="..\..\modules\opus\src\tansig_table.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPBlockConvolver.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPFIRFilter.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPFracInterpolator.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPHBDownsampler.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPHBUpsampler.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPProcessor.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPRealFFT.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPResampler.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\CDSPSincFilterGen.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\fft4g.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\pffft.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\r8bbase.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\r8bconf.h" />
+    <ClInclude Include="..\..\modules\r8brain-free-src\r8butil.h" />
     <ClInclude Include="..\..\src\FresponzeWasapi.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEndpoint.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEnumerator.h" />
