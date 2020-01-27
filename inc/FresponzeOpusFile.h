@@ -22,6 +22,7 @@
 class COpusMediaResource : public IMediaResource
 {
 private:
+	ogg_int64_t pcm_offset = 0;
 	OpusFileCallbacks cb = { nullptr, nullptr, nullptr, nullptr };
 	OggOpusFile* of = nullptr;
 	CRingDoubleBuffer* doubleBuffers[MAX_CHANNELS] = {};

@@ -21,7 +21,10 @@ bool COpusMediaResource::OpenResource(void* pResourceLinker)
 {
 	int ret = 0;
 	of = op_open_file((fr_utf8*)pResourceLinker, &ret);
-	return false;
+	if (!of) return false;
+	pcm_offset = op_pcm_tell(of);
+	 
+	return true;
 }
 
 bool COpusMediaResource::CloseResource()
