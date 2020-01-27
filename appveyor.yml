@@ -12,7 +12,6 @@ platform:
 environment:
   matrix:
   - BUILD_SYSTEM: MSVC
-  - BUILD_SYSTEM: CMAKE
 build:
   project: Fresponze.sln
   parallel: true
