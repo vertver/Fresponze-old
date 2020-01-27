@@ -1,32 +1,25 @@
-image: Visual Studio 2015
+image: Visual Studio 2019
 configuration:
 - Debug
+- Debug_DLL
 - Release
+- Release_DLL
 
 platform:
-- Win32
+- x86
 - x64
 
 environment:
   matrix:
   - BUILD_SYSTEM: MSVC
   - BUILD_SYSTEM: CMAKE
-
-build_script:
-  - if "%BUILD_SYSTEM%" == "MSVC" (
-      msbuild "%APPVEYOR_BUILD_FOLDER%\Fresponze.sln" /m /v:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:Configuration=%CONFIGURATION%;Platform=%PLATFORM%
-    )
-  - if "%BUILD_SYSTEM%" == "CMAKE" (
-      mkdir "%APPVEYOR_BUILD_FOLDER%\build" &&
-      pushd "%APPVEYOR_BUILD_FOLDER%\build" &&
-      cmake -A "%PLATFORM%" -G "Visual Studio 14 2015" .. &&
-      cmake --build . --config "%CONFIGURATION%" -- /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" &&
-      popd
-    )
-
+build:
+  project: Fresponze.sln
+  parallel: true
+  verbosity: minimal
 after_build:
   - if "%BUILD_SYSTEM%" == "MSVC" (
-      7z a fresponze.zip %PLATFORM%\%CONFIGURATION%\libogg.lib include\ogg\*.h
+      7z a fresponze.zip build\%PLATFORM%\%CONFIGURATION%\*.lib build\%PLATFORM%\%CONFIGURATION%\*.dll build\%PLATFORM%\%CONFIGURATION%\*.pdb inc\*.h
     )
 
 artifacts:
