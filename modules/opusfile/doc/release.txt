@@ -1,0 +1,88 @@
+= Release checklist =
+
+Source release:
+
+- Update OP_LT_* API versioning in configure.ac.
+- Check for uncommitted changes to master.
+- Prepare win32 binaries
+  - Do this before tagging the release, as it may require changes which should
+    be committed
+- Tag the release commit with 'git tag -s vN.M'.
+  - Include release notes in the tag annotation.
+- Verify 'make distcheck' produces a tarball with
+  the desired name.
+- Push tag to public repo.
+- Upload source package 'opusfile-${version}.tar.gz'
+  to website and verify file permissions.
+- Update checksum files on website.
+- Update links on <https://www.opus-codec.org/downloads/>.
+- Add a copy of the documentation to <https://www.opus-codec.org/docs/>
+  and update the links.
+
+Releases are commited to https://svn.xiph.org/releases/opus/
+which propagates to downloads.xiph.org, and copied manually
+to https://archive.mozilla.org/pub/opus/
+
+Release packages should also be manually attached to the corresponding
+tag on the github mirror https://github.com/xiph/opusfile/releases
+
+Win32 binaries:
+
+- Install cross-i686-w64-mingw32-gcc and associated binutils.
+  - If you skip this step, libopus will still try to build with the system gcc
+    and then fail to link.
+- Edit mingw/Makefile to point to the latest versions of libogg. opus, openssl
+  (see <https://archive.mozilla.org/pub/opus/>, checksums in SHA256SUMS.txt)
+- run `make -C mingw`
+  - Downloads versions of libogg, opus, openssl.
+  - Compiles them.
+  - Compiles static opusfile and examples against the built deps.
+- Compile dynamic opusfile with:
+  - ./configure --host=i686-w64-mingw32 --prefix=/path/to/builddir/mingw \
+        PKG_CONFIG_PATH=/path/to/builddir/mingw/lib/pkgconfig
+  - make && make check && make -C doc/latex
+    - Doxygen 1.18.13 fails because of unescaped '#' characters in URLs
+      (and escaping them breaks the HTML output).
+      But at least two years old: https://github.com/doxygen/doxygen/issues/6456
+      Doxygen 1.8.3 works.
+- Add api docs to opus-codec.org.
+- mkdir opusfile-${version}-win32
+- Copy AUTHORS COPYING README.md include/opusfile.h to the release dir.
+  - Don't put opusfile.h in an opusfile-${version}-win32/include directory,
+    just put it straight in the release dir.
+- Merge changes between README.md and the version in the last
+  binary release. E.g. it's good to include versions of the dependencies,
+  release notes, etc.
+- Convert README.md to DOS line endings.
+- Copy .libs/libopusfile-0.dll to the release dir.
+- Copy .libs/libopusfile.a to the release dir.
+- Copy .libs/libopusfile.dll.a to the release dir. (May not be needed?)
+- Copy .libs/libopusurl-0.dll to the release dir.
+- Copy .libs/libopusurl.a to the release dir.
+- Copy .libs/libopusurl.dll.a to the release dir. (May not be needed?)
+- Copy mingw/bin/*.dll to the release dir for dependencies.
+- Copy any other dependent dlls, e.g. on Fedora 23 I needed to copy
+    /usr/i686-w64-mingw32/sys-root/mingw/bin/libgcc_s_sjlj-1.dll
+    /usr/i686-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll
+  On Gentoo I needed to copy
+    /usr/lib64/gcc/i686-w64-mingw32/7.3.0/libgcc_s_sjlj-1.dll
+  TODO: It may be possible to avoid this with CFLAGS="-static-libgcc"
+- Copy doc/latex/refman.pdf to opusfile-${version}-win32/opusfile-${version}.pdf
+- Copy examples/.libs/*.exe to the release dir.
+- Run "i686-w64-ming32-strip *.dll *.a *.exe" in the release dir.
+- In the release dir, run:
+    sha256sum * > SHA256SUMS.txt
+    gpg --detach-sign --armor SHA256SUMS.txt
+- In the parent directory, create the archive:
+    zip -r opusfile-${version}-win32.zip opusfile-${version}-win32/*
+- Copy the archive to a clean system and verify the examples work
+  to make sure you've included all the necessary libraries.
+- Upload the archive zipfile to websites.
+- Verify file permissions and that it's available at the expected
+  URL.
+- Update links on <http://www.opus-codec.org/downloads/>.
+- Add doc/latex/refman as docs/opusfile_api-${version}.pdf on opus-codec.org
+- Add doc/html as docs/opusfile_api-${version} on opus-codec.org
+
+Binary releases are copied manually to s3 to appear at
+https://archive.mozilla.org/pub/mozilla.org/opus/win32/
