@@ -66,24 +66,6 @@
     <ClCompile Include="..\..\src\FresponzeOpusFile.cpp">
       <Filter>src\Base\API</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\modules\opusfile\src\info.c">
-      <Filter>src\3rd-party\opusfile</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\modules\opusfile\src\internal.c">
-      <Filter>src\3rd-party\opusfile</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\modules\opusfile\src\opusfile.c">
-      <Filter>src\3rd-party\opusfile</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\modules\opusfile\src\stream.c">
-      <Filter>src\3rd-party\opusfile</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\modules\opusfile\src\wincerts.c">
-      <Filter>src\3rd-party\opusfile</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\modules\opusfile\src\http.c">
-      <Filter>src\3rd-party\opusfile</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\modules\ogg\src\bitwise.c">
       <Filter>src\3rd-party\ogg</Filter>
     </ClCompile>
@@ -540,6 +522,24 @@
     <ClCompile Include="..\..\modules\r8brain-free-src\pffft.cpp">
       <Filter>src\3rd-party\Vaneev Resampler</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\modules\opusfile\src\opusfile.c">
+      <Filter>src\3rd-party\opusfile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\modules\opusfile\src\stream.c">
+      <Filter>src\3rd-party\opusfile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\modules\opusfile\src\wincerts.c">
+      <Filter>src\3rd-party\opusfile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\modules\opusfile\src\http.c">
+      <Filter>src\3rd-party\opusfile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\modules\opusfile\src\info.c">
+      <Filter>src\3rd-party\opusfile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\modules\opusfile\src\internal.c">
+      <Filter>src\3rd-party\opusfile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -610,12 +610,6 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeOpusFile.h">
       <Filter>src\Base\API</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\modules\opusfile\src\internal.h">
-      <Filter>src\3rd-party\opusfile</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\modules\opusfile\src\winerrno.h">
-      <Filter>src\3rd-party\opusfile</Filter>
     </ClInclude>
     <ClInclude Include="..\..\modules\ogg\src\crctable.h">
       <Filter>src\3rd-party\ogg</Filter>
@@ -865,6 +859,12 @@
     </ClInclude>
     <ClInclude Include="..\..\modules\r8brain-free-src\r8butil.h">
       <Filter>src\3rd-party\Vaneev Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\opusfile\src\internal.h">
+      <Filter>src\3rd-party\opusfile</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\modules\opusfile\src\winerrno.h">
+      <Filter>src\3rd-party\opusfile</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
