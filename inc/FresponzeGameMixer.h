@@ -56,24 +56,24 @@ public:
 	bool SetMixFormat(PcmFormat& NewFormat) override;
 	bool GetMixFormat(PcmFormat& ThisFormat) override;
 
-	bool AddSound(CBaseSound* pNeedySound) override;
-	bool LoadSound(CBaseSound* pNeedySound, CBaseSound* pNewSound) override;
-	bool DeleteSound(CBaseSound* pNeedySound) override;
-	bool PlaySoundById(CBaseSound* pNeedySound) override;
-	bool PauseSound(CBaseSound* pNeedySound) override;
-	bool StopSound(CBaseSound* pNeedySound) override;
+	bool AddSound(CBaseSound* pNeedySound);
+	bool LoadSound(CBaseSound* pNeedySound, CBaseSound* pNewSound);
+	bool DeleteSound(CBaseSound* pNeedySound);
+	bool PlaySoundById(CBaseSound* pNeedySound);
+	bool PauseSound(CBaseSound* pNeedySound);
+	bool StopSound(CBaseSound* pNeedySound);
 
-	bool EnableInputPlay(bool bPlay) override;
-	bool AddInputEffect(IBaseEffect* pEffectToClone) override;
-	bool RemoveInputEffect(IBaseEffect* pEffectToRemove) override;
-	bool SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize)  override;
+	bool EnableInputPlay(bool bPlay);
+	bool AddInputEffect(IBaseEffect* pEffectToClone);
+	bool RemoveInputEffect(IBaseEffect* pEffectToRemove);
+	bool SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize);
 
-	bool SetDefaultSoundOptions(fr_f32* pOptions) override;
-	bool SetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) override;
-	bool ResetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex) override;
+	bool SetDefaultSoundOptions(fr_f32* pOptions);
+	bool SetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize);
+	bool ResetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex);
 
-	bool AddEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToClone) override;
-	bool RemoveEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToRemove) override;
+	bool AddEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToClone);
+	bool RemoveEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToRemove);
 
 	bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
 	bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;

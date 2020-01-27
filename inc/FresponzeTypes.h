@@ -309,6 +309,27 @@ struct EndpointInformation
 	fr_string256 EndpointUUID;
 };
 
+/*
+	ex.
+	4410 buffer length - 100ms
+	44100 hz samplerate
+
+	4410 / 44100 = 0.1 s
+	48000 * 0.1s = 4800 frames
+*/
+inline
+void
+CalculateFrames(
+	fr_i32	FramesCount,
+	fr_i32	InputSampleRate,
+	fr_i32	OutputSampleRate,
+	fr_i32& OutputFramesCount
+)
+{
+	fr_f32 fLatency = (fr_f32)FramesCount / (fr_f32)InputSampleRate;
+	OutputFramesCount = fLatency * OutputSampleRate;
+}
+
 template
 <typename TYPE>
 class CBuffer
@@ -463,6 +484,7 @@ public:
 	}
 };
 
+typedef CRingBuffer<fr_f64> CRingDoubleBuffer;
 typedef CRingBuffer<fr_f32> CRingFloatBuffer;
 typedef CRingBuffer<fr_i32> CRingIntBuffer;
 typedef CRingBuffer<fr_i16> CRingShortBuffer;
@@ -610,6 +632,59 @@ MixComplexToArray(
 			ppArray[o][i] += pComplex[i * Channels + o];
 		}
 	}
+}
+
+inline char* utf16_to_utf8(const wchar_t* _src) {
+	char* dst;
+	size_t  len;
+	size_t  si;
+	size_t  di;
+	len = wcslen(_src);
+	dst = (char*)malloc(sizeof(*dst) * (3 * len + 1));
+	if (dst == NULL)return dst;
+	for (di = si = 0; si < len; si++) {
+		unsigned c0;
+		c0 = _src[si];
+		if (c0 < 0x80) {
+			/*Can be represented by a 1-byte sequence.*/
+			dst[di++] = (char)c0;
+			continue;
+		}
+		else if (c0 < 0x800) {
+			/*Can be represented by a 2-byte sequence.*/
+			dst[di++] = (char)(0xC0 | c0 >> 6);
+			dst[di++] = (char)(0x80 | c0 & 0x3F);
+			continue;
+		}
+		else if (c0 >= 0xD800 && c0 < 0xDC00) {
+			unsigned c1;
+			/*This is safe, because c0 was not 0 and _src is NUL-terminated.*/
+			c1 = _src[si + 1];
+			if (c1 >= 0xDC00 && c1 < 0xE000) {
+				unsigned w;
+				/*Surrogate pair.*/
+				w = ((c0 & 0x3FF) << 10 | c1 & 0x3FF) + 0x10000;
+				/*Can be represented by a 4-byte sequence.*/
+				dst[di++] = (char)(0xF0 | w >> 18);
+				dst[di++] = (char)(0x80 | w >> 12 & 0x3F);
+				dst[di++] = (char)(0x80 | w >> 6 & 0x3F);
+				dst[di++] = (char)(0x80 | w & 0x3F);
+				si++;
+				continue;
+			}
+		}
+		/*Anything else is either a valid 3-byte sequence, an invalid surrogate
+		   pair, or 'not a character'.
+		  In the latter two cases, we just encode the value as a 3-byte
+		   sequence anyway (producing technically invalid UTF-8).
+		  Later error handling will detect the problem, with a better
+		   chance of giving a useful error message.*/
+		dst[di++] = (char)(0xE0 | c0 >> 12);
+		dst[di++] = (char)(0x80 | c0 >> 6 & 0x3F);
+		dst[di++] = (char)(0x80 | c0 & 0x3F);
+	}
+	dst[di++] = '\0';
+	return dst;
 }
 
 #define _RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr;} }

@@ -38,37 +38,6 @@ public:
 	virtual bool GetMixFormat(PcmFormat& ThisFormat) = 0;
 
 	/*
-		Function for adding, managming or deleting sound from sound node
-	*/
-	virtual bool AddSound(CBaseSound* pNeedySound) = 0;
-	virtual bool LoadSound(CBaseSound* pNeedySound, CBaseSound* pNewSound) = 0;
-	virtual bool DeleteSound(CBaseSound* pNeedySound) = 0;
-	virtual bool PlaySoundById(CBaseSound* pNeedySound) = 0;
-	virtual bool PauseSound(CBaseSound* pNeedySound) = 0;
-	virtual bool StopSound(CBaseSound* pNeedySound) = 0;
-
-	/*
-		Function for manipulating with capture device and effect for it
-	*/
-	virtual bool EnableInputPlay(bool bPlay) = 0;
-	virtual bool AddInputEffect(IBaseEffect* pEffectToClone) = 0;
-	virtual bool RemoveInputEffect(IBaseEffect* pEffectToRemove) = 0;
-	virtual bool SetInputEffectOption(IBaseEffect* pEffect, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) = 0;
-
-	/*
-		Function for manipulating with sound options
-	*/
-	virtual bool SetDefaultSoundOptions(fr_f32* pOptions) = 0;
-	virtual bool SetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex, fr_f32* ValueToSet, fr_i32 ValueSize) = 0;
-	virtual bool ResetSoundOption(CBaseSound* pNeedySound, fr_i32 OptionIndex) = 0;
-
-	/*
-		Function for manipulating with effects for sound
-	*/
-	virtual bool AddEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToClone) = 0;
-	virtual bool RemoveEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToRemove) = 0;
-
-	/*
 		Function for internal use
 	*/
 	virtual bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
