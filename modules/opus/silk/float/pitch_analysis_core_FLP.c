@@ -1,4 +1,4 @@
-/***********************************************************************
+/***************************************************************************
 Copyright (c) 2006-2011, Skype Limited. All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -23,15 +23,15 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-***********************************************************************/
+***************************************************************************/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-/*****************************************************************************
+/*********************************************************************************
 * Pitch analyser function
-******************************************************************************/
+**********************************************************************************/
 #include "SigProc_FLP.h"
 #include "SigProc_FIX.h"
 #include "pitch_est_defines.h"
@@ -162,9 +162,9 @@ opus_int silk_pitch_analysis_core_FLP(      /* O    Voicing estimate: 0 voiced, 
         frame_4kHz[ i ] = silk_ADD_SAT16( frame_4kHz[ i ], frame_4kHz[ i - 1 ] );
     }
 
-    /******************************************************************************
+    /**********************************************************************************
     * FIRST STAGE, operating in 4 khz
-    ******************************************************************************/
+    **********************************************************************************/
     silk_memset(C, 0, sizeof(silk_float) * nb_subfr * ((PE_MAX_LAG >> 1) + 5));
     target_ptr = &frame_4kHz[ silk_LSHIFT( sf_length_4kHz, 2 ) ];
     for( k = 0; k < nb_subfr >> 1; k++ ) {
@@ -273,12 +273,12 @@ opus_int silk_pitch_analysis_core_FLP(      /* O    Voicing estimate: 0 voiced, 
         }
     }
 
-    /**********************************************************************************
+    /**************************************************************************************
     ** SECOND STAGE, operating at 8 kHz, on lag sections with high correlation
-    *************************************************************************************/
-    /*********************************************************************************
+    *****************************************************************************************/
+    /*************************************************************************************
     * Find energy of each subframe projected onto its history, for a range of delays
-    *********************************************************************************/
+    *************************************************************************************/
     silk_memset( C, 0, PE_MAX_NB_SUBFR*((PE_MAX_LAG >> 1) + 5) * sizeof(silk_float));
 
     if( Fs_kHz == 8 ) {
@@ -476,7 +476,7 @@ opus_int silk_pitch_analysis_core_FLP(      /* O    Voicing estimate: 0 voiced, 
     return 0;
 }
 
-/***********************************************************************
+/***************************************************************************
  * Calculates the correlations used in stage 3 search. In order to cover
  * the whole lag codebook for all the searched offset lags (lag +- 2),
  * the following correlations are needed in each sub frame:
@@ -488,7 +488,7 @@ opus_int silk_pitch_analysis_core_FLP(      /* O    Voicing estimate: 0 voiced, 
  *
  * In total 48 correlations. The direct implementation computed in worst
  * case 4*12*5 = 240 correlations, but more likely around 120.
- ***********************************************************************/
+ ***************************************************************************/
 static void silk_P_Ana_calc_corr_st3(
     silk_float cross_corr_st3[ PE_MAX_NB_SUBFR ][ PE_NB_CBKS_STAGE3_MAX ][ PE_NB_STAGE3_LAGS ], /* O 3 DIM correlation array */
     const silk_float    frame[],            /* I vector to correlate                                            */
@@ -552,10 +552,10 @@ static void silk_P_Ana_calc_corr_st3(
     }
 }
 
-/********************************************************************/
+/************************************************************************/
 /* Calculate the energies for first two subframes. The energies are */
 /* calculated recursively.                                          */
-/********************************************************************/
+/************************************************************************/
 static void silk_P_Ana_calc_energy_st3(
     silk_float energies_st3[ PE_MAX_NB_SUBFR ][ PE_NB_CBKS_STAGE3_MAX ][ PE_NB_STAGE3_LAGS ], /* O 3 DIM correlation array */
     const silk_float    frame[],            /* I vector to correlate                                            */

@@ -1,4 +1,4 @@
-/********************************************************************
+/************************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE libopusfile SOFTWARE CODEC SOURCE CODE. *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
@@ -8,7 +8,7 @@
  * THE libopusfile SOURCE CODE IS (C) COPYRIGHT 2013                *
  * by the Xiph.Org Foundation and contributors http://www.xiph.org/ *
  *                                                                  *
- ********************************************************************/
+ ************************************************************************/
 
 /*This should really be part of OpenSSL, but there's been a patch [1] sitting
    in their bugtracker for over two years that implements this, without any

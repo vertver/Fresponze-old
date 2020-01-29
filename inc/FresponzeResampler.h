@@ -1,8 +1,8 @@
-/*****************************************************************
-* Copyright (C) Vertver, 2019. All rights reserved.
+/*********************************************************************
+* Copyright (C) Anton Kovalev (vertver), 2019. All rights reserved.
 * Fresponze - fast, simple and modern multimedia sound library
 * Apache-2 License
-******************************************************************
+**********************************************************************
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -22,11 +22,12 @@
 class CR8BrainResampler
 {
 private:
-	r8b::CDSPResampler* resampler[MAX_CHANNELS] = {};
+	bool lin = false;
 	fr_i32 bufLength = 0;
 	fr_i32 inSRate = 0;
 	fr_i32 outSRate = 0;
 	fr_i32 channels = 0;
+	r8b::CDSPResampler* resampler[MAX_CHANNELS] = {};
 
 public:
 	void Initialize(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear)
@@ -36,7 +37,7 @@ public:
 		outSRate = OutputSampleRate;
 		channels = ChannelsCount;
 		for (size_t i = 0; i < ChannelsCount; i++){
-			resampler[i] = new r8b::CDSPResampler(inSRate, outSRate, MaxBufferIn, 2.0, 206.91, isLinear ? r8b::fprLinearPhase : r8b::fprMinPhase);
+			resampler[i] = new r8b::CDSPResampler(inSRate, outSRate, bufLength, 2.0, 206.91, isLinear ? r8b::fprLinearPhase : r8b::fprMinPhase);
 		}	
 	}
 
@@ -54,8 +55,9 @@ public:
 		Initialize(MaxBufferIn, InputSampleRate, OutputSampleRate, ChannelsCount, isLinear);
 	}
 	
-	void Resample(fr_f64** inputData, fr_f64** outputData)
+	void Resample(fr_i32 frames, fr_f64** inputData, fr_f64** outputData)
 	{
+		if (frames > bufLength) Reset(frames, inSRate, outSRate, channels, lin);
 		for (size_t i = 0; i < channels; i++) {
 			resampler[i]->process(inputData[i], bufLength, outputData[i]);
 		}

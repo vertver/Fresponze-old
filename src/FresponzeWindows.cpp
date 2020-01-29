@@ -1,8 +1,8 @@
 /*****************************************************************
-* Copyright (C) Vertver, 2019. All rights reserved.
+* Copyright (C) Anton Kovalev (vertver), 2019. All rights reserved.
 * Fresponze - fast, simple and modern multimedia sound library
 * Apache-2 License
-******************************************************************
+**********************************************************************
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at

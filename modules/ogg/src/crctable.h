@@ -1,4 +1,4 @@
-/********************************************************************
+/************************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE Ogg CONTAINER SOURCE CODE.              *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
@@ -8,7 +8,7 @@
  * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2018             *
  * by the Xiph.Org Foundation http://www.xiph.org/                  *
  *                                                                  *
- ********************************************************************/
+ ************************************************************************/
 
 #include <ogg/os_types.h>
 

@@ -1,8 +1,8 @@
-/*****************************************************************
-* Copyright (C) Vertver, 2019. All rights reserved.
+/**************************************************************************
+* Copyright (C) Anton Kovalev (vertver), 2019. All rights reserved.
 * Fresponze - fast, simple and modern multimedia sound library
 * Apache-2 License
-******************************************************************
+**********************************************************************
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -391,6 +391,7 @@ public:
 	}
 };
 
+typedef CBuffer<fr_f64> CDoubleBuffer;
 typedef CBuffer<fr_f32> CFloatBuffer;
 typedef CBuffer<fr_i32> CIntBuffer;
 typedef CBuffer<fr_i16> CShortBuffer;
@@ -743,3 +744,28 @@ class CPosixEvent : public IBaseEvent
 
 };
 #endif
+
+inline 
+void
+DebugAssert(
+	bool value,
+	const char* Text
+)
+{
+	if (!value) {
+		if (!Text) Text = "Assert for debug things";
+#ifdef WINDOWS_PLATFORM
+		OutputDebugStringA(Text);
+#ifdef SHOW_MESSAGEBOXES
+		MessageBoxA(nullptr, Text, "Fresponze debug error", MB_OK | MB_ICONHAND);
+#endif
+		DebugBreak();
+#else
+		printf(Text);
+#endif
+
+	}
+}
+
+#define BugAssert(xx, yy) DebugAssert(!!xx, yy)
+#define BugAssert1(xx) DebugAssert(!!xx, nullptr)

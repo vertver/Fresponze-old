@@ -1,4 +1,4 @@
-/********************************************************************
+/************************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE libopusfile SOFTWARE CODEC SOURCE CODE. *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
@@ -8,12 +8,12 @@
  * THE libopusfile SOURCE CODE IS (C) COPYRIGHT 1994-2012           *
  * by the Xiph.Org Foundation and contributors http://www.xiph.org/ *
  *                                                                  *
- ********************************************************************
+ ************************************************************************
 
  function: stdio-based convenience library for opening/seeking/decoding
  last mod: $Id: vorbisfile.c 17573 2010-10-27 14:53:59Z xiphmont $
 
- ********************************************************************/
+ ************************************************************************/
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

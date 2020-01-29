@@ -1,8 +1,8 @@
-/*****************************************************************
-* Copyright (C) Vertver, 2019. All rights reserved.
+/*********************************************************************
+* Copyright (C) Anton Kovalev (vertver), 2019. All rights reserved.
 * Fresponze - fast, simple and modern multimedia sound library
 * Apache-2 License
-******************************************************************
+**********************************************************************
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -30,6 +30,12 @@ public:
 	virtual void GetFormat(PcmFormat& format) = 0;
 	virtual void SetFormat(PcmFormat outputFormat) = 0;
 
+	// for OPUS, use free() to delete string
+	virtual void GetVendorName(const char*& vendorName) = 0;		// vendor name, in tags structure
+	virtual void GetVendorString(const char*& vendorString) = 0;	// vendor comment, in tags structure
+
 	virtual bool Read(fr_f32** ppFloatData) = 0;
 	virtual bool ReadRaw(fr_f32** ppFloatData) = 0;
+
+	virtual fr_i64 SetPosition(fr_i64 FramePosition) = 0;
 };

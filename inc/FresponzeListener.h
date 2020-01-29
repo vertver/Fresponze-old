@@ -1,8 +1,8 @@
-/*****************************************************************
-* Copyright (C) Vertver, 2019. All rights reserved.
+/*********************************************************************
+* Copyright (C) Anton Kovalev (Anton Kovalev (vertver)), 2019. All rights reserved.
 * Fresponze - fast, simple and modern multimedia sound library
 * Apache-2 License
-******************************************************************
+**********************************************************************
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 * limitations under the License.
 *****************************************************************/
 #pragma once
-#include "FresponzeTypes.h"
+#include "FresponzeMediaResource.h"
 
 enum EListenerState
 {
@@ -25,21 +25,31 @@ enum EListenerState
 	ePlayState
 };
 
-class IMediaListener : public IBaseInterface
+class CMediaListener : public IBaseInterface
 {
 protected:
 	fr_i32 CurrentState = 0;
 
 public:
-	virtual void Initialize() = 0;
-	virtual void Destroy() = 0;
+	/*
+		Resource prototype must include constructor with initial media 
+		resource interface (IMediaResource). It's can be either 
+		internal Opus/Vorbis decoder or a custom decoder module
+		from other DLL.
+	*/
+	CMediaListener(IMediaResource* pInitialResource = nullptr);
+	~CMediaListener();
 
-	virtual bool SetListenerState(fr_i32 State) = 0;
+	void Initialize();
+	void Destroy();
 
-	virtual fr_i32 SetPosition(fr_f32 floatPosition) = 0;
-	virtual fr_i32 SetPosition(fr_i64 framePosition) = 0;
+	bool SetResource(IMediaResource* pInitialResource);
+	bool SetListenerState(fr_i32 State);
 
-	virtual fr_i32 GetFormat(PcmFormat& fmt) = 0;
+	fr_i32 SetPosition(fr_f32 FloatPosition);		// 0.0f to 1.0f
+	fr_i32 SetPosition(fr_i64 FramePosition);		// 0 to x (end) 
 
-	virtual fr_i32 Flush(fr_f32** ppOutputFloatData) = 0;
+	fr_i32 GetFormat(PcmFormat& fmt);
+
+	fr_i32 Flush(fr_f32** ppOutputFloatData);
 };

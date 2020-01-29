@@ -1,4 +1,4 @@
-/***********************************************************************
+/***************************************************************************
 Copyright (c) 2006-2011, Skype Limited. All rights reserved.
 Copyright (C) 2012 Xiph.Org Foundation
 Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-***********************************************************************/
+***************************************************************************/
 
 #ifndef MACRO_DEBUG_H
 #define MACRO_DEBUG_H

@@ -1,4 +1,4 @@
-/********************************************************************
+/************************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE libopusfile SOFTWARE CODEC SOURCE CODE. *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
@@ -8,7 +8,7 @@
  * THE libopusfile SOURCE CODE IS (C) COPYRIGHT 2012                *
  * by the Xiph.Org Foundation and contributors http://www.xiph.org/ *
  *                                                                  *
- ********************************************************************/
+ ************************************************************************/
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

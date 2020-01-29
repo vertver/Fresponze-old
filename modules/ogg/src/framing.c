@@ -1,4 +1,4 @@
-/********************************************************************
+/************************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE Ogg CONTAINER SOURCE CODE.              *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
@@ -8,7 +8,7 @@
  * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2018             *
  * by the Xiph.Org Foundation http://www.xiph.org/                  *
  *                                                                  *
- ********************************************************************
+ ************************************************************************
 
  function: code raw packets into framed OggSquish stream and
            decode Ogg streams back into raw packets
@@ -17,7 +17,7 @@
  Ross Williams (ross@guest.adelaide.edu.au).  See docs/framing.html
  for details.
 
- ********************************************************************/
+ ************************************************************************/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

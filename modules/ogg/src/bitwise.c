@@ -1,4 +1,4 @@
-/********************************************************************
+/************************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE Ogg CONTAINER SOURCE CODE.              *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
@@ -8,11 +8,11 @@
  * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2014             *
  * by the Xiph.Org Foundation http://www.xiph.org/                  *
  *                                                                  *
- ********************************************************************
+ ************************************************************************
 
   function: packing variable sized words into an octet stream
 
- ********************************************************************/
+ ************************************************************************/
 
 /* We're 'LSb' endian; if we write a word but read individual bits,
    then we'll read the lsb first */

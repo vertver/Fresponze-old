@@ -1,4 +1,4 @@
-/***********************************************************************
+/***************************************************************************
 Copyright (c) 2006-2011, Skype Limited. All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -23,7 +23,7 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-***********************************************************************/
+***************************************************************************/
 
 #ifndef SILK_SIGPROC_FIX_H
 #define SILK_SIGPROC_FIX_H
@@ -52,9 +52,9 @@ extern "C"
 #include "arm/LPC_inv_pred_gain_arm.h"
 #endif
 
-/********************************************************************/
+/************************************************************************/
 /*                    SIGNAL PROCESSING FUNCTIONS                   */
-/********************************************************************/
+/************************************************************************/
 
 /*!
  * Initialize/reset the resampler state for a given pair of input/output sampling rates
@@ -167,9 +167,9 @@ void silk_ana_filt_bank_1(
 #define silk_LPC_inverse_pred_gain(A_Q12, order, arch)     ((void)(arch), silk_LPC_inverse_pred_gain_c(A_Q12, order))
 #endif
 
-/********************************************************************/
+/************************************************************************/
 /*                        SCALAR FUNCTIONS                          */
-/********************************************************************/
+/************************************************************************/
 
 /* Approximation of 128 * log2() (exact inverse of approx 2^() below) */
 /* Convert input to a log scale    */
@@ -360,9 +360,9 @@ void silk_scale_vector32_Q26_lshift_18(
     opus_int                    dataSize            /* I    length                                                      */
 );
 
-/********************************************************************/
+/************************************************************************/
 /*                        INLINE ARM MATH                           */
-/********************************************************************/
+/************************************************************************/
 
 /*    return sum( inVec1[i] * inVec2[i] ) */
 
@@ -387,9 +387,9 @@ opus_int64 silk_inner_prod16_aligned_64_c(
     const opus_int              len                 /*    I vector lengths                                              */
 );
 
-/********************************************************************/
+/************************************************************************/
 /*                                MACROS                            */
-/********************************************************************/
+/************************************************************************/
 
 /* Rotate a32 right by 'rot' bits. Negative rot values result in rotating
    left. Output is 32bit int.
