@@ -18,6 +18,7 @@
 #pragma once
 #include "FresponzeWasapiNotification.h"
 #include "FresponzeWasapiVolumeLevel.h"
+#include "FresponzeMixer.h"
 
 class CWASAPIAudioNotificationCallback final : public IAudioNotificationCallback
 {
@@ -86,6 +87,7 @@ public:
 class CWASAPIAudioHardware final : public IAudioHardware
 {
 private:
+	bool isLocalCallback = false;
 	IMMNotificationClient* pNotifyClient = nullptr;
 
 	void FreeAndRestoreVolumeShit(void* pPointer)

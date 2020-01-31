@@ -34,8 +34,8 @@ public:
 	virtual void GetVendorName(const char*& vendorName) = 0;		// vendor name, in tags structure
 	virtual void GetVendorString(const char*& vendorString) = 0;	// vendor comment, in tags structure
 
-	virtual bool Read(fr_f32** ppFloatData) = 0;
-	virtual bool ReadRaw(fr_f32** ppFloatData) = 0;
+	virtual bool Read(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
+	virtual bool ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
 
 	virtual fr_i64 SetPosition(fr_i64 FramePosition) = 0;
 };

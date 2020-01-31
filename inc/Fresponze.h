@@ -16,6 +16,7 @@
 * limitations under the License.
 *****************************************************************/
 #pragma once
+#include "FresponzeTypes.h"
 #include "FresponzeEndpoint.h"
 #include "FresponzeEnumerator.h"
 #include "FresponzeHardware.h"
@@ -66,9 +67,17 @@ enum EndpointType
 	eEndpointXAudio2Type
 };
 
-class CFresponze : public IBaseInterface
+class IFresponze : public IBaseInterface
 {
 public:
-	void GetMixerInterface(MixerType mixerType, void** ppMixerInterface);
-	void GetHardwareInterface(EndpointType endpointType, void* pCustomCallback, void** ppHardwareInterface);
+	virtual void GetMixerInterface(MixerType mixerType, void** ppMixerInterface) = 0;
+	virtual void GetHardwareInterface(EndpointType endpointType, void* pCustomCallback, void** ppHardwareInterface) = 0;
+};
+
+
+class CFresponze : public IFresponze
+{
+public:
+	void GetMixerInterface(MixerType mixerType, void** ppMixerInterface) override;
+	void GetHardwareInterface(EndpointType endpointType, void* pCustomCallback, void** ppHardwareInterface) override;
 };
