@@ -524,10 +524,7 @@ public:
 		}
 	}
 
-	virtual ~IBaseInterface()
-	{
-
-	}
+	virtual ~IBaseInterface() = default;
 };
 
 class CBaseSound : public IBaseInterface

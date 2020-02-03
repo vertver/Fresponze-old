@@ -436,6 +436,7 @@
     <ClCompile Include="..\..\modules\r8brain-free-src\r8bbase.cpp" />
     <ClCompile Include="..\..\src\FresponzeFabric.cpp" />
     <ClCompile Include="..\..\src\FresponzeGameMixer.cpp" />
+    <ClCompile Include="..\..\src\FresponzeListener.cpp" />
     <ClCompile Include="..\..\src\FresponzeOpusFile.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiEndpoint.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiEnumerator.cpp" />

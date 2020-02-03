@@ -29,6 +29,9 @@ class CMediaListener : public IBaseInterface
 {
 protected:
 	fr_i32 CurrentState = 0;
+	PcmFormat ResourceFormat = {};
+	PcmFormat ListenerFormat = {};
+	IMediaResource* pLocalResource = nullptr;
 
 public:
 	/*
@@ -40,16 +43,24 @@ public:
 	CMediaListener(IMediaResource* pInitialResource = nullptr);
 	~CMediaListener();
 
-	void Initialize();
-	void Destroy();
-
 	bool SetResource(IMediaResource* pInitialResource);
 	bool SetListenerState(fr_i32 State);
 
 	fr_i32 SetPosition(fr_f32 FloatPosition);		// 0.0f to 1.0f
 	fr_i32 SetPosition(fr_i64 FramePosition);		// 0 to x (end) 
 
+	fr_i32 GetFullFrames();
+
 	fr_i32 GetFormat(PcmFormat& fmt);
+	fr_i32 SetFormat(PcmFormat fmt);
 
 	fr_i32 Flush(fr_f32** ppOutputFloatData);
+};
+
+struct ListenersNode;
+struct ListenersNode
+{
+	ListenersNode* pNext = nullptr;
+	ListenersNode* pPrev = nullptr;
+	CMediaListener* pListener = nullptr;
 };

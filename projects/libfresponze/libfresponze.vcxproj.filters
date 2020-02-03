@@ -63,9 +63,6 @@
     <ClCompile Include="..\..\src\FresponzeXAudio2.cpp">
       <Filter>src\Platform\Windows\XAudio2</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\FresponzeOpusFile.cpp">
-      <Filter>src\Base\API</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\modules\ogg\src\bitwise.c">
       <Filter>src\3rd-party\ogg</Filter>
     </ClCompile>
@@ -539,6 +536,12 @@
     </ClCompile>
     <ClCompile Include="..\..\modules\opusfile\src\internal.c">
       <Filter>src\3rd-party\opusfile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeOpusFile.cpp">
+      <Filter>src\Base\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeListener.cpp">
+      <Filter>src\Base\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
