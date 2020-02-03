@@ -62,7 +62,7 @@ CMediaListener::SetFormat(PcmFormat fmt)
 }
 
 fr_i32	
-CMediaListener::Flush(fr_f32** ppOutputFloatData)
+CMediaListener::Flush(fr_i32 frames, fr_f32** ppOutputFloatData)
 {
-	return 0;
+	return pLocalResource->Read(frames, ppOutputFloatData) ? 0 : -1;
 }

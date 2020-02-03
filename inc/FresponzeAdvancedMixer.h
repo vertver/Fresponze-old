@@ -26,6 +26,7 @@ protected:
     ListenersNode* pLastListener = nullptr;
 
     bool SetNewFormat(PcmFormat fmt);
+
     bool CreateNode(ListenersNode*& pNode);
     bool DeleteNode(ListenersNode* pNode);
 

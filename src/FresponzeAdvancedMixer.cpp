@@ -55,8 +55,10 @@ CAdvancedMixer::DeleteNode(ListenersNode* pNode)
 			delete pCurrent;
 			return true;
 		}
-		pCurrent = pCurrent->pNext
+		pCurrent = pCurrent->pNext;
 	}
+
+	return false;
 }
 
 bool

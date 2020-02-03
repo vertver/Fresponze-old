@@ -54,7 +54,7 @@ public:
 	fr_i32 GetFormat(PcmFormat& fmt);
 	fr_i32 SetFormat(PcmFormat fmt);
 
-	fr_i32 Flush(fr_f32** ppOutputFloatData);
+	fr_i32 Flush(fr_i32 frames, fr_f32** ppOutputFloatData);
 };
 
 struct ListenersNode;
