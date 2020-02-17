@@ -436,6 +436,7 @@
     <ClCompile Include="..\..\modules\r8brain-free-src\r8bbase.cpp" />
     <ClCompile Include="..\..\src\FresponzeAdvancedMixer.cpp" />
     <ClCompile Include="..\..\src\FresponzeFabric.cpp" />
+    <ClCompile Include="..\..\src\FresponzeFileSystemWindows.cpp" />
     <ClCompile Include="..\..\src\FresponzeGameMixer.cpp" />
     <ClCompile Include="..\..\src\FresponzeListener.cpp" />
     <ClCompile Include="..\..\src\FresponzeOpusFile.cpp" />
@@ -549,6 +550,7 @@
     <ClInclude Include="..\..\modules\r8brain-free-src\r8bbase.h" />
     <ClInclude Include="..\..\modules\r8brain-free-src\r8bconf.h" />
     <ClInclude Include="..\..\modules\r8brain-free-src\r8butil.h" />
+    <ClInclude Include="..\..\src\FresponzeFileSystemWindows.h" />
     <ClInclude Include="..\..\src\FresponzeWasapi.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEndpoint.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEnumerator.h" />

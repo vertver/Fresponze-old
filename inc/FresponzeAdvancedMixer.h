@@ -22,22 +22,22 @@
 class CAdvancedMixer : public IAudioMixer
 {
 protected:
-    ListenersNode* pFirstListener = nullptr;
-    ListenersNode* pLastListener = nullptr;
+	ListenersNode* pFirstListener = nullptr;
+	ListenersNode* pLastListener = nullptr;
 
-    bool SetNewFormat(PcmFormat fmt);
+	bool SetNewFormat(PcmFormat fmt);
 
-    bool CreateNode(ListenersNode*& pNode);
-    bool DeleteNode(ListenersNode* pNode);
+	bool CreateNode(ListenersNode*& pNode);
+	bool DeleteNode(ListenersNode* pNode);
 
 public:
-    bool SetMixFormat(PcmFormat& NewFormat) override;
-    bool GetMixFormat(PcmFormat& ThisFormat) override;
+	bool SetMixFormat(PcmFormat& NewFormat) override;
+	bool GetMixFormat(PcmFormat& ThisFormat) override;
 
-    bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
-    bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
-    bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
+	bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
+	bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
+	bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
 
-    bool CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat = {});
-    bool DeleteListener(ListenersNode* pListNode);
+	bool CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat = {});
+	bool DeleteListener(ListenersNode* pListNode);
 };

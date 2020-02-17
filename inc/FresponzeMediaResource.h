@@ -21,6 +21,13 @@
 class IMediaResource : public IBaseInterface
 {
 protected:
+	fr_i64 FramePosition = 0;
+	fr_ptr pMappedArea = nullptr;
+	CFloatBuffer tempBuffer = {};			// while we reading file
+	C2DFloatBuffer* transferBuffers = {};	// on read function
+	PcmFormat fileFormat = {};				// input format, from file
+	PcmFormat outputFormat = {};			// format for read function
+	IFreponzeMapFile* pMapper = nullptr;
 	CR8BrainResampler resampler;
 
 public:

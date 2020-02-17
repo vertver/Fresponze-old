@@ -546,6 +546,9 @@
     <ClCompile Include="..\..\src\FresponzeAdvancedMixer.cpp">
       <Filter>src\Base\Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeFileSystemWindows.cpp">
+      <Filter>src\Platform\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -880,6 +883,9 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\linmath.h">
       <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeFileSystemWindows.h">
+      <Filter>src\Platform\Windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

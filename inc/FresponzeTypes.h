@@ -205,7 +205,6 @@ typedef struct
 	Vec2 mat[4];
 } VMatrix2x4;
 
-
 typedef enum
 {
 	ChannelUndefined = 0x7fffffff,
@@ -316,6 +315,22 @@ typedef struct
 	fr_i32 Frames;
 	fr_i32 SampleRate;
 } PcmFormat;
+
+typedef struct {
+	char riff_header[4];
+	int wav_size;
+	char wave_header[4];
+	char fmt_header[4];
+	int fmt_chunk_size;
+	short audio_format;
+	short num_channels;
+	int sample_rate;
+	int byte_rate;
+	short sample_alignment;
+	short bit_depth;
+	char data_header[4];
+	int data_bytes;
+} wav_header;
 
 enum ETypeEndpoint : fr_i32
 {
@@ -912,6 +927,20 @@ class CPosixEvent : public IBaseEvent
 
 };
 #endif
+
+inline
+void
+riff_to_pcm(
+	wav_header* header,
+	PcmFormat* format
+)
+{
+	format->IsFloat = header->audio_format == 3;
+	format->Bits = header->bit_depth;
+	format->Channels = header->num_channels;
+	format->Frames = header->data_bytes / (format->Bits / 8);
+	format->SampleRate = header->sample_rate;
+}
 
 inline 
 void

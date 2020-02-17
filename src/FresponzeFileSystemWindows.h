@@ -16,28 +16,19 @@
 * limitations under the License.
 *****************************************************************/
 #pragma once
-#include "FresponzeMediaResource.h"
 #include "FresponzeFileSystem.h"
 
-class CRIFFMediaResource : public IMediaResource
+class CWindowsMapFile : public IFreponzeMapFile
 {
-private:
-
-
 public:
-	CRIFFMediaResource(IFreponzeMapFile* pNewMapper);
-	~CRIFFMediaResource();
+	bool Open(const fr_utf8* FileLink, fr_i32 Flags) override;
+	void Close() override;
 
-	bool OpenResource(void* pResourceLinker) override;
-	bool CloseResource() override;
+	fr_i64 GetSize() override;
 
-	void GetVendorName(const char*& vendorName) override;		// vendor name, in tags structure
-	void GetVendorString(const char*& vendorString) override;	// vendor comment, in tags structure
-	void GetFormat(PcmFormat& format) override;
-	void SetFormat(PcmFormat outputFormat) override;
+	bool MapFile(fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) override;
+	bool MapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) override;
 
-	bool Read(fr_i64 FramesCount, fr_f32** ppFloatData) override;
-	bool ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) override;
-
-	fr_i64 SetPosition(fr_i64 FramePosition) override;
+	bool UnmapFile(fr_ptr& OutPtr) override;
+	bool UnmapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr) override;
 };
