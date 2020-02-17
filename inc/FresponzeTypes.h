@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "linmath.h"
 
 #define MAX_CHANNELS 64
 
@@ -75,6 +76,7 @@ typedef fr_i32 b32;
 typedef fr_f64 real64;
 typedef fr_i32 fr_err;
 
+typedef void* fr_ptr;
 typedef char fr_utf8;
 typedef fr_utf8* fr_PStr;
 typedef fr_utf8 const* fr_PConstStr;
@@ -111,6 +113,29 @@ void* FastMemAlloc(fr_i32 SizeToAllocate);
 void* VirtMemAlloc(fr_i64 SizeToAllocate);
 void FreeFastMemory(void* Ptr);
 void FreeVirtMemory(void* Ptr, size_t Size);
+void* FastMemRealloc(void* Ptr, fr_i32 SizeToAllocate);
+
+inline
+void*
+FastMemTryRealloc(
+	void* Ptr,
+	fr_i32 SizeToAllocate,
+	fr_i32 OldPtrSize
+)
+{
+	void* temp_ptr = nullptr;
+	if (Ptr) void* temp_ptr = FastMemRealloc(Ptr, SizeToAllocate);
+	if (!temp_ptr) {
+		temp_ptr = FastMemAlloc(SizeToAllocate);
+		if (Ptr) {
+			memcpy(temp_ptr, Ptr, OldPtrSize);
+			FreeFastMemory(Ptr);
+		}
+	}
+
+	return temp_ptr;
+}
+
 
 typedef struct
 {
@@ -399,6 +424,116 @@ typedef CBuffer<fr_i8>  CByteBufffer;
 
 template
 <typename TYPE>
+class C2DBuffer
+{
+private:
+	fr_i32 BuffersCount = 0;
+	fr_i32 DataSize = 0;
+	TYPE** pDoublePointer = nullptr;
+
+public:
+	C2DBuffer() {}
+
+	void Free()
+	{
+		if (!pDoublePointer) return;
+		for (size_t i = 0; i < BuffersCount; i++) if (pDoublePointer[i]) FreeFastMemory(pDoublePointer[i]);
+		FreeFastMemory(pDoublePointer);
+	}
+
+	void SetBuffersCount(fr_i32 NewBuffersCount)
+	{
+		TYPE** tempDoubleBuffer = (TYPE**)FastMemAlloc(sizeof(TYPE*) * (NewBuffersCount));
+		if (pDoublePointer) {
+			for (size_t i = 0; i < BuffersCount; i++) { 
+				tempDoubleBuffer[i] = pDoublePointer[i]; 
+			}
+			FreeFastMemory(pDoublePointer);
+		}
+		else {
+			for (size_t i = 0; i < NewBuffersCount; i++) {
+				tempDoubleBuffer[i] = nullptr;
+			}
+		}
+
+		BuffersCount = NewBuffersCount;
+		pDoublePointer = tempDoubleBuffer;
+	}
+
+	void Resize(fr_i32 NewBuffersCount, fr_i32 SizeToResize)
+	{
+		if (SizeToResize > DataSize) {
+			if (NewBuffersCount > BuffersCount) SetBuffersCount(NewBuffersCount);
+			for (size_t i = 0; i < BuffersCount; i++) { 
+				pDoublePointer[i] = (TYPE*)FastMemTryRealloc(pDoublePointer[i], SizeToResize, DataSize);
+			}
+			DataSize = SizeToResize;
+		}
+	}
+
+	void PushPacked(TYPE* pData, fr_i32 SizeToResize, fr_i32 NewBuffersCount)
+	{
+		if (SizeToResize > DataSize) Resize(NewBuffersCount, SizeToResize);
+		for (size_t i = 0; i < SizeToResize * BuffersCount; i++) {
+			pDoublePointer[i % NewBuffersCount][i / NewBuffersCount] = pData[i];
+		}
+	}
+
+	void PushPacked(TYPE* pData, fr_i32 SizeToResize, fr_i32 NewBuffersCount, fr_i32 BufferPosition)
+	{
+		if (SizeToResize > DataSize) Resize(NewBuffersCount, SizeToResize);
+		for (size_t i = BufferPosition; i < SizeToResize * BuffersCount; i++) {
+			pDoublePointer[i % NewBuffersCount][i / NewBuffersCount] = pData[i - BufferPosition];
+		}
+	}
+
+	void Push(TYPE* pData, fr_i32 SizeToResize)
+	{
+		if (SizeToResize > DataSize) Resize(BuffersCount, SizeToResize);
+		for (size_t i = 0; i < BuffersCount; i++) memcpy(pDoublePointer[i], pData, SizeToResize * sizeof(TYPE));
+	}
+
+	void Push(TYPE** pData, fr_i32 SizeToResize, fr_i32 NewBuffersCount)
+	{
+		if (SizeToResize > DataSize) Resize(NewBuffersCount, SizeToResize);
+		for (size_t i = 0; i < NewBuffersCount; i++) { memcpy(pDoublePointer[i], pData[i], SizeToResize); }
+	}
+
+	fr_i32 GetBuffersCount()
+	{
+		return BuffersCount;
+	}
+
+	fr_i32 GetBufferSize()
+	{
+		return DataSize;
+	}
+
+	TYPE* GetBufferData(fr_i32 Index)
+	{
+		if (Index > BuffersCount - 1) return nullptr;
+		return pDoublePointer[Index];
+	}
+
+	TYPE** GetBuffers()
+	{
+		return pDoublePointer;
+	}
+
+	~C2DBuffer()
+	{
+		Free();
+	}
+};
+
+typedef C2DBuffer<fr_f64> C2DDoubleBuffer;
+typedef C2DBuffer<fr_f32> C2DFloatBuffer;
+typedef C2DBuffer<fr_i32> C2DIntBuffer;
+typedef C2DBuffer<fr_i16> C2DShortBuffer;
+typedef C2DBuffer<fr_i8>  C2DByteBufffer;
+
+template
+<typename TYPE>
 class CRingBuffer
 {
 private:
@@ -493,11 +628,12 @@ typedef CRingBuffer<fr_i8>  CRingByteBufffer;
 
 enum SoundState : fr_i32
 {
-	NoneState,
+	NoneState = 0,
 	PlayingState,
 	PausedState,
 	StoppedState
 };
+
 class IBaseInterface
 {
 protected:
@@ -531,15 +667,14 @@ class CBaseSound : public IBaseInterface
 {
 private:
 	bool IsLooped = false;
-	SoundState CurrentSoundState = NoneState;
+	SoundState CurrentSoundState;
 	fr_i32 SamplePosition;
 	PcmFormat DataFormat;
 	CFloatBuffer Buffer;
 
 public:
-	CBaseSound() { _InterlockedIncrement(&Counter); }
-	CBaseSound(CBaseSound&& parent) = default;
-	CBaseSound(fr_f32* pData, fr_i32 SizeToResize, PcmFormat Fmt) : Buffer(pData, SizeToResize), DataFormat(Fmt) { _InterlockedIncrement(&Counter); }
+	CBaseSound() : CurrentSoundState(NoneState), DataFormat({}), SamplePosition(0) { _InterlockedIncrement(&Counter); }
+	CBaseSound(fr_f32* pData, fr_i32 SizeToResize, PcmFormat Fmt) : Buffer(pData, SizeToResize), DataFormat(Fmt), CurrentSoundState(NoneState) { CBaseSound(); }
 
 	void SetLooped(bool bLooped) { IsLooped = bLooped; }
 	void Load(fr_f32* pData, fr_i32 Frames, PcmFormat& Fmt)
@@ -632,13 +767,49 @@ MixComplexToArray(
 	}
 }
 
+inline
+void
+FloatToDouble(
+	fr_f32** pFloat, 
+	fr_f64** pDouble,
+	fr_i32 ChannelsCount, 
+	fr_i32 FramesCount
+)
+{
+	for (size_t i = 0; i < ChannelsCount; i++) {
+		fr_f32* pTempData = pFloat[i];
+		fr_f64* pDoubleData = pDouble[i];
+		for (size_t o = 0; o < FramesCount; o++) {
+			pDoubleData[o] = pTempData[o];
+		}
+	}
+}
+
+inline
+void
+DoubleToFloat(
+	fr_f32** pFloat,
+	fr_f64** pDouble, 
+	fr_i32 ChannelsCount,
+	fr_i32 FramesCount
+)
+{
+	for (size_t i = 0; i < ChannelsCount; i++) {
+		fr_f32* pTempData = pFloat[i];
+		fr_f64* pDoubleData = pDouble[i];
+		for (size_t o = 0; o < FramesCount; o++) {
+			pTempData[o] = pDoubleData[o];
+		}
+	}
+}
+
 inline char* utf16_to_utf8(const wchar_t* _src) {
 	char* dst;
 	size_t  len;
 	size_t  si;
 	size_t  di;
 	len = wcslen(_src);
-	dst = (char*)malloc(sizeof(*dst) * (3 * len + 1));
+	dst = (char*)FastMemAlloc(sizeof(*dst) * (3 * len + 1));
 	if (dst == NULL)return dst;
 	for (di = si = 0; si < len; si++) {
 		unsigned c0;
@@ -764,5 +935,5 @@ DebugAssert(
 	}
 }
 
-#define BugAssert(xx, yy) DebugAssert(!!xx, yy)
-#define BugAssert1(xx) DebugAssert(!!xx, nullptr)
+#define BugAssert(xx, yy) DebugAssert(!xx, yy)
+#define BugAssert1(xx) DebugAssert(!xx, nullptr)

@@ -32,11 +32,12 @@ COpusMediaResource::~COpusMediaResource()
 void
 COpusMediaResource::ClearBuffers()
 {
-	for (size_t i = 0; i < MAX_CHANNELS; i++) {
-		if (floatBuffers[i]) {
-			delete floatBuffers[i];
-			floatBuffers[i] = nullptr;
-		}		
+	if (floatBuffers) {
+		delete floatBuffers;
+		floatBuffers = nullptr;
+	}
+
+	for (size_t i = 0; i < 2; i++) {
 		if (doubleBuffers[i]) {
 			delete doubleBuffers[i];
 			doubleBuffers[i] = nullptr;
@@ -47,19 +48,10 @@ COpusMediaResource::ClearBuffers()
 void
 COpusMediaResource::AllocateBuffers(fr_i32 ChannelsCount)
 {
-	for (size_t i = 0; i < ChannelsCount; i++) {
-		/* Free old buffer to allocate new */
-		if (floatBuffers[i]) {
-			delete floatBuffers[i];
-			floatBuffers[i] = nullptr;
-		}
-		if (doubleBuffers[i]) {
-			delete doubleBuffers[i];
-			doubleBuffers[i] = nullptr;
-		}
-
-		floatBuffers[i] = new CFloatBuffer;
-		doubleBuffers[i] = new CDoubleBuffer;
+	ClearBuffers();
+	floatBuffers = new C2DFloatBuffer;
+	for (size_t i = 0; i < 2; i++) {
+		doubleBuffers[i] = new C2DDoubleBuffer;
 	}
 }
 
@@ -71,18 +63,18 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 	fr_i32 li = 0;
 	const OpusHead* head = nullptr;
 	const OpusTags* tags = nullptr;
-	fr_f32* bufferFrames = (float*)malloc(128 * 48 * sizeof(float) * sizeof(float));
+	fr_f32* bufferFrames = (float*)FastMemAlloc(128 * 48 * sizeof(float) * sizeof(float));
 
 	of = op_open_file((fr_utf8*)pResourceLinker, &ret);
 	if (!of) {
-		free(bufferFrames);
+		FreeFastMemory(bufferFrames);
 		return false;
 	}
 	pcm_offset = (op_pcm_tell(of) - 48000);
-	
-	BugAssert(((ret = op_read_float_stereo(of, bufferFrames, (128 * 48 * sizeof(float)))) == OP_HOLE), "Corrupted OPUS file segment");
-	if (!!ret) {
-		free(bufferFrames);
+	ret = op_read_float_stereo(of, bufferFrames, (128 * 48 * sizeof(float)));
+	BugAssert((ret == OP_HOLE), "Corrupted OPUS file segment");
+	if (ret <= 0) {
+		FreeFastMemory(bufferFrames);
 		return false;
 	}
 
@@ -100,7 +92,7 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 		tags = op_tags(of, li);
 		BugAssert((ret = op_raw_seek(of, 0)), "Can't seek OPUS file");
 		if (!!ret) {
-			free(bufferFrames);
+			FreeFastMemory(bufferFrames);
 			return false;
 		}
 	}
@@ -109,13 +101,16 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 		if (tags->vendor) opusVendor = _strdup(tags->vendor);
 		if (tags->comments) {
 			commentsCount = tags->comments;
-			opusComments = (const char**)malloc(sizeof(void*) * commentsCount);
-			for (size_t i = 0; i < commentsCount; i++) {
-				if (tags->user_comments[i]) opusComments[i] = _strdup(tags->user_comments[i]);
+			opusComments = (const char**)FastMemAlloc(sizeof(void*) * commentsCount);
+			if (tags->user_comments && opusComments){
+				for (size_t i = 0; i < commentsCount; i++) {
+					if (tags->user_comments[i]) opusComments[i] = _strdup(tags->user_comments[i]);
+				}
 			}
 		}
 	}
 
+	resampler.Initialize(OPUS_BUFFER, 48000, OutputFormat.SampleRate, formatOfFile.Channels, false);
 	return true;
 }
 
@@ -152,6 +147,30 @@ COpusMediaResource::SetFormat(PcmFormat outputFormat)
 	OutputFormat = outputFormat;
 }
 
+fr_i64
+COpusMediaResource::CompareFileSize(fr_i32 InputFrames)
+{
+	bool bCompare = InputFrames + FileBufferPosition > formatOfFile.Frames;
+	return bCompare ? formatOfFile.Frames - FileBufferPosition : InputFrames;
+}
+
+fr_i32
+COpusMediaResource::CompareSize(fr_i32 InputFrames)
+{
+	bool bCompare = InputFrames + BufferPosition > OPUS_BUFFER;
+	return bCompare ? OPUS_BUFFER - BufferPosition : InputFrames;
+}
+
+void
+COpusMediaResource::AddToBuffer(fr_f32* InputBuffer, fr_i32 InputBufferSize, fr_i32 ChannelsCount)
+{
+	if (floatBuffers->GetBuffersCount() < ChannelsCount) {
+		floatBuffers->Resize(ChannelsCount, OPUS_BUFFER);
+		for (size_t i = 0; i < 2; i++) doubleBuffers[i]->Resize(ChannelsCount, OPUS_BUFFER);
+	}
+	floatBuffers->PushPacked(InputBuffer, InputBufferSize, FileReadSize);
+}
+
 bool
 COpusMediaResource::NextBlock()
 {
@@ -159,42 +178,72 @@ COpusMediaResource::NextBlock()
 	fr_i32 li = 0;
 	const OpusHead* head = nullptr;
 	const OpusTags* tags = nullptr;
-	if (!tempBuffer.Size()) tempBuffer.Resize(OPUS_BUFFER);
 
-tryCicle:
-	/* The file can be corrupted, so we must to check it before read data */
-	ret = op_read_float_stereo(of, tempBuffer.Data(), tempBuffer.Size());
-	if (ret == OP_HOLE) {
-		goto tryCicle;
-	} else if (ret < 0) return false;
+	tempBuffer.Resize(OPUS_BUFFER);
+	FileReadSize = 0;
+	while (FileReadSize + ret < OPUS_BUFFER) {
+		/* The file can be corrupted, so we must to check it before read data */
+		ret = op_read_float(of, tempBuffer.Data(), tempBuffer.Size(), &li);
+		if (ret == OP_HOLE) continue;
+		else if (ret < 0) return false;
 
-	/*
-		If our new block has new channel count - we must to verify with new format.
-		(lower than current channels count? try to convert to backend audio format via mid : 
-		bigger than current channels count ? try to convert to backend audio format via mid/side)
-	*/
-	li = op_current_link(of);
-	if (li != previous_li) {
-		head = op_head(of, li);
-		formatOfFile.Channels = head->channel_count;
-		previous_li = li;
+		/*
+			If our new block has new channel count - we must to verify with new format.
+			(lower than current channels count? try to convert to backend audio format via mid :
+			bigger than current channels count? try to convert to backend audio format via mid/side)
+		*/
+		if (li != previous_li) {
+			head = op_head(of, li);
+			formatOfFile.Channels = head->channel_count;
+			previous_li = li;
+		}
+
+		AddToBuffer(tempBuffer.Data(), ret, formatOfFile.Channels);
+		FileReadSize += ret;
 	}
 
+	fr_i32 channels = formatOfFile.Channels;
+	floatBuffers->PushPacked(tempBuffer.Data(), FileReadSize, channels);
 
-
-	return true;
+	DoubleToFloat(floatBuffers->GetBuffers(), doubleBuffers[0]->GetBuffers(), channels, FileReadSize);
+	resampler.Resample(FileReadSize, doubleBuffers[0]->GetBuffers(), doubleBuffers[1]->GetBuffers());
+	FloatToDouble(floatBuffers->GetBuffers(), doubleBuffers[1]->GetBuffers(), channels, FileReadSize);
+ 
+ 	return true;
 }
 
 bool 
 COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 {
-	if (!floatBuffers[0]) return false;
-	if (BufferPosition < floatBuffers[0]->Size() - FramesCount) {
+	fr_i32 CopySize = 0;
+	fr_i32 TempChannels = OutputFormat.Channels;
 
-	} else {
-		
-	}
+	NextBlock();
+// 
+// 	if (!floatBuffers) return false;
+// 	floatBuffers->Resize(TempChannels, OPUS_BUFFER / TempChannels);
+// 	for (size_t i = 0; i < 2; i++) doubleBuffers[i]->Resize(TempChannels, OPUS_BUFFER / TempChannels);
+// 
+// 	if (!LastBlockSize) {
+// 		if (!NextBlock()) return false;
+// 		BufferPosition = 0;
+// 	}
+// 
+// 	CopySize = CompareSize(FramesCount);
+// 	if (CopySize) {
+// 		for (size_t i = 0; i < TempChannels; i++) {
+// 			memcpy(ppFloatData[i], floatBuffers->GetBufferData(i), LastBlockSize * sizeof(fr_f32));
+// 		}
+// 	}
+// 
+// 	if (BufferPosition - CopySize <= 0) {
+// 		if (!NextBlock()) return false;
+// 		BufferPosition = 0;
+// 	} else {
+// 		BufferPosition += CopySize;
+// 	}
 
+	return true;
 }
 
 bool

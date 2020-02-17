@@ -47,6 +47,16 @@ FastMemAlloc(
 	return HeapAlloc(hFresponzeHeap, 0, SizeToAllocate);
 }
 
+void*
+FastMemRealloc(
+	void* Ptr,
+	fr_i32 SizeToAllocate
+)
+{
+	return HeapReAlloc(hFresponzeHeap, 0, Ptr, SizeToAllocate);
+}
+
+
 void* 
 VirtMemAlloc(
 	fr_i64 SizeToAllocate

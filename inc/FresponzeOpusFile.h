@@ -27,7 +27,10 @@ private:
 	fr_i32 previous_li = 0;
 	fr_i32 commentsCount = 0;
 	fr_i32 BufferPosition = 0;
+	fr_i32 FileBufferPosition = 0;
 	fr_i32 LastBlockSize = 0;
+	fr_i32 CurrentBuffer = 0;
+	fr_i32 FileReadSize = 0;
 	fr_i64 pcm_offset = 0;
 	OggOpusFile* of = nullptr;
 	const char* opusVendor = nullptr;
@@ -36,15 +39,20 @@ private:
 	PcmFormat OutputFormat = {};
 	OpusFileCallbacks cb = { nullptr, nullptr, nullptr, nullptr };
 	CFloatBuffer tempBuffer = {};
-	CFloatBuffer* floatBuffers[MAX_CHANNELS] = {};
-	CDoubleBuffer* doubleBuffers[MAX_CHANNELS] = {};
+	C2DFloatBuffer* floatBuffers = {};
+	C2DDoubleBuffer* doubleBuffers[2] = {};
 
 	bool NextBlock();
-
 	void ClearBuffers();
 	void AllocateBuffers(fr_i32 ChannelsCount);
 
+	void AddToBuffer(fr_f32* InputBuffer, fr_i32 InputBufferSize, fr_i32 ChannelsCount);
+
+	fr_i64 CompareFileSize(fr_i32 InputFrames);
+	fr_i32 CompareSize(fr_i32 InputFrames);
+
 public:
+	COpusMediaResource() {}
 	COpusMediaResource(void* pResourceLinker);
 	~COpusMediaResource();
 

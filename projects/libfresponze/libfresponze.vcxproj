@@ -452,6 +452,7 @@
     <ClInclude Include="..\..\inc\FresponzeEffect.h" />
     <ClInclude Include="..\..\inc\FresponzeEndpoint.h" />
     <ClInclude Include="..\..\inc\FresponzeEnumerator.h" />
+    <ClInclude Include="..\..\inc\FresponzeFileSystem.h" />
     <ClInclude Include="..\..\inc\FresponzeGameMixer.h" />
     <ClInclude Include="..\..\inc\FresponzeHardware.h" />
     <ClInclude Include="..\..\inc\FresponzeInterface.h" />
@@ -462,6 +463,8 @@
     <ClInclude Include="..\..\inc\FresponzeTypes.h" />
     <ClInclude Include="..\..\inc\FresponzeVolumeLevel.h" />
     <ClInclude Include="..\..\inc\FresponzeMediaResource.h" />
+    <ClInclude Include="..\..\inc\FresponzeWavFile.h" />
+    <ClInclude Include="..\..\inc\linmath.h" />
     <ClInclude Include="..\..\modules\ogg\src\crctable.h" />
     <ClInclude Include="..\..\modules\opusfile\src\internal.h" />
     <ClInclude Include="..\..\modules\opusfile\src\winerrno.h" />

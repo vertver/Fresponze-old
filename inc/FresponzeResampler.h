@@ -27,9 +27,14 @@ private:
 	fr_i32 inSRate = 0;
 	fr_i32 outSRate = 0;
 	fr_i32 channels = 0;
-	r8b::CDSPResampler* resampler[MAX_CHANNELS] = {};
+	r8b::CDSPResampler24* resampler[MAX_CHANNELS] = {};
 
 public:
+	~CR8BrainResampler()
+	{
+		Destroy();
+	}
+
 	void Initialize(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear)
 	{
 		bufLength = MaxBufferIn;
@@ -37,15 +42,15 @@ public:
 		outSRate = OutputSampleRate;
 		channels = ChannelsCount;
 		for (size_t i = 0; i < ChannelsCount; i++){
-			resampler[i] = new r8b::CDSPResampler(inSRate, outSRate, bufLength, 2.0, 206.91, isLinear ? r8b::fprLinearPhase : r8b::fprMinPhase);
+			resampler[i] = new r8b::CDSPResampler24(inSRate, outSRate, bufLength);
 		}	
 	}
 
 	void Destroy()
 	{
 		size_t index = 0;
-		while (!!resampler[index]) {
-			delete resampler[index];
+		for (size_t i = 0; i < MAX_CHANNELS; i++) {
+			if (resampler[i]) delete resampler[i];
 		}
 	}
 

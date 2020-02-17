@@ -24,7 +24,8 @@ CAdvancedMixer::SetMixFormat(PcmFormat& NewFormat)
 bool 
 CAdvancedMixer::GetMixFormat(PcmFormat& ThisFormat)
 {
-	ThisFormat = MixFormat;
+	ThisFormat = MixFormat; 
+	return true;
 }
 
 bool 
@@ -64,18 +65,20 @@ CAdvancedMixer::DeleteNode(ListenersNode* pNode)
 bool
 CAdvancedMixer::CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat)
 {
-
+	return false;
 }
 
 bool
 CAdvancedMixer::DeleteListener(ListenersNode* pListNode)
 {
+	return false;
 
 }
 
 bool 
 CAdvancedMixer::Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
+	return false;
 	/*
 		Prepare to mix input data
 	*/
@@ -84,6 +87,7 @@ CAdvancedMixer::Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 bool
 CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
+	return false;
 	/*
 		Flush all data
 	*/
@@ -92,6 +96,7 @@ CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 bool
 CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
+	return false;
 	/*
 		Mix all data
 	*/
