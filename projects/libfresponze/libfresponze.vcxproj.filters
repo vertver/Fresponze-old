@@ -549,6 +549,9 @@
     <ClCompile Include="..\..\src\FresponzeFileSystemWindows.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeWavFile.cpp">
+      <Filter>src\Base\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">

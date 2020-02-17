@@ -443,6 +443,7 @@
     <ClCompile Include="..\..\src\FresponzeWasapiEndpoint.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiEnumerator.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiNotifications.cpp" />
+    <ClCompile Include="..\..\src\FresponzeWavFile.cpp" />
     <ClCompile Include="..\..\src\FresponzeWindows.cpp" />
     <ClCompile Include="..\..\src\FresponzeXAudio2.cpp" />
   </ItemGroup>
