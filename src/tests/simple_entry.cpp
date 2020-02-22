@@ -3,6 +3,8 @@
 #include "Fresponze.h"
 #include "FresponzeOpusFile.h"
 #include "FresponzeAdvancedMixer.h"
+#include "FresponzeWavFile.h"
+#include "FresponzeFileSystemWindows.h"
 
 IFresponze* pFresponze = nullptr;
 
@@ -18,22 +20,23 @@ int main()
 	DWORD dwp = 0;
 	CFloatBuffer floatBufs[2];
 	fr_f32* outFloat[2] = {};
-	COpusMediaResource res;
+	IFreponzeMapFile* mapFile = new CWindowsMapFile;
+	CRIFFMediaResource res(mapFile);
 	PcmFormat inFormat = {};
 	PcmFormat outFormat = {};
 
 	InitMemory();
-	/*
+	
 	outFormat.Bits = 32;
 	outFormat.Channels = 2;
 	outFormat.Frames = 0;
 	outFormat.IsFloat = true;
-	outFormat.SampleRate = 96000;
+	outFormat.SampleRate = 44100;
 	res.SetFormat(outFormat);
-	res.OpenResource((void*)"I:/Downloads/ehren-paper_lights-96.opus");
+	res.OpenResource((void*)"I:/Downloads/ehren-paper_lights-96.wav");
 
 	for (size_t i = 0; i < 2; i++){
-		floatBufs->Resize(11520);
+		floatBufs->Resize(44100);
 		outFloat[i] = floatBufs->Data();
 	}
 
@@ -43,12 +46,12 @@ int main()
 	reads = inFormat.Frames * sizeof(fr_i32) * 2;
 
 	while (reads) {
-		size_t writesize = (reads / sizeof(fr_i32) * 2 ) < 2048 ? (reads / sizeof(fr_i32) * 2) : 2048;
+		size_t writesize = (reads / sizeof(fr_i32) * 2 ) < 44100 ? (reads / sizeof(fr_i32) * 2) : 44100;
 		res.Read(writesize, outFloat);
 		WriteFile(hFile, outFloat[0], (writesize * sizeof(fr_i32) * 2), &dwp, nullptr);
 		reads -= writesize * sizeof(fr_i32) * 2;
 	}
-	*/
+	
 	DestroyMemory();
 	return 0;
 }

@@ -202,7 +202,7 @@ CWASAPIAudioEnumerator::EnumerateDevices()
 
 				for (size_t i = 0; i < InputDevices; i++) {
 					IMMDevice* pTempDevice = nullptr;
-					if (FAILED(pInputDeviceCollection->Item(i, &pTempDevice))) continue;
+					if (FAILED(pInputDeviceCollection->Item((UINT)i, &pTempDevice))) continue;
 					if (!GetDeviceInfoByDevice(&InputDevicesInfo[i], pTempDevice)) {
 						_RELEASE(pTempDevice);
 						_RELEASE(pInputDeviceCollection);
@@ -231,7 +231,7 @@ CWASAPIAudioEnumerator::EnumerateDevices()
 
 				for (size_t i = 0; i < OutputDevices; i++) {
 					IMMDevice* pTempDevice = nullptr;
-					if (FAILED(pOutputDeviceCollection->Item(i, &pTempDevice))) continue;
+					if (FAILED(pOutputDeviceCollection->Item((UINT)i, &pTempDevice))) continue;
 					if (!GetDeviceInfoByDevice(&OutputDevicesInfo[i], pTempDevice)) {
 						_RELEASE(pTempDevice);
 						_RELEASE(pInputDeviceCollection);

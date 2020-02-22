@@ -24,7 +24,6 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "linmath.h"
 
 #define MAX_CHANNELS 64
 
@@ -367,7 +366,20 @@ CalculateFrames(
 )
 {
 	fr_f32 fLatency = (fr_f32)FramesCount / (fr_f32)InputSampleRate;
-	OutputFramesCount = fLatency * OutputSampleRate;
+	OutputFramesCount = (fr_i32)(fLatency * (fr_f32)OutputSampleRate);
+}
+
+inline
+void
+CalculateFrames64(
+	fr_i64	FramesCount,
+	fr_i64	InputSampleRate,
+	fr_i64	OutputSampleRate,
+	fr_i64& OutputFramesCount
+)
+{
+	fr_f32 fLatency = (fr_f32)FramesCount / (fr_f32)InputSampleRate;
+	OutputFramesCount = (fr_i64)(fLatency * (fr_f32)OutputSampleRate);
 }
 
 template
@@ -392,6 +404,12 @@ public:
 		pLocalData = (TYPE*)FastMemAlloc(SizeToResize * sizeof(TYPE));
 		memcpy(pLocalData, pData, SizeToResize * sizeof(TYPE));
 		DataSize = SizeToResize;
+	}
+
+	TYPE& operator[] (size_t index) 
+	{ 
+		if (index >= DataSize || index < 0) pLocalData[0];
+		return pLocalData[index];
 	}
 
 	void Free()
@@ -448,6 +466,12 @@ private:
 
 public:
 	C2DBuffer() {}
+
+	TYPE*& operator[] (size_t index)
+	{
+		if (index >= BuffersCount || index < 0) return pDoublePointer[0];
+		return pDoublePointer[index];
+	}
 
 	void Free()
 	{
@@ -813,7 +837,7 @@ DoubleToFloat(
 		fr_f32* pTempData = pFloat[i];
 		fr_f64* pDoubleData = pDouble[i];
 		for (size_t o = 0; o < FramesCount; o++) {
-			pTempData[o] = pDoubleData[o];
+			pTempData[o] = (fr_f32)pDoubleData[o];
 		}
 	}
 }
@@ -824,7 +848,7 @@ inline char* utf16_to_utf8(const wchar_t* _src) {
 	size_t  si;
 	size_t  di;
 	len = wcslen(_src);
-	dst = (char*)FastMemAlloc(sizeof(*dst) * (3 * len + 1));
+	dst = (char*)FastMemAlloc((fr_i32)(sizeof(*dst) * ((fr_i64)3 * (fr_i64)len + (fr_i64)1)));
 	if (dst == NULL)return dst;
 	for (di = si = 0; si < len; si++) {
 		unsigned c0;
@@ -941,6 +965,30 @@ riff_to_pcm(
 	format->Frames = header->data_bytes / (format->Bits / 8);
 	format->SampleRate = header->sample_rate;
 }
+
+#define maxmin(a, minimum, maximum)  min(max(a, minimum), maximum)
+
+inline
+fr_f32
+i16tof32(fr_i16 wValue)
+{
+	fr_f32 fValue = .0f;
+	fValue = (float)wValue / 32768.0f;
+
+	return fValue;
+}
+
+inline
+fr_i16
+f32toi16(fr_f32 fValue)
+{
+	fr_i16 iValue = 0;
+
+	iValue = maxmin(((fr_i16)(fValue * 32768.0f)), -32768, 32767);
+
+	return iValue;
+}
+
 
 inline 
 void

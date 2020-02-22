@@ -64,7 +64,7 @@ public:
 	{
 		if (frames > bufLength) Reset(frames, inSRate, outSRate, channels, lin);
 		for (size_t i = 0; i < channels; i++) {
-			resampler[i]->process(inputData[i], bufLength, outputData[i]);
+			resampler[i]->process(inputData[i], frames, outputData[i]);
 		}
 	}
 };

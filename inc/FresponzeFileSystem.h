@@ -17,7 +17,7 @@
 *****************************************************************/
 #include "FresponzeTypes.h"
 
-enum EFSOpenFlags : fr_i32
+enum EFSOpenFlags
 {
 	eNoFlag = 0x0,
 	eReadFlag = 0x1,
@@ -26,7 +26,7 @@ enum EFSOpenFlags : fr_i32
 	eMustExistFlag = 0x8
 };
 
-enum EFSMapping : fr_i32
+enum EFSMapping
 {
 	eMappingRead = 0x1,
 	eMappintWrite = 0x2
@@ -47,9 +47,9 @@ public:
 	virtual fr_i64 GetSize() = 0;
 
 	virtual bool MapFile(fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) = 0;
-	virtual bool MapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) = 0;
+	virtual bool MapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) = 0;
 
 	virtual bool UnmapFile(fr_ptr& OutPtr) = 0;
-	virtual bool UnmapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr) = 0;
+	virtual bool UnmapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr) = 0;
 };
 

@@ -69,7 +69,7 @@ CWindowsMapFile::MapFile(fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags)
 }
 
 bool	
-CWindowsMapFile::MapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags)
+CWindowsMapFile::MapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags)
 {
 	DWORD dwAccessFlags = 0;
 	if (ProtectFlags & eMappingRead) dwAccessFlags |= FILE_MAP_READ;
@@ -86,7 +86,7 @@ CWindowsMapFile::UnmapFile(fr_ptr& OutPtr)
 }
 
 bool	
-CWindowsMapFile::UnmapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr)
+CWindowsMapFile::UnmapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr)
 {
 	return !!UnmapViewOfFile(OutPtr);
 }

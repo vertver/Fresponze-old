@@ -27,8 +27,8 @@ public:
 	fr_i64 GetSize() override;
 
 	bool MapFile(fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) override;
-	bool MapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) override;
+	bool MapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) override;
 
 	bool UnmapFile(fr_ptr& OutPtr) override;
-	bool UnmapPointer(fr_i32 SizeToMap, fr_ptr& OutPtr) override;
+	bool UnmapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr) override;
 };

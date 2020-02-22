@@ -88,7 +88,7 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 	formatOfFile.SampleRate = 48000;		// use full quality Opus
 
 	if (op_seekable(of)) {
-		formatOfFile.Frames = op_pcm_total(of, li);
+		formatOfFile.Frames = (fr_i32)op_pcm_total(of, li);
 		tags = op_tags(of, li);
 		BugAssert((ret = op_raw_seek(of, 0)), "Can't seek OPUS file");
 		if (!!ret) {

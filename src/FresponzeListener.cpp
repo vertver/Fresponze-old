@@ -35,8 +35,8 @@ CMediaListener::SetPosition(fr_f32 FloatPosition)
 fr_i32	
 CMediaListener::SetPosition(fr_i64 FramePosition)
 {
-	fr_i32 outputFrames = 0;
-	CalculateFrames(FramePosition, ListenerFormat.SampleRate, ResourceFormat.SampleRate, outputFrames);
+	fr_i64 outputFrames = 0;
+	CalculateFrames64(FramePosition, ListenerFormat.SampleRate, ResourceFormat.SampleRate, outputFrames);
 	return (fr_i32)pLocalResource->SetPosition(outputFrames);
 }
 

@@ -17,12 +17,11 @@
 *****************************************************************/
 #pragma once
 #include "FresponzeMediaResource.h"
-#include "FresponzeFileSystem.h"
 
 class CRIFFMediaResource : public IMediaResource
 {
 private:
-
+	fr_f32 GetSample(fr_i64 Index);
 
 public:
 	CRIFFMediaResource(IFreponzeMapFile* pNewMapper);

@@ -455,6 +455,7 @@
     <ClInclude Include="..\..\inc\FresponzeEndpoint.h" />
     <ClInclude Include="..\..\inc\FresponzeEnumerator.h" />
     <ClInclude Include="..\..\inc\FresponzeFileSystem.h" />
+    <ClInclude Include="..\..\inc\FresponzeFileSystemWindows.h" />
     <ClInclude Include="..\..\inc\FresponzeGameMixer.h" />
     <ClInclude Include="..\..\inc\FresponzeHardware.h" />
     <ClInclude Include="..\..\inc\FresponzeInterface.h" />
@@ -466,7 +467,6 @@
     <ClInclude Include="..\..\inc\FresponzeVolumeLevel.h" />
     <ClInclude Include="..\..\inc\FresponzeMediaResource.h" />
     <ClInclude Include="..\..\inc\FresponzeWavFile.h" />
-    <ClInclude Include="..\..\inc\linmath.h" />
     <ClInclude Include="..\..\modules\ogg\src\crctable.h" />
     <ClInclude Include="..\..\modules\opusfile\src\internal.h" />
     <ClInclude Include="..\..\modules\opusfile\src\winerrno.h" />
@@ -551,7 +551,6 @@
     <ClInclude Include="..\..\modules\r8brain-free-src\r8bbase.h" />
     <ClInclude Include="..\..\modules\r8brain-free-src\r8bconf.h" />
     <ClInclude Include="..\..\modules\r8brain-free-src\r8butil.h" />
-    <ClInclude Include="..\..\src\FresponzeFileSystemWindows.h" />
     <ClInclude Include="..\..\src\FresponzeWasapi.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEndpoint.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiEnumerator.h" />
