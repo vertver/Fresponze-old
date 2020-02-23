@@ -467,6 +467,15 @@ private:
 public:
 	C2DBuffer() {}
 
+	TYPE& GetFrame(size_t index, size_t double_index)
+	{
+		if (index >= BuffersCount || index < 0) {
+			index = 0;
+		} 
+
+		return pDoublePointer[index][double_index > DataSize ? DataSize : double_index];
+	}
+
 	TYPE*& operator[] (size_t index)
 	{
 		if (index >= BuffersCount || index < 0) return pDoublePointer[0];
@@ -476,7 +485,10 @@ public:
 	void Free()
 	{
 		if (!pDoublePointer) return;
-		for (size_t i = 0; i < BuffersCount; i++) if (pDoublePointer[i]) FreeFastMemory(pDoublePointer[i]);
+		for (size_t i = 0; i < BuffersCount; i++) if (pDoublePointer[i]) {
+			pDoublePointer[i] = nullptr;
+			FreeFastMemory(pDoublePointer[i]); 
+		}
 		FreeFastMemory(pDoublePointer);
 	}
 
@@ -488,8 +500,8 @@ public:
 				tempDoubleBuffer[i] = pDoublePointer[i]; 
 			}
 			FreeFastMemory(pDoublePointer);
-		}
-		else {
+			pDoublePointer = nullptr;
+		} else {
 			for (size_t i = 0; i < NewBuffersCount; i++) {
 				tempDoubleBuffer[i] = nullptr;
 			}
@@ -504,7 +516,7 @@ public:
 		if (SizeToResize > DataSize) {
 			if (NewBuffersCount > BuffersCount) SetBuffersCount(NewBuffersCount);
 			for (size_t i = 0; i < BuffersCount; i++) { 
-				pDoublePointer[i] = (TYPE*)FastMemTryRealloc(pDoublePointer[i], SizeToResize, DataSize);
+				pDoublePointer[i] = (TYPE*)FastMemTryRealloc(pDoublePointer[i], SizeToResize * sizeof(TYPE), DataSize * sizeof(TYPE));
 			}
 			DataSize = SizeToResize;
 		}
@@ -952,6 +964,43 @@ class CPosixEvent : public IBaseEvent
 };
 #endif
 
+enum EFSOpenFlags
+{
+	eNoFlag = 0x0,
+	eReadFlag = 0x1,
+	eWriteFlag = 0x2,
+	eCreateAlwaysFlag = 0x4,
+	eMustExistFlag = 0x8
+};
+
+enum EFSMapping
+{
+	eMappingRead = 0x1,
+	eMappintWrite = 0x2
+};
+
+class IFreponzeMapFile : public IBaseInterface
+{
+protected:
+	fr_i32 FileFlags = 0;
+	fr_i64 FilePosition = 0;
+	fr_ptr pFileHandle = nullptr;
+	fr_ptr pMapHandle = nullptr;
+
+public:
+	virtual bool Open(const fr_utf8* FileLink, fr_i32 Flags) = 0;
+	virtual void Close() = 0;
+
+	virtual fr_i64 GetSize() = 0;
+
+	virtual bool MapFile(fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) = 0;
+	virtual bool MapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags) = 0;
+
+	virtual bool UnmapFile(fr_ptr& OutPtr) = 0;
+	virtual bool UnmapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr) = 0;
+};
+
+
 inline
 void
 riff_to_pcm(
@@ -962,7 +1011,7 @@ riff_to_pcm(
 	format->IsFloat = header->audio_format == 3;
 	format->Bits = header->bit_depth;
 	format->Channels = header->num_channels;
-	format->Frames = header->data_bytes / (format->Bits / 8);
+	format->Frames = header->data_bytes / (format->Bits / 8) / header->num_channels;
 	format->SampleRate = header->sample_rate;
 }
 
@@ -1012,5 +1061,5 @@ DebugAssert(
 	}
 }
 
-#define BugAssert(xx, yy) DebugAssert(!xx, yy)
-#define BugAssert1(xx) DebugAssert(!xx, nullptr)
+#define BugAssert(xx, yy) DebugAssert(!!(xx), yy)
+#define BugAssert1(xx) DebugAssert(!!(xx), nullptr)

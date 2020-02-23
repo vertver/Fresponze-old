@@ -17,6 +17,7 @@
 *****************************************************************/
 #include "FresponzeWavFile.h"
 
+
 CRIFFMediaResource::CRIFFMediaResource(IFreponzeMapFile* pNewMapper)
 { 
 	pNewMapper->Clone((void**)&pMapper);
@@ -60,8 +61,29 @@ CRIFFMediaResource::OpenResource(void* pResourceLinker)
 	}
 
 	/* We can't transform 24-bit audio to other format, because we're not DAW or sound editor */
-	isValid = (fileFormat.Bits == 24);
-	BugAssert(isValid, "The 24-bit WAV Files are unsupported");
+	isValid = (fileFormat.Bits != 24 && fileFormat.Bits != 8);
+	BugAssert(isValid, "The 24-bit and 8-bit WAV Files are unsupported");
+	if (!isValid) {
+		pMapper->Close();
+		return false;
+	}
+
+	isValid = (!fileFormat.Frames);
+	BugAssert(isValid, "There's no samples here");
+	if (!isValid) {
+		pMapper->Close();
+		return false;
+	}
+
+	isValid = (!fileFormat.Channels);
+	BugAssert(isValid, "There's no channels here");
+	if (!isValid) {
+		pMapper->Close();
+		return false;
+	}
+
+	isValid = (!fileFormat.SampleRate);
+	BugAssert(isValid, "There's no sample rate here");
 	if (!isValid) {
 		pMapper->Close();
 		return false;
@@ -73,7 +95,7 @@ CRIFFMediaResource::OpenResource(void* pResourceLinker)
 		return false;
 	}
 
-	FileFrames = (pMapper->GetSize() - sizeof(wav_header)) / fileFormat.Bits / fileFormat.Channels;
+	FileFrames = fileFormat.Frames;
 	return true;
 }
 
@@ -107,12 +129,14 @@ void
 CRIFFMediaResource::SetFormat(PcmFormat outputFormat)
 {
 	this->outputFormat = outputFormat;
+	resampler.Reset(outputFormat.Frames, fileFormat.SampleRate, outputFormat.SampleRate, fileFormat.Channels, false);
 }
 
 fr_f32
 CRIFFMediaResource::GetSample(fr_i64 Index)
 {
-	return fileFormat.IsFloat ? ((fr_f32*)pMappedArea)[Index] : i16tof32(((fr_i16*)pMappedArea)[Index]);
+	fr_ptr tempMap = fr_ptr((fr_u64)pMappedArea + (fr_u64)(sizeof(wav_header)));
+	return fileFormat.IsFloat ? ((fr_f32*)tempMap)[Index] : i16tof32(((fr_i16*)tempMap)[Index]);
 }
 
 bool 
@@ -132,10 +156,19 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	if (!ReadRaw(FreeFrames, transferBuffers.GetBuffers())) return false;
 	/* Copy data to 64-bit float buffer and resample to output format */
 	if (outputFormat.SampleRate != fileFormat.SampleRate) {
+		for (size_t i = 0; i < 2; i++) {
+			resamplerBuffers[i].Resize(fileFormat.Channels, FreeFrames);
+		}
+
 		/* #TODO: Create resampler for 32-float values */
 		FloatToDouble(transferBuffers.GetBuffers(), resamplerBuffers[0].GetBuffers(), fileFormat.Channels, (fr_i32)FreeFrames);
 		resampler.Resample((fr_i32)FreeFrames, resamplerBuffers[0].GetBuffers(), resamplerBuffers[1].GetBuffers());
-		DoubleToFloat(transferBuffers.GetBuffers(), resamplerBuffers[1].GetBuffers(), fileFormat.Channels, (fr_i32)FreeFrames);
+		CalculateFrames64(frame_out, fileFormat.SampleRate, outputFormat.SampleRate, frame_out);
+		DoubleToFloat(transferBuffers.GetBuffers(), resamplerBuffers[1].GetBuffers(), fileFormat.Channels, (fr_i32)frame_out);
+	}
+
+	for (size_t i = 0; i < fileFormat.Channels; i++) {
+		memcpy(ppFloatData[i], transferBuffers.GetBufferData(i), frame_out * sizeof(fr_f32));
 	}
 
 	return true;
@@ -150,11 +183,13 @@ CRIFFMediaResource::ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData)
 	/* Read raw data from mapped buffer by memcpy function */
 	try {
 		if (fileFormat.IsFloat) {
-			memcpy(tempBuffer.Data(), pMappedArea, FramesCount * sizeof(fr_f32) * fileFormat.Channels);
+			fr_u64 to_data = (fr_u64)pMappedArea + sizeof(wav_header);
+			to_data += FramePosition * (fileFormat.IsFloat ? sizeof(fr_f32) : sizeof(fr_i16)) * fileFormat.Channels;
+			memcpy(tempBuffer.Data(), fr_ptr(to_data), FramesCount * sizeof(fr_f32) * fileFormat.Channels);
 		} else {
 			/* Try to convert signed 16 to float 32 signal */
 			for (size_t i = 0; i < FramesCount * fileFormat.Channels; i++) {
-				tempBuffer[i] = this->GetSample(FramePosition + i);
+				tempBuffer[i] = this->GetSample(FramePosition * fileFormat.Channels + i);
 			}
 		}
 	} catch (...) {
@@ -166,6 +201,7 @@ CRIFFMediaResource::ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData)
 		transferBuffers[i % fileFormat.Channels][i / fileFormat.Channels] = tempBuffer[i];
 	}
 
+	FramePosition += FramesCount;
 	return true;
 }
 

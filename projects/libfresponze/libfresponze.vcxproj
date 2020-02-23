@@ -454,7 +454,6 @@
     <ClInclude Include="..\..\inc\FresponzeEffect.h" />
     <ClInclude Include="..\..\inc\FresponzeEndpoint.h" />
     <ClInclude Include="..\..\inc\FresponzeEnumerator.h" />
-    <ClInclude Include="..\..\inc\FresponzeFileSystem.h" />
     <ClInclude Include="..\..\inc\FresponzeFileSystemWindows.h" />
     <ClInclude Include="..\..\inc\FresponzeGameMixer.h" />
     <ClInclude Include="..\..\inc\FresponzeHardware.h" />

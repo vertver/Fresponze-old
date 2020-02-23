@@ -47,23 +47,24 @@ CAdvancedMixer::CreateNode(ListenersNode*& pNode)
 bool
 CAdvancedMixer::DeleteNode(ListenersNode* pNode)
 {
-	ListenersNode* pCurrent = pFirstListener;
+	ListenersNode* pCurrent = pLastListener;
 	while (pCurrent) {
 		if (pCurrent == pNode) {
+			if (pLastListener == pCurrent) pLastListener = pCurrent->pPrev;
 			pCurrent->pPrev->pNext = pCurrent->pNext;
 			pCurrent->pNext->pPrev = pCurrent->pPrev;
 			_RELEASE(pCurrent->pListener);
 			delete pCurrent;
 			return true;
 		}
-		pCurrent = pCurrent->pNext;
+		pCurrent = pCurrent->pPrev;
 	}
 
 	return false;
 }
 
 bool
-CAdvancedMixer::CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat)
+CAdvancedMixer::CreateListener(void* pListenerOpenLink, ListenersNode*& pNewListener, PcmFormat ListFormat)
 {
 	return false;
 }

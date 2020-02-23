@@ -46,6 +46,8 @@ namespace r8b {
 class CDSPResampler : public CDSPProcessor
 {
 public:
+
+
 	/**
 	 * Constructor initalizes the resampler object.
 	 *

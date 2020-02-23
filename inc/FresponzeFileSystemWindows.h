@@ -20,6 +20,10 @@
 
 class CWindowsMapFile : public IFreponzeMapFile
 {
+private:
+	fr_i64 filemapStart = 0;
+	fr_i64 mapviewSize = 0;
+
 public:
 	bool Open(const fr_utf8* FileLink, fr_i32 Flags) override;
 	void Close() override;

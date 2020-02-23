@@ -41,6 +41,7 @@ private:
 	CFloatBuffer tempBuffer = {};
 	C2DFloatBuffer* floatBuffers = {};
 	C2DDoubleBuffer* doubleBuffers[2] = {};
+	CR8BrainResampler resampler;
 
 	bool NextBlock();
 	void ClearBuffers();

@@ -31,7 +31,6 @@ protected:
 	PcmFormat fileFormat = {};				// input format, from file
 	PcmFormat outputFormat = {};			// format for read function
 	IFreponzeMapFile* pMapper = nullptr;
-	CR8BrainResampler resampler;
 
 public:
 	virtual bool OpenResource(void* pResourceLinker) = 0;

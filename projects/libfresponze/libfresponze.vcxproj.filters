@@ -54,9 +54,6 @@
     <ClCompile Include="..\..\src\FresponzeWasapiEnumerator.cpp">
       <Filter>src\Platform\Windows\WASAPI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\FresponzeWindows.cpp">
-      <Filter>src\Platform\Windows\WASAPI</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\FresponzeGameMixer.cpp">
       <Filter>src\Base\Private</Filter>
     </ClCompile>
@@ -552,6 +549,9 @@
     <ClCompile Include="..\..\src\FresponzeWavFile.cpp">
       <Filter>src\Base\Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeWindows.cpp">
+      <Filter>src\Platform\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -879,9 +879,6 @@
       <Filter>src\3rd-party\opusfile</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeWavFile.h">
-      <Filter>src\Base\API</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\FresponzeFileSystem.h">
       <Filter>src\Base\API</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeFileSystemWindows.h">

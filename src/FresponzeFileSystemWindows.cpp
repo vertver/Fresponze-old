@@ -17,6 +17,8 @@
 *****************************************************************/
 #include "FresponzeFileSystemWindows.h"
 
+extern fr_u32 MemoryGranularity;
+
 bool
 CWindowsMapFile::Open(const fr_utf8* FileLink, fr_i32 Flags)
 {
@@ -33,6 +35,8 @@ CWindowsMapFile::Open(const fr_utf8* FileLink, fr_i32 Flags)
 	if (Flags & eMustExistFlag) dwSharedFlags |= OPEN_EXISTING;
 	pFileHandle = (fr_ptr)CreateFileW(maxPathString, dwGenericFlags, FILE_SHARE_READ, nullptr, dwSharedFlags, 0, nullptr);
 	if (IsInvalidHandle(pFileHandle)) return false;
+
+
 
 	/* 
 		If we want to create map of file - we must open file mapping handle. 
@@ -88,5 +92,7 @@ CWindowsMapFile::UnmapFile(fr_ptr& OutPtr)
 bool	
 CWindowsMapFile::UnmapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr)
 {
-	return !!UnmapViewOfFile(OutPtr);
+	bool bRet = !!UnmapViewOfFile(OutPtr);
+	if (OutPtr) OutPtr = nullptr;
+	return bRet;
 }
