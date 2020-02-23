@@ -29,7 +29,7 @@ CMediaListener::SetListenerState(fr_i32 State)
 fr_i32	
 CMediaListener::SetPosition(fr_f32 FloatPosition)
 {
-	return SetPosition(fr_i64(((fr_f32)ListenerFormat.Frames * FloatPosition)));
+	return SetPosition(fr_i64(((fr_f64)ListenerFormat.Frames * FloatPosition)));
 }
 
 fr_i32	
@@ -62,7 +62,17 @@ CMediaListener::SetFormat(PcmFormat fmt)
 }
 
 fr_i32	
-CMediaListener::Flush(fr_i32 frames, fr_f32** ppOutputFloatData)
+CMediaListener::Process(fr_f32** ppOutputFloatData, fr_i32 frames)
 {
-	return pLocalResource->Read(frames, ppOutputFloatData) ? 0 : -1;
+	switch (CurrentState)
+	{
+	case eStopState:
+	case ePauseState:
+		break;
+	case ePlayState:
+	case eReplayState:
+		framesPos = pLocalResource->Read(frames, ppOutputFloatData) ? 0 : -1;
+	default:
+		break;
+	}
 }

@@ -459,6 +459,7 @@
     <ClInclude Include="..\..\inc\FresponzeHardware.h" />
     <ClInclude Include="..\..\inc\FresponzeInterface.h" />
     <ClInclude Include="..\..\inc\FresponzeListener.h" />
+    <ClInclude Include="..\..\inc\FresponzeMasterEmitter.h" />
     <ClInclude Include="..\..\inc\FresponzeMixer.h" />
     <ClInclude Include="..\..\inc\FresponzeOpusFile.h" />
     <ClInclude Include="..\..\inc\FresponzeResampler.h" />
@@ -558,6 +559,7 @@
     <ClInclude Include="..\..\src\FresponzeWasapiVolumeLevel.h" />
     <ClInclude Include="..\..\src\FresponzeXAudio2.h" />
     <ClInclude Include="..\..\src\FresponzeXAudio2Endpoint.h" />
+    <ClInclude Include="Header.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

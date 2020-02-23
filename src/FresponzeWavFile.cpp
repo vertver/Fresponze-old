@@ -68,21 +68,21 @@ CRIFFMediaResource::OpenResource(void* pResourceLinker)
 		return false;
 	}
 
-	isValid = (!fileFormat.Frames);
+	isValid = (fileFormat.Frames);
 	BugAssert(isValid, "There's no samples here");
 	if (!isValid) {
 		pMapper->Close();
 		return false;
 	}
 
-	isValid = (!fileFormat.Channels);
+	isValid = (fileFormat.Channels);
 	BugAssert(isValid, "There's no channels here");
 	if (!isValid) {
 		pMapper->Close();
 		return false;
 	}
 
-	isValid = (!fileFormat.SampleRate);
+	isValid = (fileFormat.SampleRate);
 	BugAssert(isValid, "There's no sample rate here");
 	if (!isValid) {
 		pMapper->Close();
@@ -163,12 +163,17 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		/* #TODO: Create resampler for 32-float values */
 		FloatToDouble(transferBuffers.GetBuffers(), resamplerBuffers[0].GetBuffers(), fileFormat.Channels, (fr_i32)FreeFrames);
 		resampler.Resample((fr_i32)FreeFrames, resamplerBuffers[0].GetBuffers(), resamplerBuffers[1].GetBuffers());
-		CalculateFrames64(frame_out, fileFormat.SampleRate, outputFormat.SampleRate, frame_out);
-		DoubleToFloat(transferBuffers.GetBuffers(), resamplerBuffers[1].GetBuffers(), fileFormat.Channels, (fr_i32)frame_out);
+		DoubleToFloat(transferBuffers.GetBuffers(), resamplerBuffers[1].GetBuffers(), fileFormat.Channels, (fr_i32)FramesCount);
 	}
-
-	for (size_t i = 0; i < fileFormat.Channels; i++) {
-		memcpy(ppFloatData[i], transferBuffers.GetBufferData(i), frame_out * sizeof(fr_f32));
+	
+	if (fileFormat.Channels == 1 * outputFormat.Channels >= 2) {
+		for (size_t i = 0; i < 2; i++) {
+			memcpy(ppFloatData[i], transferBuffers.GetBufferData(0), FramesCount * sizeof(fr_f32));
+		}
+	} else {
+		for (size_t i = 0; i < min(fileFormat.Channels, outputFormat.Channels); i++) {
+			memcpy(ppFloatData[i], transferBuffers.GetBufferData(i), FramesCount * sizeof(fr_f32));
+		}
 	}
 
 	return true;

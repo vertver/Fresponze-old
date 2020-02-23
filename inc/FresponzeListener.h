@@ -22,13 +22,15 @@ enum EListenerState
 {
 	eStopState,
 	ePauseState,
-	ePlayState
+	ePlayState,
+	eReplayState
 };
 
 class CMediaListener : public IBaseInterface
 {
 protected:
 	fr_i32 CurrentState = 0;
+	fr_i64 framesPos = 0;
 	PcmFormat ResourceFormat = {};
 	PcmFormat ListenerFormat = {};
 	IMediaResource* pLocalResource = nullptr;
@@ -54,7 +56,7 @@ public:
 	fr_i32 GetFormat(PcmFormat& fmt);
 	fr_i32 SetFormat(PcmFormat fmt);
 
-	fr_i32 Flush(fr_i32 frames, fr_f32** ppOutputFloatData);
+	fr_i32 Process(fr_f32** ppOutputFloatData, fr_i32 frames);
 };
 
 struct ListenersNode;

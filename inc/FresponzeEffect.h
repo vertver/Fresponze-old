@@ -23,7 +23,8 @@ enum EEffectType : fr_i32
 	UnknownEffectType,		// No effect
 	SoundEffectType,		// For single sound or input signal
 	PreMixEffect,			// For pre-master state, for check audio engine picture 
-	AfterMixEffect			// For master-channel
+	AfterMixEffect, 		// For master-channel
+	FFTEffectType			// Special FFT-effect, in FFT chain
 };
 
 enum EKnobType : fr_i32
@@ -46,7 +47,7 @@ public:
 	virtual bool GetPluginVendor(fr_string64& DescriptionString) = 0;
 
 	virtual bool GetVariablesCount(fr_i32& CountOfVariables) = 0;
-	virtual bool GetVariableDescription(fr_string128& DescriptionString) = 0;
+	virtual bool GetVariableDescription(fr_i32 VariableIndex, fr_string128& DescriptionString) = 0;
 	virtual bool GetVariableKnob(fr_i32 VariableIndex, fr_i32& KnobType) = 0;
 	virtual bool SetVariable(fr_i32 VariableIndex, fr_f32 VariableValue) = 0;
 	virtual bool GetVariable(fr_f32 VariableIndex, fr_f32& VariableValue) = 0;

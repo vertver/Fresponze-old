@@ -29,14 +29,12 @@ CWindowsMapFile::Open(const fr_utf8* FileLink, fr_i32 Flags)
 	if (MultiByteToWideChar(CP_UTF8, 0, FileLink, -1, maxPathString, ARRAYSIZE(maxPathString)) <= 0) return false;
 
 	/* Convert local flags to global and try to open file handle */
-	if (Flags & eReadFlag) dwGenericFlags |= GENERIC_READ;
-	if (Flags & eWriteFlag) dwGenericFlags |= GENERIC_WRITE;
-	if (Flags & eCreateAlwaysFlag) dwSharedFlags |= CREATE_ALWAYS;
-	if (Flags & eMustExistFlag) dwSharedFlags |= OPEN_EXISTING;
+	if (Flags & eReadFlag)			dwGenericFlags	|= GENERIC_READ;
+	if (Flags & eWriteFlag)			dwGenericFlags	|= GENERIC_WRITE;
+	if (Flags & eCreateAlwaysFlag)	dwSharedFlags	|= CREATE_ALWAYS;
+	if (Flags & eMustExistFlag)		dwSharedFlags	|= OPEN_EXISTING;
 	pFileHandle = (fr_ptr)CreateFileW(maxPathString, dwGenericFlags, FILE_SHARE_READ, nullptr, dwSharedFlags, 0, nullptr);
 	if (IsInvalidHandle(pFileHandle)) return false;
-
-
 
 	/* 
 		If we want to create map of file - we must open file mapping handle. 
@@ -54,8 +52,8 @@ CWindowsMapFile::Open(const fr_utf8* FileLink, fr_i32 Flags)
 void	
 CWindowsMapFile::Close()
 {
-	if (!IsInvalidHandle(pMapHandle)) { CloseHandle(pMapHandle); pMapHandle = nullptr; }
-	if (!IsInvalidHandle(pFileHandle)) { CloseHandle(pFileHandle); pMapHandle = nullptr; }
+	if (!IsInvalidHandle(pMapHandle))	{ CloseHandle(pMapHandle);	pMapHandle = nullptr; }
+	if (!IsInvalidHandle(pFileHandle))	{ CloseHandle(pFileHandle); pMapHandle = nullptr; }
 }
 
 fr_i64	
@@ -76,8 +74,8 @@ bool
 CWindowsMapFile::MapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr, fr_u64 OffsetFile, fr_i32 ProtectFlags)
 {
 	DWORD dwAccessFlags = 0;
-	if (ProtectFlags & eMappingRead) dwAccessFlags |= FILE_MAP_READ;
-	if (ProtectFlags & eMappintWrite) dwAccessFlags |= FILE_MAP_WRITE;
+	if (ProtectFlags & eMappingRead)	dwAccessFlags |= FILE_MAP_READ;
+	if (ProtectFlags & eMappintWrite)	dwAccessFlags |= FILE_MAP_WRITE;
 
 	OutPtr = MapViewOfFileEx((HANDLE)pMapHandle, dwAccessFlags, (OffsetFile >> 32), (OffsetFile & 0xFFFFFFFF), SizeToMap, nullptr);
 	return !!(OutPtr);

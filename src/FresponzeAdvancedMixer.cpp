@@ -31,15 +31,12 @@ CAdvancedMixer::GetMixFormat(PcmFormat& ThisFormat)
 bool 
 CAdvancedMixer::CreateNode(ListenersNode*& pNode)
 {
-	ListenersNode* pPrev = nullptr;
-	ListenersNode** pCurrent = &pFirstListener;
-	while (*pCurrent) {
-		pPrev = *pCurrent;
-		pCurrent = &(*pCurrent)->pNext;
+	ListenersNode* pCurrent = pLastListener;
+	if (!pCurrent) {
+		pLastListener = new ListenersNode;
+		pFirstListener = pLastListener;
+		pCurrent = pLastListener;
 	}
-	ListenersNode*& pThis = *pCurrent;
-	pThis = new ListenersNode;
-	pThis->pPrev = pPrev;
 
 	return true;
 }

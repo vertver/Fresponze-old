@@ -35,13 +35,13 @@ int main()
 		outFormat.SampleRate = 44100;
 		res.OpenResource((void*)"I:/Downloads/ehren-paper_lights-96.wav");
 		res.SetFormat(outFormat);
+		res.GetFormat(inFormat);
 
 		for (size_t i = 0; i < 2; i++) {
 			floatBufs->Resize(BUF_SIZE);
 			outFloat[i] = floatBufs->Data();
 		}
 
-		res.GetFormat(inFormat);
 		HANDLE hFile = CreateFileW(L"I:\\out.raw", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, 0, nullptr);
 		if (hFile == INVALID_HANDLE_VALUE || !hFile) return false;
 		CalculateFrames64(inFormat.Frames, inFormat.SampleRate, outFormat.SampleRate, reads);
