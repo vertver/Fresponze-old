@@ -39,9 +39,8 @@ public:
 	virtual void GetFormat(PcmFormat& format) = 0;
 	virtual void SetFormat(PcmFormat outputFormat) = 0;
 
-	// for OPUS, use free() to delete string
-	virtual void GetVendorName(const char*& vendorName) = 0;		// vendor name, in tags structure
-	virtual void GetVendorString(const char*& vendorString) = 0;	// vendor comment, in tags structure
+	virtual void GetVendorName(const char*& vendorName) = 0;
+	virtual void GetVendorString(const char*& vendorString) = 0;
 
 	virtual bool Read(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
 	virtual bool ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
