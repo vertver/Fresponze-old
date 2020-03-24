@@ -16,6 +16,7 @@
 * limitations under the License.
 *****************************************************************/
 #include "FresponzeTypes.h"
+#include "FresponzeFileSystemWindows.h"
 #define ALIGN_SIZE(Size, AlSize)        ((Size + (AlSize-1)) & (~(AlSize-1)))
 #define ALIGN_SIZE_64K(Size)            ALIGN_SIZE(Size, 65536)
 #define ALIGN_SIZE_16(Size)             ALIGN_SIZE(Size, 16)
@@ -29,13 +30,15 @@ InitMemory()
 	SYSTEM_INFO sysInfo = {};
 	GetNativeSystemInfo(&sysInfo);
 	MemoryGranularity = sysInfo.dwAllocationGranularity;
-	hFresponzeHeap = HeapCreate(0, 0x010000, 0);
+	hFresponzeHeap = HeapCreate(0, 0x040000, 0);
+	CoInitialize(nullptr);
 	return !IsInvalidHandle(hFresponzeHeap);
 }
 
 void
 DestroyMemory()
 {
+	CoUninitialize();
 	if (!IsInvalidHandle(hFresponzeHeap)) HeapDestroy(hFresponzeHeap);
 }
 
@@ -44,7 +47,13 @@ FastMemAlloc(
 	fr_i32 SizeToAllocate
 )
 {
+#ifndef _DEBUG
 	return HeapAlloc(hFresponzeHeap, 0, SizeToAllocate);
+#else
+	void* pret = HeapAlloc(hFresponzeHeap, 0, SizeToAllocate);
+	if (pret) memset(pret, 0, SizeToAllocate);
+	return pret;
+#endif
 }
 
 void*
@@ -82,9 +91,15 @@ FreeVirtMemory(
 	VirtualFree(Ptr, 0, MEM_RELEASE);
 }
 
+void* 
+GetMapFileSystem()
+{
+	return new CWindowsMapFile();
+}
+
 CWinEvent::CWinEvent()
 {
-	hEvent = CreateEventEx(nullptr, nullptr, 0, 0);
+	hEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
 }
 
 CWinEvent::~CWinEvent()
@@ -115,7 +130,8 @@ CWinEvent::Wait(
 	fr_i32 TimeToWait
 )
 {
-	return WaitForSingleObject(hEvent, (DWORD)TimeToWait) == WAIT_OBJECT_0;
+	DWORD dwRet = WaitForSingleObject(hEvent, (DWORD)TimeToWait);
+	return dwRet == WAIT_OBJECT_0;
 }
 
 bool

@@ -17,10 +17,10 @@
 *****************************************************************/
 #include "FresponzeWavFile.h"
 
-
 CRIFFMediaResource::CRIFFMediaResource(IFreponzeMapFile* pNewMapper)
 { 
-	pNewMapper->Clone((void**)&pMapper);
+	if (!pNewMapper) pMapper = (IFreponzeMapFile*)GetMapFileSystem();
+	else pNewMapper->Clone((void**)&pMapper);
 }
 
 CRIFFMediaResource::~CRIFFMediaResource()
@@ -72,21 +72,21 @@ CRIFFMediaResource::OpenResource(void* pResourceLinker)
 	BugAssert(isValid, "There's no samples here");
 	if (!isValid) {
 		pMapper->Close();
-		return false;
+		return isValid;
 	}
 
 	isValid = (fileFormat.Channels);
 	BugAssert(isValid, "There's no channels here");
 	if (!isValid) {
 		pMapper->Close();
-		return false;
+		return isValid;
 	}
 
 	isValid = (fileFormat.SampleRate);
 	BugAssert(isValid, "There's no sample rate here");
 	if (!isValid) {
 		pMapper->Close();
-		return false;
+		return isValid;
 	}
 
 	/* Map this thing */
@@ -185,25 +185,9 @@ CRIFFMediaResource::ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData)
 	tempBuffer.Resize(FramesCount * fileFormat.Channels);
 	transferBuffers.Resize(fileFormat.Channels, FramesCount);
 
-	/* Read raw data from mapped buffer by memcpy function */
-	try {
-		if (fileFormat.IsFloat) {
-			fr_u64 to_data = (fr_u64)pMappedArea + sizeof(wav_header);
-			to_data += FramePosition * (fileFormat.IsFloat ? sizeof(fr_f32) : sizeof(fr_i16)) * fileFormat.Channels;
-			memcpy(tempBuffer.Data(), fr_ptr(to_data), FramesCount * sizeof(fr_f32) * fileFormat.Channels);
-		} else {
-			/* Try to convert signed 16 to float 32 signal */
-			for (size_t i = 0; i < FramesCount * fileFormat.Channels; i++) {
-				tempBuffer[i] = this->GetSample(FramePosition * fileFormat.Channels + i);
-			}
-		}
-	} catch (...) {
-		return false;
-	}
-	
 	/* Convert interleaved to planar buffer */
 	for (size_t i = 0; i < FramesCount * fileFormat.Channels; i++) {
-		transferBuffers[i % fileFormat.Channels][i / fileFormat.Channels] = tempBuffer[i];
+		transferBuffers[i % fileFormat.Channels][i / fileFormat.Channels] = this->GetSample(FramePosition * fileFormat.Channels + i);
 	}
 
 	FramePosition += FramesCount;

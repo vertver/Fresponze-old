@@ -28,8 +28,9 @@ protected:
 	EffectNodeStruct* pInputFirstEffect = nullptr;
 	EffectNodeStruct* pMasterFirstEffect = nullptr;
 	IAudioCallback* pAudioCallback = nullptr;
-	CRingFloatBuffer InputBuffer;
-	CRingFloatBuffer OutputBuffer;
+	C2DFloatBuffer mixBuffer = {};
+	C2DFloatBuffer tempBuffer = {};
+	CFloatBuffer OutputBuffer;
 	PcmFormat MixFormat = {};
 	PcmFormat InputFormat = {};
 
@@ -45,13 +46,13 @@ public:
 	virtual bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };
 
-class CAudioCallback final : public IAudioCallback
+class CMixerAudioCallback final : public IAudioCallback
 {
 protected:
 	IAudioMixer* pAudioMixer = nullptr;
 
 public:
-	CAudioCallback(IAudioMixer* pParentMixer)
+	CMixerAudioCallback(IAudioMixer* pParentMixer)
 	{
 #ifdef WINDOWS_PLATFORM
 		_InterlockedIncrement(&Counter);

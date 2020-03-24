@@ -48,7 +48,7 @@ GetSleepTime(
 	float fRet = 0.f;
 	if (!SampleRate) return 0;
 
-	fRet = ((((float)Frames / (float)SampleRate) * 1000) / 2);
+	fRet = ((((float)Frames / (float)SampleRate) * 1000.f) / 2.f);
 	return (DWORD)fRet;
 }
 
@@ -135,8 +135,6 @@ CWASAPIAudioEnpoint::ThreadProc()
 	bool isFloat = EndpointInfo.EndpointFormat.IsFloat;
 	fr_err errCode = 0;
 	UINT32 CurrentFrames = 0;
-	UINT32 AvailableFrames = 0;
-	UINT32 StreamPadding = 0;
 	UINT32 SampleRate = EndpointInfo.EndpointFormat.SampleRate;
 	UINT32 Bits = EndpointInfo.EndpointFormat.Bits;
 	UINT32 FramesInBuffer = EndpointInfo.EndpointFormat.Frames;
@@ -146,7 +144,6 @@ CWASAPIAudioEnpoint::ThreadProc()
 	DWORD dwFlushTime = GetSleepTime(FramesInBuffer, (DWORD)SampleRate);
 	HRESULT hr = 0;
 	HANDLE hMMCSS = nullptr;
-	BYTE* pByte = nullptr;
 
 	switch (EndpointInfo.Type) {
 	case ProxyType:
@@ -160,11 +157,15 @@ CWASAPIAudioEnpoint::ThreadProc()
 		if (IsInvalidHandle(hMMCSS)) return;
 	}
 	break;
-	default:
-		break;
+	default: {
+		hMMCSS = AvSetMmThreadCharacteristicsA("Audio", &dwTask);
+		if (IsInvalidHandle(hMMCSS)) return;
+	}
+	break;
 	}
 
 	if (!AvSetMmThreadPriority(hMMCSS, AVRT_PRIORITY_CRITICAL))	{
+		DWORD GetLastr = GetLastError();
 		goto EndOfThread;
 	}
 
@@ -176,11 +177,16 @@ CWASAPIAudioEnpoint::ThreadProc()
 			switch (EndpointInfo.Type) {
 			case ProxyType:
 			case RenderType: {
-				errCode = pAudioCallback->EndpointCallback(pTempBuffer, FramesInBuffer, CurrentChannels, (fr_i32)SampleRate, RenderType);
+				UINT32 StreamPadding = 0;
 				hr = pAudioClient->GetCurrentPadding(&StreamPadding);
-				if (FAILED(hr)) goto EndOfThread;	
+				if (FAILED(hr)) goto EndOfThread;
 
-				AvailableFrames = FramesInBuffer - StreamPadding;
+				pAudioCallback->RenderCallback(FramesInBuffer, CurrentChannels, (fr_i32)SampleRate);
+				errCode = pAudioCallback->EndpointCallback(pTempBuffer, FramesInBuffer, CurrentChannels, (fr_i32)SampleRate, RenderType);
+
+				BYTE* pByte = nullptr;
+				INT32 AvailableFrames = FramesInBuffer;
+				AvailableFrames -= StreamPadding;
 				while (AvailableFrames) {
 					/*
 						In this case, "GetBuffer" function can be failed if
@@ -190,8 +196,16 @@ CWASAPIAudioEnpoint::ThreadProc()
 					if (SUCCEEDED(hr)) {
 						/* Process and copy data to main buffer */
 						if (!pByte) continue;
-						if (SUCCEEDED(errCode)) 
-							CopyDataToBuffer(&pTempBuffer[FramesInBuffer - AvailableFrames], pByte, AvailableFrames, isFloat, Bits, CurrentChannels);
+						if (!SUCCEEDED(errCode)) {
+							CopyDataToBuffer(&pTempBuffer[StreamPadding], pByte, AvailableFrames, isFloat, Bits, CurrentChannels);
+						} else {
+							static fr_f32 phase = 0.f;
+							fr_f32* pBuf = (fr_f32*)pByte;
+							for (size_t i = 0; i < AvailableFrames * CurrentChannels; i++) {
+								pBuf[i] = sinf(phase * 6.283185307179586476925286766559005f) * 0.3f;
+								phase = fmodf(phase + 150.f / SampleRate, 1.0f);
+							}
+						}
 					} else {
 						/* Don't try to destroy device if the buffer is unavailable */
 						if (hr == AUDCLNT_E_BUFFER_TOO_LARGE) continue;
@@ -199,20 +213,22 @@ CWASAPIAudioEnpoint::ThreadProc()
 					}
 
 					/* If we can't release buffer - close invalid host */
-					hr = pRenderClient->ReleaseBuffer(AvailableFrames, errCode == -2 ? AUDCLNT_BUFFERFLAGS_SILENT : 0);
+					hr = pRenderClient->ReleaseBuffer(AvailableFrames, 0);
 					if (FAILED(hr)) goto EndOfThread;
 					hr = pAudioClient->GetCurrentPadding(&StreamPadding);
 					if (FAILED(hr)) goto EndOfThread;
 
-					AvailableFrames = FramesInBuffer - StreamPadding;
+					AvailableFrames = FramesInBuffer;
+					AvailableFrames -= StreamPadding;
 				}
-
-				pAudioCallback->RenderCallback(FramesInBuffer, CurrentChannels, (fr_i32)SampleRate);
 			}
 			break;
 			case CaptureType: {
+				UINT32 StreamPadding = 0;
 				hr = pCaptureClient->GetNextPacketSize(&StreamPadding);
 				if (FAILED(hr)) goto EndOfThread;
+				UINT32 AvailableFrames = 0;
+				BYTE* pByte = nullptr;
 
 				/* Process all data while we have it in WASAPI capture buffer */
 				AvailableFrames = StreamPadding;
@@ -260,7 +276,7 @@ CWASAPIAudioEnpoint::CreateWasapiThread()
 #endif
 
 	if (!IsInvalidHandle(hThread)) {
-		if (!pSyncEvent->Wait(30)) {
+		if (!pSyncEvent->Wait(1000)) {
 			/* Terminate our thread if it was timeouted */
 			if (WaitForSingleObject(hThread, 0) != WAIT_OBJECT_0) {
 				TerminateThread(hThread, (DWORD)-1);
@@ -452,7 +468,7 @@ CWASAPIAudioEnpoint::Start()
 {
 	CreateWasapiThread();
 	pStartEvent->Raise();
-	return SUCCEEDED(pAudioClient->Start());
+	return pAudioClient->Start();
 }
 
 bool

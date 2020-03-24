@@ -8,17 +8,54 @@
 IFresponze* pFresponze = nullptr;
 
 #define BUF_SIZE 4410
+#include <process.h>
+#include <avrt.h>
+
+bool Window_Flag_Resizeing = false;
+HANDLE hCloseEvent = NULL;
+HANDLE hWaitForInit = NULL;
+HANDLE hThread = NULL;
+HWND MainHWND = NULL;
+
+void loop()
+{
+	while (true) {
+		Sleep(5);
+	}
+}
 
 void test1()
 {
+	ListenersNode* listNode = nullptr;
+	EndpointInformation* InputList = nullptr;
+	EndpointInformation* OutputList = nullptr;
+	EndpointInformation OutputLists = {};
+	IAudioHardware* pAudioHardware = nullptr;
+	CAdvancedMixer* pAdvancedMixer = new CAdvancedMixer();
+	IAudioCallback* pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
 	if (FrInitializeInstance((void**)&pFresponze) != 0) return;
-	pFresponze->GetHardwareInterface(eEndpointWASAPIType, nullptr, nullptr);
+	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
+	pAudioHardware->GetDevicesList(InputList, OutputList);
+	char* pPtr = OutputList->EndpointName;
+	if (pAudioHardware->Open(RenderType, 1000.f)) {
+		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
+		if (pAdvancedMixer->CreateListener((void*)"I:/Downloads/ehren-paper_lights-96.wav", listNode)) {
+			listNode->pListener->SetListenerState(ePlayState);
+			pAdvancedMixer->SetMixFormat(OutputLists.EndpointFormat);
+			pAudioHardware->Start();
+		}
+	}
+	loop();
 }
+
+
 
 int main()
 {
 	InitMemory();
-	{
+	test1();
+
+	if constexpr (false) {
 		int64_t reads = 0;
 		DWORD dwp = 0;
 		CFloatBuffer floatBufs[2];

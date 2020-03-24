@@ -45,7 +45,7 @@ private:
 public:
 	CGameMixer()
 	{
-		pAudioCallback = new CAudioCallback(this);
+		pAudioCallback = new CMixerAudioCallback(this);
 	}
 
 	~CGameMixer()

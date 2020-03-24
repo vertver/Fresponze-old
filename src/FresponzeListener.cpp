@@ -43,13 +43,15 @@ CMediaListener::SetPosition(fr_i64 FramePosition)
 fr_i32 
 CMediaListener::GetFullFrames()
 {
-	return ListenerFormat.Frames;
+	fr_i64 outputFrames = 0;
+	CalculateFrames64(ResourceFormat.Frames, ResourceFormat.SampleRate, ListenerFormat.SampleRate, outputFrames);
+	return outputFrames;
 }
 
 fr_i32	
 CMediaListener::GetFormat(PcmFormat& fmt)
 {
-	fmt = ListenerFormat;
+	fmt = ResourceFormat;
 	return 0;
 }
 
@@ -75,4 +77,6 @@ CMediaListener::Process(fr_f32** ppOutputFloatData, fr_i32 frames)
 	default:
 		break;
 	}
+
+	return frames;
 }

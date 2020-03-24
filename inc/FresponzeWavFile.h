@@ -26,7 +26,7 @@ private:
 	fr_f32 GetSample(fr_i64 Index);
 
 public:
-	CRIFFMediaResource(IFreponzeMapFile* pNewMapper);
+	CRIFFMediaResource(IFreponzeMapFile* pNewMapper = nullptr);
 	~CRIFFMediaResource();
 
 	bool OpenResource(void* pResourceLinker) override;

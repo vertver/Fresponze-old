@@ -401,12 +401,14 @@ CGameMixer::Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 Sampl
 bool 
 CGameMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
+	/*
 	if (!OutputBuffer.BufferSize()) {
 		OutputBuffer.Resize(Frames * Channels);
 		return false;
 	}
 	if (QueuedBuffers <= 0) return false;
-
+	*/
+	return false;
 }
 
 bool 

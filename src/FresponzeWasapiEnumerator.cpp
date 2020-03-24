@@ -33,7 +33,7 @@ extern const PROPERTYKEY FRRPKEY_Device_FriendlyName = { { 0xa45c254e, 0xdf1c, 0
 CWASAPIAudioEnumerator::CWASAPIAudioEnumerator()
 {
 	_InterlockedIncrement(&Counter);
-	CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDeviceEnumerator));
+	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDeviceEnumerator));
 }
 
 CWASAPIAudioEnumerator::~CWASAPIAudioEnumerator()
@@ -86,14 +86,14 @@ CWASAPIAudioEnumerator::GetDeviceInfoByDevice(
 
 		/* Translate UTF-16 string to normalized UTF-8 string */
 		if (StringSize && StringSize < 259) {
-			if (WideCharToMultiByte(CP_UTF8, 0, value.pwszVal, -1, lpNewString, 260, NULL, NULL)) {
-				strcpy_s(pEndpointStruct->EndpointName, lpNewString);
+			if (WideCharToMultiByte(CP_UTF8, 0, lpwDeviceId, -1, lpNewString, 260, NULL, NULL)) {
+				strcpy_s(pEndpointStruct->EndpointUUID, lpNewString);
 			} else {
-				strcpy_s(pEndpointStruct->EndpointName, "Unknown Device UUID");
+				strcpy_s(pEndpointStruct->EndpointUUID, "Unknown Device UUID");
 			}
 		}
 	} else {
-		strcpy_s(pEndpointStruct->EndpointName, "Unknown Device UUID");
+		strcpy_s(pEndpointStruct->EndpointUUID, "Unknown Device UUID");
 	}
 
 	if (FAILED(pDevice->Activate(__uuidof(pAudioClient), CLSCTX_ALL, nullptr, (void**)&pAudioClient))) {
@@ -183,12 +183,13 @@ bool
 CWASAPIAudioEnumerator::EnumerateDevices()
 {
 	UINT CountOfDevices = 0;
+	HRESULT hr = 0;
 	IMMDeviceCollection* pInputDeviceCollection = nullptr;
 	IMMDeviceCollection* pOutputDeviceCollection = nullptr;
 
 	if (!pDeviceEnumerator) return false;
-	pDeviceEnumerator->EnumAudioEndpoints(eCapture, eConsole, &pInputDeviceCollection);
-	pDeviceEnumerator->EnumAudioEndpoints(eRender, eConsole, &pOutputDeviceCollection);
+	hr = pDeviceEnumerator->EnumAudioEndpoints(eCapture, DEVICE_STATE_ACTIVE, &pInputDeviceCollection);
+	pDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &pOutputDeviceCollection);
 	if (!pOutputDeviceCollection && !pInputDeviceCollection) return false;
 
 	if (pInputDeviceCollection) {
@@ -264,12 +265,12 @@ CWASAPIAudioEnumerator::GetDevicesCount(fr_i32 EndpointType, fr_i32& Count)
 
 	switch (EndpointType) {
 		case RenderType:
-			if (FAILED(pDeviceEnumerator->EnumAudioEndpoints(eRender, eConsole, &pOutputDeviceCollection))) return false;
+			if (FAILED(pDeviceEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &pOutputDeviceCollection))) return false;
 			if (FAILED(pOutputDeviceCollection->GetCount(&CountOfDevices))) return false;
 			_RELEASE(pOutputDeviceCollection);
 			break;
 		case CaptureType:
-			if (FAILED(pDeviceEnumerator->EnumAudioEndpoints(eCapture, eConsole, &pInputDeviceCollection))) return false;
+			if (FAILED(pDeviceEnumerator->EnumAudioEndpoints(eCapture, DEVICE_STATE_ACTIVE, &pInputDeviceCollection))) return false;
 			if (FAILED(pInputDeviceCollection->GetCount(&CountOfDevices))) return false;
 			_RELEASE(pInputDeviceCollection);
 			break;

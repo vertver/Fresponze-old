@@ -39,13 +39,13 @@ private:
 	{
 		pSyncEvent = new CWinEvent;
 		pThreadEvent = new CWinEvent;
-		pSyncEvent = new CWinEvent;
+		pStartEvent = new CWinEvent;
 		return !!pThreadEvent || !!pSyncEvent;
 	}
 
 	bool InitializeClient(IMMDevice* pDev)
 	{	
-		if (pDev) return SUCCEEDED(pDev->Activate(__uuidof(pAudioClient), CLSCTX_ALL, nullptr, (void**)&pAudioClient));
+		if (pDev) return SUCCEEDED(pDev->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&pAudioClient));
 		return false;
 	}
 
@@ -61,6 +61,7 @@ public:
 		pTempDevice->QueryInterface(IID_PPV_ARGS(&pCurrentDevice));
 		InitalizeEndpoint();
 		memcpy(&EndpointInfo, &Info, sizeof(EndpointInformation));
+		EndpointInfo.Type = DeviceType;
 	}
 
 	~CWASAPIAudioEnpoint()

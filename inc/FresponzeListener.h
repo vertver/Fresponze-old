@@ -1,5 +1,5 @@
 /*********************************************************************
-* Copyright (C) Anton Kovalev (Anton Kovalev (vertver)), 2019. All rights reserved.
+* Copyright (C) Anton Kovalev (vertver), 2019. All rights reserved.
 * Fresponze - fast, simple and modern multimedia sound library
 * Apache-2 License
 **********************************************************************

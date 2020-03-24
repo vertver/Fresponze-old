@@ -22,6 +22,7 @@
 class CAdvancedMixer : public IAudioMixer
 {
 protected:
+	CAudioBuffer ring_buffer;
 	ListenersNode* pFirstListener = nullptr;
 	ListenersNode* pLastListener = nullptr;
 
