@@ -123,7 +123,7 @@ FastMemTryRealloc(
 )
 {
 	void* temp_ptr = nullptr;
-	if (Ptr) void* temp_ptr = FastMemRealloc(Ptr, SizeToAllocate);
+	if (Ptr) temp_ptr = FastMemRealloc(Ptr, SizeToAllocate);
 	if (!temp_ptr) {
 		temp_ptr = FastMemAlloc(SizeToAllocate);
 		if (Ptr) {
@@ -391,8 +391,7 @@ private:
 	TYPE* pLocalData = nullptr;
 
 public:
-	CBuffer() {}
-	CBuffer(CBuffer&& TempBuffer) = default;
+	CBuffer() : DataSize(0), pLocalData(nullptr) {}
 	CBuffer(fr_i32 SizeToResize)
 	{
 		pLocalData = (TYPE*)FastMemAlloc(SizeToResize * sizeof(TYPE));
@@ -414,22 +413,21 @@ public:
 
 	void Free()
 	{
-		if (pLocalData) FreeFastMemory(pLocalData);
+		if (pLocalData) { FreeFastMemory(pLocalData); pLocalData = nullptr; }
 		DataSize = 0;
 	}
 
 	void Resize(fr_i32 SizeToResize)
 	{
-		if (SizeToResize > DataSize) {
-			if (pLocalData) FreeFastMemory(pLocalData);
-			pLocalData = (TYPE*)FastMemAlloc(SizeToResize * sizeof(TYPE));
+		if (SizeToResize != DataSize) {
+			pLocalData = (TYPE*)FastMemTryRealloc(pLocalData, SizeToResize * sizeof(TYPE), DataSize * sizeof(TYPE));
 			DataSize = SizeToResize;
 		}
 	}
 
 	void Push(TYPE* pData, fr_i32 SizeToResize)
 	{
-		if (SizeToResize > DataSize) Resize(SizeToResize);
+		Resize(SizeToResize);
 		memcpy(pLocalData, pData, SizeToResize * sizeof(TYPE));
 	}
 
@@ -449,6 +447,27 @@ public:
 	}
 };
 
+template
+<typename TYPE>
+class CVirtualBuffer
+{
+private:
+	fr_i32 BuffersCount = 0;
+	fr_i32 DataSize = 0;
+	TYPE** pDoublePointer = nullptr;
+
+public:
+	void Resize(fr_i32 BufCount, fr_i32 SizeData) {
+		if (BufCount < 0) return;
+		if (SizeData < 0) return;
+
+		if (BuffersCount != BufCount) {
+			TYPE** ppTempBuffers = (TYPE**)FastMemAlloc(sizeof(void*) * BufCount);
+
+		}
+	}
+};
+
 struct ProcessBuffer {
 	fr_u32 isQueueBuffer = 0;
 	fr_u32 PositionRead = 0;
@@ -464,13 +483,9 @@ private:
 	void AllocateBuffer(fr_i32 bufLength) {
 		for (size_t i = 0; i < MAX_CHANNELS; i++) {
 			if (localBuffer.Data[i]) {
-				void* ptrtemp = FastMemRealloc(localBuffer.Data[i], bufLength * sizeof(fr_f32));
+				void* ptrtemp = FastMemTryRealloc(localBuffer.Data[i], bufLength * sizeof(fr_f32), localBuffer.Frames * sizeof(fr_f32));
 				if (ptrtemp) { localBuffer.Data[i] = (fr_f32*)ptrtemp; continue; }
-				FreeFastMemory(localBuffer.Data[i]);
 			}
-
-			localBuffer.Data[i] = (fr_f32*)FastMemAlloc(bufLength * sizeof(fr_f32));
-			memset(localBuffer.Data[i], 0, bufLength * sizeof(fr_f32));
 		}
 
 		localBuffer.Frames = bufLength;
@@ -633,7 +648,6 @@ public:
 	}
 };
 
-
 typedef CBuffer<fr_f64> CDoubleBuffer;
 typedef CBuffer<fr_f32> CFloatBuffer;
 typedef CBuffer<fr_i32> CIntBuffer;
@@ -665,6 +679,15 @@ public:
 	{
 		if (index >= BuffersCount || index < 0) return pDoublePointer[0];
 		return pDoublePointer[index];
+	}
+
+	void Clear()
+	{
+		for (size_t i = 0; i < BuffersCount; i++) {
+			if (pDoublePointer[i]) {
+				memset(pDoublePointer[i], 0, DataSize * sizeof(TYPE)); 
+			}
+		}
 	}
 
 	void Free()
@@ -776,6 +799,8 @@ private:
 	fr_i32 CurrentBuffer = 0;
 	fr_i32 BuffersCount = 0;
 	fr_i32 BuffersSize = 0;
+	fr_i32 BuffersLeft = 0;
+	fr_i32 BufferPosition = 0;
 	CBuffer<TYPE>** ppBuffers = nullptr;
 
 public:
@@ -789,11 +814,15 @@ public:
 	void SetBuffersCount(fr_i32 CountOfBuffers)
 	{
 		CBuffer<TYPE>** ppTempBuffers = nullptr;
-		if (BuffersCount < CountOfBuffers) {
+		if (BuffersCount != CountOfBuffers) {
 			ppTempBuffers = (CBuffer<TYPE>**)FastMemAlloc(sizeof(void*) * CountOfBuffers);
 			if (ppBuffers) {
-				for (size_t i = 0; i < BuffersCount; i++) {
+				for (size_t i = 0; i < min(abs(BuffersCount), CountOfBuffers); i++) {
 					if (ppBuffers[i]) ppTempBuffers[i] = ppBuffers[i];
+				}
+			} else {
+				for (size_t i = 0; i < CountOfBuffers; i++) {
+					ppTempBuffers[i] = new CBuffer<TYPE>();
 				}
 			}
 
@@ -804,31 +833,36 @@ public:
 
 	void Resize(fr_i32 SizeToResize)
 	{
-		if (ppBuffers) {
+		if (ppBuffers && SizeToResize != BuffersSize) {
 			for (size_t i = 0; i < BuffersCount; i++) {
-				if (!ppBuffers[i]) ppBuffers[i] = new CBuffer<TYPE>(SizeToResize);
-				else ppBuffers[i]->Resize(SizeToResize);
+				if (ppBuffers[i]) ppBuffers[i]->Resize(SizeToResize);
 			}
+
+			BuffersSize = SizeToResize;
 		}
 	}
 
 	void PushBuffer(TYPE* InData, fr_i32 SizeOfData)
 	{
 		ppBuffers[CurrentBuffer]->Push(InData, SizeOfData);
+		BuffersLeft++;
 	}
 
 	void PushToNextBuffer(TYPE* InData, fr_i32 SizeOfData)
 	{
 		fr_i32 BufIndex = CurrentBuffer;
-		if (++BufIndex >= BuffersCount) {
+		BufIndex++;
+		if (BufIndex >= BuffersCount) {
 			BufIndex = 0;
 		}
 
 		ppBuffers[BufIndex]->Push(InData, SizeOfData);
+		BuffersLeft++;
 	}
 
 	void NextBuffer()
 	{
+		BufferPosition = 0;
 		if (++CurrentBuffer >= BuffersCount) {
 			CurrentBuffer = 0;
 		}
@@ -844,6 +878,32 @@ public:
 		if (!ppBuffers) return nullptr;
 		return ppBuffers[index]->Data();
 	}
+
+	fr_i32 ReadData(fr_f32* OutBuffer, fr_i32 Samples) {
+		fr_i32 ReadSamples = 0;
+		fr_i32 SampleReturn = 0;
+
+		if (BuffersLeft <= 0) return 0;
+		for (size_t i = 0; i < Samples; i++) {
+			if (BufferPosition >= BuffersSize) { 
+				NextBuffer();
+				BuffersLeft--; 
+			}
+
+			if (BuffersLeft <= 0) {
+				return ReadSamples;
+			}
+
+			OutBuffer[i] = GetData()[BufferPosition];
+			BufferPosition++;
+			ReadSamples++;
+		}
+
+		return ReadSamples;
+	}
+
+	fr_i32 GetLeftSamples() { return (BuffersLeft * BuffersSize) - BufferPosition; }
+	fr_i32 GetLeftBuffers() { return BuffersLeft; }
 
 	TYPE* GetData()
 	{

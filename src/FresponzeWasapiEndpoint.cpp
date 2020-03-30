@@ -181,9 +181,6 @@ CWASAPIAudioEnpoint::ThreadProc()
 				hr = pAudioClient->GetCurrentPadding(&StreamPadding);
 				if (FAILED(hr)) goto EndOfThread;
 
-				pAudioCallback->RenderCallback(FramesInBuffer, CurrentChannels, (fr_i32)SampleRate);
-				errCode = pAudioCallback->EndpointCallback(pTempBuffer, FramesInBuffer, CurrentChannels, (fr_i32)SampleRate, RenderType);
-
 				BYTE* pByte = nullptr;
 				INT32 AvailableFrames = FramesInBuffer;
 				AvailableFrames -= StreamPadding;
@@ -196,16 +193,9 @@ CWASAPIAudioEnpoint::ThreadProc()
 					if (SUCCEEDED(hr)) {
 						/* Process and copy data to main buffer */
 						if (!pByte) continue;
-						if (!SUCCEEDED(errCode)) {
-							CopyDataToBuffer(&pTempBuffer[StreamPadding], pByte, AvailableFrames, isFloat, Bits, CurrentChannels);
-						} else {
-							static fr_f32 phase = 0.f;
-							fr_f32* pBuf = (fr_f32*)pByte;
-							for (size_t i = 0; i < AvailableFrames * CurrentChannels; i++) {
-								pBuf[i] = sinf(phase * 6.283185307179586476925286766559005f) * 0.3f;
-								phase = fmodf(phase + 150.f / SampleRate, 1.0f);
-							}
-						}
+						if (SUCCEEDED(errCode)) {
+							pAudioCallback->EndpointCallback((fr_f32*)pByte, AvailableFrames, CurrentChannels, (fr_i32)SampleRate, RenderType);
+						} 
 					} else {
 						/* Don't try to destroy device if the buffer is unavailable */
 						if (hr == AUDCLNT_E_BUFFER_TOO_LARGE) continue;

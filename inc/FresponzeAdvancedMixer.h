@@ -22,7 +22,7 @@
 class CAdvancedMixer : public IAudioMixer
 {
 protected:
-	CAudioBuffer ring_buffer;
+	fr_i32 BufferedSamples = 0;
 	ListenersNode* pFirstListener = nullptr;
 	ListenersNode* pLastListener = nullptr;
 
@@ -32,6 +32,16 @@ protected:
 	bool DeleteNode(ListenersNode* pNode);
 
 public:
+	void SetBufferSamples(fr_i32 SamplesIn) { BufferedSamples = SamplesIn; }
+
+	fr_i32 BuffersInQueue() {
+		return QueuedBuffers;
+	}
+
+	fr_i32 SamplesInQueue() {
+		return QueuedSamples;
+	}
+
 	bool SetMixFormat(PcmFormat& NewFormat) override;
 	bool GetMixFormat(PcmFormat& ThisFormat) override;
 

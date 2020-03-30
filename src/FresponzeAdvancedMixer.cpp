@@ -1,6 +1,8 @@
 #include "FresponzeAdvancedMixer.h"
 #include "FresponzeWavFile.h"
 
+#define RING_BUFFERS_COUNT 2
+
 bool CAdvancedMixer::SetNewFormat(PcmFormat fmt)
 {
 	int counter = 0;
@@ -18,6 +20,7 @@ bool
 CAdvancedMixer::SetMixFormat(PcmFormat& NewFormat)
 {
 	if (!SetNewFormat(NewFormat)) return false;
+	SetBufferSamples(NewFormat.Frames);
 	MixFormat = NewFormat;
 	return true;
 }
@@ -96,52 +99,6 @@ CAdvancedMixer::DeleteListener(ListenersNode* pListNode)
 	return DeleteNode(pListNode);
 }
 
-/*
-if (!RenderedBuffers) return false;
-	if (OutputBuffer.GetBufferSize() < Frames) {
-		if (BufferPosition)
-		memcpy(pBuffer, &OutputBuffer.GetData()[BufferPosition], Frames * sizeof(fr_f32));
-	}
-
-	return true;
-
-
-	if (RenderedBuffers) return false;
-	OutputBuffer.Resize(Frames);
-	OutputBuffer.SetBuffersCount(2);
-	while (RenderedBuffers < OutputBuffer.GetBuffersCount()) {
-		static fr_f32 phase = 0.f;
-		ListenersNode* pListNode = pFirstListener;
-		tempBuffer.Resize(Channels, Frames / Channels);
-		mixBuffer.Resize(Channels, Frames / Channels);
-
-		for (size_t i = 0; i < Channels; i++) {
-			for (size_t i = 0; i < Frames; i++) {
-				OutputBuffer.GetBufferData(0)[i] = sinf(phase * 6.283185307179586476925286766559005f);
-				phase = fmodf(phase + 1000.f / SampleRate, 1.0f);
-			}
-		}
-
-
-		while (pListNode) {
-			pListNode->pListener->Process(tempBuffer.GetBuffers(), Frames / Channels);
-			for (size_t o = 0; o < Channels; o++) {
-				fr_f32* pFirst = tempBuffer.GetBufferData(o);
-				fr_f32* pSecond = mixBuffer.GetBufferData(o);
-				for (size_t i = 0; i < Frames / Channels; i++) {
-					pSecond[i] += pFirst[i];
-				}
-			}
-			pListNode = pListNode->pNext;
-		}
-
-		PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames, Channels);
-
-//RenderedBuffers++;
-//	}
-
-*/
-
 bool
 CAdvancedMixer::Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
@@ -151,40 +108,77 @@ CAdvancedMixer::Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 bool
 CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
-	fr_f32* pData = OutputBuffer.Data();
-	if (!pData) memset(pBuffer, 0, Frames * Channels * sizeof(fr_f32));
-	else memcpy(pBuffer, pData, Frames * Channels * sizeof(fr_f32));
+	fr_i32 UpdatedSamples = 0;
+	if (RingBuffer.GetLeftBuffers() <= 0) {
+		QueuedBuffers = 0;
+		QueuedSamples = 0;
+		Render(BufferedSamples, Channels, SampleRate);
+	}
+
+	fr_i32 ret = RingBuffer.ReadData(pBuffer, Frames * Channels);
+	UpdatedSamples += ret / Channels;
+	if (UpdatedSamples < Frames) {
+		QueuedBuffers = 0;
+		QueuedSamples = 0;
+		Render(BufferedSamples, Channels, SampleRate);
+		ret = RingBuffer.ReadData(&pBuffer[ret], (Frames - UpdatedSamples) * Channels);
+		UpdatedSamples += ret / Channels;
+		if (UpdatedSamples < Frames) return false;
+	}
+
 	return true;
 }
+
+/*  Test function for generating float sin (300 to 1200 Hz)
+	static bool state = false;
+	static fr_f32 phase = 0.f;
+	static fr_f32 freq = 150.f;
+	fr_f32* pBuf = (fr_f32*)pByte;
+	for (size_t i = 0; i < AvailableFrames * CurrentChannels; i++) {
+		if (freq >= 300.f) state = !state;
+		pBuf[i] = sinf(phase * 6.283185307179586476925286766559005f) * 0.1f;
+		phase = fmodf(phase + freq / SampleRate, 1.0f);
+		freq = !state ? freq + 0.005f : freq - 0.005f;
+		if (freq <= 150.f) state = !state;
+	}
+*/
 
 bool
 CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
-	static fr_f32 phase = 0.f;
-	ListenersNode* pListNode = pFirstListener;
+	if (QueuedBuffers || QueuedSamples) return false;
+	RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
+	RingBuffer.Resize(Frames * Channels);
 	OutputBuffer.Resize(Frames * Channels);
 	tempBuffer.Resize(Channels, Frames);
 	mixBuffer.Resize(Channels, Frames);
+	QueuedBuffers = 0;
+	QueuedSamples = 0;
 
-	//for (size_t i = 0; i < Frames; i++) {
-	//	OutputBuffer.Data()[i] = sinf(phase * 6.283185307179586476925286766559005f);
-	//	phase = fmodf(phase + 300.f / SampleRate, 1.0f);
-	//}
+	for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
+		mixBuffer.Clear();
+		tempBuffer.Clear();
+		ListenersNode* pListNode = pFirstListener;
 
-	
-	while (pListNode) {
-		pListNode->pListener->Process(tempBuffer.GetBuffers(), Frames);
-		for (size_t o = 0; o < Channels; o++) {
-			fr_f32* pFirst = tempBuffer.GetBufferData(o);
-			fr_f32* pSecond = mixBuffer.GetBufferData(o);
-			for (size_t i = 0; i < Frames; i++) {
-				pSecond[i] += pFirst[i];
+		while (pListNode) {
+			pListNode->pListener->Process(tempBuffer.GetBuffers(), Frames);
+			for (size_t o = 0; o < Channels; o++) {
+				fr_f32* pFirst = tempBuffer.GetBufferData(o);
+				fr_f32* pSecond = mixBuffer.GetBufferData(o);
+				for (size_t i = 0; i < Frames; i++) {
+					pSecond[i] += pFirst[i];
+				}
 			}
-		}
-		pListNode = pListNode->pNext;
-	}
 
-	PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * Channels, Channels);
+			pListNode = pListNode->pNext;
+		}
+
+		PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * Channels, Channels);
+		RingBuffer.PushBuffer(OutputBuffer.Data(), Frames * Channels);
+		RingBuffer.NextBuffer();
+		QueuedBuffers++;
+		QueuedSamples += Frames;
+	}
 
 	return true;
 }

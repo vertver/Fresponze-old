@@ -146,7 +146,7 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 
 	/* Translate current frames count for output buffer to file format sample rate frames count */
 	CalculateFrames64(FramesCount, outputFormat.SampleRate, fileFormat.SampleRate, frame_out);
-	fr_i64 FreeFrames = min(frame_out, FileFrames - FramePosition);
+	fr_i64 FreeFrames = min(frame_out, (FileFrames / fileFormat.Channels) - FramePosition);
 	if (!FreeFrames) {		
 		/* Set position to 0 for replay */ 
 		FramePosition = 0;

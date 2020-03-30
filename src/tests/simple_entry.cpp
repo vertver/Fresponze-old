@@ -33,11 +33,12 @@ void test1()
 	IAudioHardware* pAudioHardware = nullptr;
 	CAdvancedMixer* pAdvancedMixer = new CAdvancedMixer();
 	IAudioCallback* pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
+
 	if (FrInitializeInstance((void**)&pFresponze) != 0) return;
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
 	pAudioHardware->GetDevicesList(InputList, OutputList);
 	char* pPtr = OutputList->EndpointName;
-	if (pAudioHardware->Open(RenderType, 1000.f)) {
+	if (pAudioHardware->Open(RenderType, 50.f)) {
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
 		if (pAdvancedMixer->CreateListener((void*)"I:/Downloads/ehren-paper_lights-96.wav", listNode)) {
 			listNode->pListener->SetListenerState(ePlayState);
@@ -45,6 +46,7 @@ void test1()
 			pAudioHardware->Start();
 		}
 	}
+
 	loop();
 }
 
@@ -53,8 +55,6 @@ void test1()
 int main()
 {
 	InitMemory();
-	test1();
-
 	if constexpr (false) {
 		int64_t reads = 0;
 		DWORD dwp = 0;
@@ -90,7 +90,7 @@ int main()
 			WriteFile(hFile, outFloat[0], (writesize * sizeof(fr_f32)), &dwp, nullptr);
 			reads -= writesize * sizeof(fr_f32);
 		}
-	}
+	} else test1();
 	DestroyMemory();
 	return 0;
 }

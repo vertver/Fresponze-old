@@ -21,7 +21,9 @@
 class IAudioMixer : public IBaseInterface
 {
 protected:
-	fr_i32 SoundsCount = 0;
+	fr_i32 BufferPosition = 0;
+	fr_i32 CurrentBuffer = 0;
+	fr_i32 QueuedSamples = 0;
 	fr_i32 QueuedBuffers = 0;
 	SoundState InputState = NoneState;
 	SoundNodeStruct* pSoundsNode = nullptr;
@@ -30,7 +32,8 @@ protected:
 	IAudioCallback* pAudioCallback = nullptr;
 	C2DFloatBuffer mixBuffer = {};
 	C2DFloatBuffer tempBuffer = {};
-	CFloatBuffer OutputBuffer;
+	CFloatBuffer OutputBuffer = {};
+	CRingFloatBuffer RingBuffer = {};
 	PcmFormat MixFormat = {};
 	PcmFormat InputFormat = {};
 
