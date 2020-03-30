@@ -17,6 +17,7 @@
 *****************************************************************/
 #pragma once
 #include "FresponzeMediaResource.h"
+#include "FresponzeEffect.h"
 
 enum EListenerState
 {
@@ -24,6 +25,24 @@ enum EListenerState
 	ePauseState,
 	ePlayState,
 	eReplayState
+};
+
+class IBaseEmitter : public IBaseEffect
+{
+protected:
+	void* pParentListener = nullptr;
+
+public:
+	virtual void  SetListener(void* pListener);
+	virtual void* GetListener();
+};
+
+struct EmittersNode;
+struct EmittersNode 
+{
+	EmittersNode* pNext = nullptr;
+	EmittersNode* pPrev = nullptr;
+	IBaseEmitter* pEmitter = nullptr;
 };
 
 class CMediaListener : public IBaseInterface
@@ -34,6 +53,7 @@ protected:
 	PcmFormat ResourceFormat = {};
 	PcmFormat ListenerFormat = {};
 	IMediaResource* pLocalResource = nullptr;
+	EmittersNode* pFirstEmitter = nullptr;
 
 public:
 	/*
@@ -44,6 +64,10 @@ public:
 	*/
 	CMediaListener(IMediaResource* pInitialResource = nullptr);
 	~CMediaListener();
+
+	bool AddEmitter(IBaseEmitter* pNewEmitter);
+	bool DeleteEmitter(IBaseEmitter* pEmitter);
+	bool GetEmitter(IBaseEmitter* pEmitter);
 
 	bool SetResource(IMediaResource* pInitialResource);
 	bool SetListenerState(fr_i32 State);
@@ -58,6 +82,7 @@ public:
 
 	fr_i32 Process(fr_f32** ppOutputFloatData, fr_i32 frames);
 };
+
 
 struct ListenersNode;
 struct ListenersNode

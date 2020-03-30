@@ -1,3 +1,20 @@
+/*********************************************************************
+* Copyright (C) Anton Kovalev (vertver), 2020. All rights reserved.
+* Fresponze - fast, simple and modern multimedia sound library
+* Apache-2 License
+**********************************************************************
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************/
 #include "FresponzeAdvancedMixer.h"
 #include "FresponzeWavFile.h"
 
@@ -129,17 +146,17 @@ CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 	return true;
 }
 
-/*  Test function for generating float sin (300 to 1200 Hz)
+/*  Test function for generating float sin (300 to 600 Hz)
 	static bool state = false;
 	static fr_f32 phase = 0.f;
 	static fr_f32 freq = 150.f;
 	fr_f32* pBuf = (fr_f32*)pByte;
 	for (size_t i = 0; i < AvailableFrames * CurrentChannels; i++) {
-		if (freq >= 300.f) state = !state;
+		if (freq >= 600.f / CurrentChannels) state = !state;
 		pBuf[i] = sinf(phase * 6.283185307179586476925286766559005f) * 0.1f;
 		phase = fmodf(phase + freq / SampleRate, 1.0f);
-		freq = !state ? freq + 0.005f : freq - 0.005f;
-		if (freq <= 150.f) state = !state;
+		freq = !state ? freq + 0.001f : freq - 0.001f;
+		if (freq <= 300.f / CurrentChannels) state = !state; 
 	}
 */
 

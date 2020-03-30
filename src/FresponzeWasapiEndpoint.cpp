@@ -149,23 +149,23 @@ CWASAPIAudioEnpoint::ThreadProc()
 	case ProxyType:
 	case RenderType: {
 		hMMCSS = AvSetMmThreadCharacteristicsA("Pro Audio", &dwTask);
-		if (IsInvalidHandle(hMMCSS)) return;	
+		if (IsInvalidHandle(hMMCSS)) { TypeToLog("WASAPI: AvSetMmThreadCharacteristicsA() failed"); return; }
 	}
 	break;
 	case CaptureType: {
 		hMMCSS = AvSetMmThreadCharacteristicsA("Capture", &dwTask);
-		if (IsInvalidHandle(hMMCSS)) return;
+		if (IsInvalidHandle(hMMCSS)) { TypeToLog("WASAPI: AvSetMmThreadCharacteristicsA() failed"); return; }
 	}
 	break;
 	default: {
 		hMMCSS = AvSetMmThreadCharacteristicsA("Audio", &dwTask);
-		if (IsInvalidHandle(hMMCSS)) return;
+		if (IsInvalidHandle(hMMCSS)) { TypeToLog("WASAPI: AvSetMmThreadCharacteristicsA() failed"); return; }
 	}
 	break;
 	}
 
 	if (!AvSetMmThreadPriority(hMMCSS, AVRT_PRIORITY_CRITICAL))	{
-		DWORD GetLastr = GetLastError();
+		TypeToLog("WASAPI: AvSetMmThreadPriority() failed");
 		goto EndOfThread;
 	}
 
@@ -179,7 +179,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 			case RenderType: {
 				UINT32 StreamPadding = 0;
 				hr = pAudioClient->GetCurrentPadding(&StreamPadding);
-				if (FAILED(hr)) goto EndOfThread;
+				if (FAILED(hr)) { TypeToLog("WASAPI: pAudioClient->GetCurrentPadding() failed (render callback)"); ; goto EndOfThread; }
 
 				BYTE* pByte = nullptr;
 				INT32 AvailableFrames = FramesInBuffer;
@@ -193,20 +193,24 @@ CWASAPIAudioEnpoint::ThreadProc()
 					if (SUCCEEDED(hr)) {
 						/* Process and copy data to main buffer */
 						if (!pByte) continue;
-						if (SUCCEEDED(errCode)) {
-							pAudioCallback->EndpointCallback((fr_f32*)pByte, AvailableFrames, CurrentChannels, (fr_i32)SampleRate, RenderType);
-						} 
+						errCode = pAudioCallback->EndpointCallback((fr_f32*)pByte, AvailableFrames, CurrentChannels, (fr_i32)SampleRate, RenderType);
+						if (FAILED(errCode)) { TypeToLog("WASAPI: Putting empty buffer to output"); }
 					} else {
 						/* Don't try to destroy device if the buffer is unavailable */
-						if (hr == AUDCLNT_E_BUFFER_TOO_LARGE) continue;
+						if (hr == AUDCLNT_E_BUFFER_TOO_LARGE) {
+							TypeToLog("WASAPI: Buffer is too large for endpoint buffer");
+							continue;
+						}
+
+						TypeToLog("WASAPI:pRenderClient->GetBuffer() failed (render callback)");
 						goto EndOfThread;
 					}
 
 					/* If we can't release buffer - close invalid host */
-					hr = pRenderClient->ReleaseBuffer(AvailableFrames, 0);
-					if (FAILED(hr)) goto EndOfThread;
+					hr = pRenderClient->ReleaseBuffer(AvailableFrames, FAILED(errCode) ? AUDCLNT_BUFFERFLAGS_SILENT : 0);
+					if (FAILED(hr)) { TypeToLog("WASAPI: pRenderClient->ReleaseBuffer() failed (render callback)"); ; goto EndOfThread; }
 					hr = pAudioClient->GetCurrentPadding(&StreamPadding);
-					if (FAILED(hr)) goto EndOfThread;
+					if (FAILED(hr)) { TypeToLog("WASAPI: pAudioClient->GetCurrentPadding() failed (render callback)"); ; goto EndOfThread; }
 
 					AvailableFrames = FramesInBuffer;
 					AvailableFrames -= StreamPadding;
@@ -216,7 +220,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 			case CaptureType: {
 				UINT32 StreamPadding = 0;
 				hr = pCaptureClient->GetNextPacketSize(&StreamPadding);
-				if (FAILED(hr)) goto EndOfThread;
+				if (FAILED(hr)) { TypeToLog("WASAPI: pCaptureClient->GetNextPacketSize() failed (capture callback)"); ; goto EndOfThread; }
 				UINT32 AvailableFrames = 0;
 				BYTE* pByte = nullptr;
 
@@ -228,14 +232,16 @@ CWASAPIAudioEnpoint::ThreadProc()
 						/* If current data from capture device is silent - skip to next frame */
 						if (dwFlags & AUDCLNT_BUFFERFLAGS_SILENT) continue;
 						CopyDataFromBuffer(pByte, pTempBuffer, AvailableFrames, isFloat, Bits, CurrentChannels);
-						if (FAILED(pAudioCallback->EndpointCallback(pTempBuffer, AvailableFrames, CurrentChannels, (fr_i32)SampleRate, CaptureType))) 
+						if (FAILED(pAudioCallback->EndpointCallback(pTempBuffer, AvailableFrames, CurrentChannels, (fr_i32)SampleRate, CaptureType))) {
+							TypeToLog("pAudioCallback->EndpointCallback() failed (capture callback)");
 							goto EndOfThread;
+						}
 
 						/* Release current buffer and get to next buffer */
 						hr = pCaptureClient->ReleaseBuffer(AvailableFrames);
-						if (FAILED(hr)) goto EndOfThread;
+						if (FAILED(hr)) { TypeToLog("WASAPI: pCaptureClient->ReleaseBuffer() failed (capture callback)"); goto EndOfThread; }
 						hr = pCaptureClient->GetNextPacketSize(&AvailableFrames);
-						if (FAILED(hr)) goto EndOfThread;
+						if (FAILED(hr)) { TypeToLog("WASAPI: pCaptureClient->GetNextPacketSize() failed (capture callback)"); goto EndOfThread; }
 					}
 				} 
 			}
@@ -249,6 +255,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 	}
 
 EndOfThread:
+	TypeToLog("WASAPI: Shutdowning thread");
 	if (pThreadEvent->IsRaised()) pThreadEvent->Reset();
 	if (pSyncEvent->IsRaised()) pSyncEvent->Reset();
 	if (!IsInvalidHandle(hMMCSS)) AvRevertMmThreadCharacteristics(hMMCSS);
@@ -266,9 +273,11 @@ CWASAPIAudioEnpoint::CreateWasapiThread()
 #endif
 
 	if (!IsInvalidHandle(hThread)) {
+		TypeToLog("WASAPI: Waiting for event");
 		if (!pSyncEvent->Wait(1000)) {
 			/* Terminate our thread if it was timeouted */
 			if (WaitForSingleObject(hThread, 0) != WAIT_OBJECT_0) {
+				TypeToLog("WASAPI: Failed to init thread");
 				TerminateThread(hThread, (DWORD)-1);
 			}
 
@@ -277,6 +286,7 @@ CWASAPIAudioEnpoint::CreateWasapiThread()
 	}
 	else return false;
 
+	TypeToLog("WASAPI: Event triggered. Thread started");
 	return true;
 }
 
@@ -306,7 +316,10 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 	PROPVARIANT value = { 0 };
 
 	if (!pCurrentDevice) return false;
-	if (FAILED(pCurrentDevice->OpenPropertyStore(STGM_READ, &pPropertyStore))) return false;
+	if (FAILED(pCurrentDevice->OpenPropertyStore(STGM_READ, &pPropertyStore))) {
+		TypeToLog("WASAPI: pCurrentDevice->OpenPropertyStore() failed (endpoint)");
+		return false;
+	}
 
 	/* Get friendly name of current device */
 	PropVariantInit(&value);
@@ -326,6 +339,7 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 			}
 		}
 	} else {
+		TypeToLog("WASAPI: Failed to get friendly name");
 		strcpy_s(EndpointInfo.EndpointName, "Unknown Device Name");
 	}
 	PropVariantClear(&value);
@@ -345,6 +359,7 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 			}
 		}
 	} else {
+		TypeToLog("WASAPI: Failed to get device UUID");
 		strcpy_s(EndpointInfo.EndpointName, "Unknown Device UUID");
 	}
 
@@ -354,19 +369,19 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 
 bool
 CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
-{	
+{
 	DWORD dwStreamFlags = (AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
 	UINT32 BufferFrames = 0;
 	HRESULT hr = 0;
 	REFERENCE_TIME refTimeDefault = 0;
 	REFERENCE_TIME refTimeMin = 0;
-	REFERENCE_TIME refTimeAccepted = REFERENCE_TIME(Delay * 10000.f);	
+	REFERENCE_TIME refTimeAccepted = REFERENCE_TIME(Delay * 10000.f);
 	WAVEFORMATEX* pWaveFormat = nullptr;
 
 	Close();
-	if (!InitializeClient(pCurrentDevice)) return false;
+	if (!InitializeClient(pCurrentDevice)) { TypeToLog("WASAPI: Can't initialize audio client"); return false; }
 	if (!GetEndpointDeviceInfo()) return false;
-	if (FAILED(pAudioClient->GetMixFormat(&pWaveFormat))) return false;
+	if (FAILED(pAudioClient->GetMixFormat(&pWaveFormat))) { TypeToLog("WASAPI: Can't get mix format"); return false; }
 
 	/* Set local format struct */
 	EndpointInfo.EndpointFormat.IsFloat = pWaveFormat->wFormatTag == 3;
@@ -375,7 +390,7 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	EndpointInfo.EndpointFormat.SampleRate = pWaveFormat->nSamplesPerSec;
 
 	/*
-		The device can send or recieve signal by short samples (16-bit signed) 
+		The device can send or recieve signal by short samples (16-bit signed)
 		or float samples (32-bit float). We must verify format before submitting to device.
 	*/
 	if (pWaveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
@@ -413,6 +428,7 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	}
 
 	if (FAILED(pAudioClient->GetBufferSize(&BufferFrames))) {
+		TypeToLog("WASAPI: Failed to get buffer size");
 		CoTaskMemFree(pWaveFormat);
 		return false;
 	}
@@ -420,17 +436,28 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	/* Try to get needy for us service */
 	if (EndpointInfo.Type == CaptureType) {
 		if (FAILED(pAudioClient->GetService(IID_PPV_ARGS(&pCaptureClient)))) {
+			TypeToLog("WASAPI: Failed to get service (capture)");
 			CoTaskMemFree(pWaveFormat);
 			return false;
 		}
 	} else if (EndpointInfo.Type == RenderType) {
 		if (FAILED(pAudioClient->GetService(IID_PPV_ARGS(&pRenderClient)))) {
+			TypeToLog("WASAPI: Failed to get service (render)");
 			CoTaskMemFree(pWaveFormat);
 			return false;
 		}
 	} 
 
 	EndpointInfo.EndpointFormat.Frames = (fr_i32)BufferFrames;
+	{
+		fr_string512 temp_string = {};
+		_snprintf_s(temp_string, sizeof(temp_string),
+			"WASAPI: Device initalized (Shared, Sample rate: %i, Channels: %i, Latency: %i",
+			EndpointInfo.EndpointFormat.SampleRate, EndpointInfo.EndpointFormat.Channels, EndpointInfo.EndpointFormat.Frames
+		);
+		TypeToLog(temp_string);
+	}
+
 	pTempBuffer = (fr_f32*)FastMemAlloc(sizeof(fr_f32) * EndpointInfo.EndpointFormat.Frames * EndpointInfo.EndpointFormat.Channels);
 	CoTaskMemFree(pWaveFormat);
 	return true;

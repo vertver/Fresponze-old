@@ -32,6 +32,7 @@ InitMemory()
 	MemoryGranularity = sysInfo.dwAllocationGranularity;
 	hFresponzeHeap = HeapCreate(0, 0x040000, 0);
 	CoInitialize(nullptr);
+	GetDebugTime(nullptr, 0);
 	return !IsInvalidHandle(hFresponzeHeap);
 }
 

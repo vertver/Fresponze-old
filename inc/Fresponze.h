@@ -67,6 +67,17 @@ enum EndpointType
 	eEndpointXAudio2Type
 };
 
+struct FresponzeInformation
+{
+	fr_i32 FresponzeVersion = 0;
+};
+
+class IFresponzeRemote : public IBaseInterface
+{
+public:
+	virtual void GetFresponzeInfo(FresponzeInformation* info) = 0;
+};
+
 class IFresponze : public IBaseInterface
 {
 public:

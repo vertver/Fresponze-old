@@ -21,6 +21,23 @@
 void* hModule = nullptr;
 
 void
+TypeToLog(const char* Text)
+{
+	static fr_string1k outputString = {};
+	GetDebugTime(outputString, sizeof(outputString));
+
+#ifdef _DEBUG
+#ifdef WINDOWS_PLATFORM
+	strcat_s(outputString, Text);
+	OutputDebugStringA(outputString);
+	OutputDebugStringA("\n");
+#else
+	printf("%s%s\n", outputString, Text);
+#endif
+#endif
+}
+
+void
 CFresponze::GetHardwareInterface(
 	EndpointType endpointType, 
 	void* pCustomCallback,

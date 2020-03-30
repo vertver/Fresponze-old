@@ -16,13 +16,12 @@
 * limitations under the License.
 *****************************************************************/
 #pragma once
-#ifdef WINDOWS_PLATFORM
-#include <windows.h>
-#else
+#include "FresponzeConfig.h"
 
-#endif
-
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include <math.h>
 
 #define MAX_CHANNELS 8
@@ -444,27 +443,6 @@ public:
 	~CBuffer()
 	{
 		Free();
-	}
-};
-
-template
-<typename TYPE>
-class CVirtualBuffer
-{
-private:
-	fr_i32 BuffersCount = 0;
-	fr_i32 DataSize = 0;
-	TYPE** pDoublePointer = nullptr;
-
-public:
-	void Resize(fr_i32 BufCount, fr_i32 SizeData) {
-		if (BufCount < 0) return;
-		if (SizeData < 0) return;
-
-		if (BuffersCount != BufCount) {
-			TYPE** ppTempBuffers = (TYPE**)FastMemAlloc(sizeof(void*) * BufCount);
-
-		}
 	}
 };
 
@@ -1301,6 +1279,56 @@ GetFilePathFormat(char* pathToFile)
 	if (StringEnd == pathToFile) return nullptr;
 	return StringEnd == pathToFile ? nullptr : StringEnd;
 }
+
+
+inline
+void
+GetDebugTime(char* pToPrint, size_t BufSize)
+{
+#ifdef _DEBUG
+	static fr_i64 TickCount = 0;
+	fr_i64 Time_ = 0;
+	fr_i64 ChIDX = 0;
+	if (!TickCount) TickCount = GetTickCount64();
+	if (!pToPrint) return;
+	Time_ = GetTickCount64();
+	Time_ -= TickCount;
+	fr_u64 Time_MS = Time_ % 1000; Time_ = Time_ / 1000;
+	fr_u64 Time_Sec = Time_ % 60;   Time_ = Time_ / 60;
+	fr_u64 Time_Min = Time_ % 60;   Time_ = Time_ / 60;
+	fr_u64 Time_Hors = Time_ % 24;
+	fr_u64 Time_Days = Time_ / 60;
+	fr_u64 Time_MS_0 = Time_MS % 10; Time_MS = Time_MS / 10;
+	fr_u64 Time_MS_1 = Time_MS % 10; Time_MS = Time_MS / 10;
+	fr_u64 Time_MS_2 = Time_MS;
+	fr_u64 Time_Sec_0 = Time_Sec % 10;
+	fr_u64 Time_Sec_1 = Time_Sec / 10;
+	fr_u64 Time_Min_0 = Time_Min % 10;
+	fr_u64 Time_Min_1 = Time_Min / 10;
+	fr_u64 Time_Hors_0 = Time_Hors % 10;
+	fr_u64 Time_Hors_1 = Time_Hors / 10;
+	pToPrint[ChIDX++] = '[';
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_Hors_1;
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_Hors_0;
+	pToPrint[ChIDX++] = ':';
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_Min_1;
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_Min_0;
+	pToPrint[ChIDX++] = ':';
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_Sec_1;
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_Sec_0;
+	pToPrint[ChIDX++] = ':';
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_MS_2;
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_MS_1;
+	pToPrint[ChIDX++] = '0' + (fr_utf8)Time_MS_0;
+	pToPrint[ChIDX++] = ']';
+	pToPrint[ChIDX++] = ':';
+	pToPrint[ChIDX++] = ' ';
+	pToPrint[ChIDX++] = '\0';
+
+#endif
+}
+
+void TypeToLog(const char* Text);
 
 inline 
 void
