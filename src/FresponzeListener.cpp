@@ -73,7 +73,7 @@ CMediaListener::GetFullFrames()
 {
 	fr_i64 outputFrames = 0;
 	CalculateFrames64(ResourceFormat.Frames, ResourceFormat.SampleRate, ListenerFormat.SampleRate, outputFrames);
-	return outputFrames;
+	return (fr_i32)outputFrames;
 }
 
 fr_i32	
@@ -95,7 +95,7 @@ fr_i32
 CMediaListener::Process(fr_f32** ppOutputFloatData, fr_i32 frames)
 {
 	fr_i32 inFrames = 0;
-	inFrames = pLocalResource->Read(frames, ppOutputFloatData);
+	inFrames = (fr_i32)pLocalResource->Read(frames, ppOutputFloatData);
 	if (inFrames < frames) framesPos = 0;
 	else framesPos += inFrames;
 	return inFrames;

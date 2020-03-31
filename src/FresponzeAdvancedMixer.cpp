@@ -181,8 +181,8 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 			pListNode->pListener->Process(tempBuffer.GetBuffers(), Frames);
 
 			for (size_t o = 0; o < Channels; o++) {
-				fr_f32* pFirst = tempBuffer.GetBufferData(o);
-				fr_f32* pSecond = mixBuffer.GetBufferData(o);
+				fr_f32* pFirst = tempBuffer.GetBufferData((fr_i32)o);
+				fr_f32* pSecond = mixBuffer.GetBufferData((fr_i32)o);
 				for (size_t i = 0; i < Frames; i++) {
 					pSecond[i] += pFirst[i];
 				}
