@@ -10,7 +10,7 @@ will compile and run on Windows, macOS and Linux.
 # Used libraries
 * [Resonance Audio](https://github.com/resonance-audio/resonance-audio)
 * [R8Brain](https://github.com/avaneev/r8brain-free-src)
-* [Opus]()
+* [Opus](https://github.com/xiph/opus)
 * [Opusfile](https://github.com/xiph/opusfile)
 * [OGG](https://github.com/xiph/ogg)
 * [libnx](https://github.com/switchbrew/libnx)
