@@ -54,13 +54,6 @@ CMediaListener::SetResource(IMediaResource* pInitialResource)
 	return pInitialResource->Clone((void**)&pLocalResource);
 }
 
-bool	
-CMediaListener::SetListenerState(fr_i32 State)
-{
-	CurrentState = State;
-	return true;
-}
-
 fr_i32	
 CMediaListener::SetPosition(fr_f32 FloatPosition)
 {
@@ -101,17 +94,9 @@ CMediaListener::SetFormat(PcmFormat fmt)
 fr_i32	
 CMediaListener::Process(fr_f32** ppOutputFloatData, fr_i32 frames)
 {
-	switch (CurrentState)
-	{
-	case eStopState:
-	case ePauseState:
-		break;
-	case ePlayState:
-	case eReplayState:
-		framesPos = pLocalResource->Read(frames, ppOutputFloatData) ? 0 : -1;
-	default:
-		break;
-	}
-
-	return frames;
+	fr_i32 inFrames = 0;
+	inFrames = pLocalResource->Read(frames, ppOutputFloatData);
+	if (inFrames < frames) framesPos = 0;
+	else framesPos += inFrames;
+	return inFrames;
 }

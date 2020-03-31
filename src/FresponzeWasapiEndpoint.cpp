@@ -316,6 +316,7 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 	PROPVARIANT value = { 0 };
 
 	if (!pCurrentDevice) return false;
+#ifndef XBOX_BUILD
 	if (FAILED(pCurrentDevice->OpenPropertyStore(STGM_READ, &pPropertyStore))) {
 		TypeToLog("WASAPI: pCurrentDevice->OpenPropertyStore() failed (endpoint)");
 		return false;
@@ -364,6 +365,7 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 	}
 
 	_RELEASE(pPropertyStore);
+#endif
 	return true;
 }
 

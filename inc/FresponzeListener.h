@@ -31,10 +31,16 @@ class IBaseEmitter : public IBaseEffect
 {
 protected:
 	void* pParentListener = nullptr;
+	fr_i64 FilePosition = 0;
 
 public:
-	virtual void  SetListener(void* pListener);
-	virtual void* GetListener();
+	virtual void SetListener(void* pListener) = 0;
+	virtual void SetState(fr_i32 state) = 0;
+	virtual void SetPosition(fr_i64 FPosition) = 0;
+
+	virtual void*  GetListener() = 0;
+	virtual fr_i32 GetState() = 0;
+	virtual fr_i64 GetPosition() = 0;
 };
 
 struct EmittersNode;
@@ -48,12 +54,12 @@ struct EmittersNode
 class CMediaListener : public IBaseInterface
 {
 protected:
-	fr_i32 CurrentState = 0;
 	fr_i64 framesPos = 0;
 	PcmFormat ResourceFormat = {};
 	PcmFormat ListenerFormat = {};
 	IMediaResource* pLocalResource = nullptr;
 	EmittersNode* pFirstEmitter = nullptr;
+	EmittersNode* pLastEmitter = nullptr;
 
 public:
 	/*
@@ -70,7 +76,6 @@ public:
 	bool GetEmitter(IBaseEmitter* pEmitter);
 
 	bool SetResource(IMediaResource* pInitialResource);
-	bool SetListenerState(fr_i32 State);
 
 	fr_i32 SetPosition(fr_f32 FloatPosition);		// 0.0f to 1.0f
 	fr_i32 SetPosition(fr_i64 FramePosition);		// 0 to x (end) 

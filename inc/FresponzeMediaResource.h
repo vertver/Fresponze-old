@@ -42,8 +42,8 @@ public:
 	virtual void GetVendorName(const char*& vendorName) = 0;
 	virtual void GetVendorString(const char*& vendorString) = 0;
 
-	virtual bool Read(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
-	virtual bool ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
+	virtual fr_i64 Read(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
+	virtual fr_i64 ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
 
 	virtual fr_i64 SetPosition(fr_i64 FramePosition) = 0;
 };

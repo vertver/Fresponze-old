@@ -56,8 +56,7 @@ CAdvancedMixer::CreateNode(ListenersNode*& pNode)
 	if (!pCurrent) {
 		pLastListener = new ListenersNode;
 		pFirstListener = pLastListener;
-	}
-	else {
+	} else {
 		pLastListener->pNext = new ListenersNode;
 		pLastListener = pLastListener->pNext;
 	}
@@ -178,7 +177,9 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 		ListenersNode* pListNode = pFirstListener;
 
 		while (pListNode) {
+			/* Source restart issue  */
 			pListNode->pListener->Process(tempBuffer.GetBuffers(), Frames);
+
 			for (size_t o = 0; o < Channels; o++) {
 				fr_f32* pFirst = tempBuffer.GetBufferData(o);
 				fr_f32* pSecond = mixBuffer.GetBufferData(o);

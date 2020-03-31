@@ -65,8 +65,8 @@ public:
 	void GetFormat(PcmFormat& format) override;
 	void SetFormat(PcmFormat outputFormat) override;
 
-	bool Read(fr_i64 FramesCount, fr_f32** ppFloatData) override;
-	bool ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) override;
+	fr_i64 Read(fr_i64 FramesCount, fr_f32** ppFloatData) override;
+	fr_i64 ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) override;
 
 	fr_i64 SetPosition(fr_i64 FramePosition) override;
 };

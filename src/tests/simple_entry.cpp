@@ -57,8 +57,7 @@ void test1()
 	char* pPtr = OutputList->EndpointName;
 	if (pAudioHardware->Open(RenderType, 50.f)) {
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
-		if (pAdvancedMixer->CreateListener((void*)"I:/Downloads/ehren-paper_lights-96.wav", listNode)) {
-			listNode->pListener->SetListenerState(ePlayState);
+		if (pAdvancedMixer->CreateListener((void*)"X:\WhitePlace.wav", listNode)) {
 			pAdvancedMixer->SetMixFormat(OutputLists.EndpointFormat);
 			pAudioHardware->Start();
 		}

@@ -212,7 +212,7 @@ COpusMediaResource::NextBlock()
  	return true;
 }
 
-bool 
+fr_i64
 COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 {
 	fr_i32 CopySize = 0;
@@ -246,7 +246,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	return true;
 }
 
-bool
+fr_i64
 COpusMediaResource::ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData)
 {
 	return false;

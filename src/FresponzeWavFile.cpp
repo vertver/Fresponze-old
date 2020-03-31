@@ -139,21 +139,21 @@ CRIFFMediaResource::GetSample(fr_i64 Index)
 	return fileFormat.IsFloat ? ((fr_f32*)tempMap)[Index] : i16tof32(((fr_i16*)tempMap)[Index]);
 }
 
-bool 
+fr_i64
 CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 {
 	fr_i64 frame_out = 0;
 
 	/* Translate current frames count for output buffer to file format sample rate frames count */
 	CalculateFrames64(FramesCount, outputFormat.SampleRate, fileFormat.SampleRate, frame_out);
-	fr_i64 FreeFrames = min(frame_out, (FileFrames / fileFormat.Channels) - FramePosition);
+	fr_i64 FreeFrames = min(frame_out, FileFrames - FramePosition);
 	if (!FreeFrames) {		
 		/* Set position to 0 for replay */ 
 		FramePosition = 0;
-		return false;
+		return 0;
 	}
 
-	if (!ReadRaw(FreeFrames, transferBuffers.GetBuffers())) return false;
+	if (!ReadRaw(FreeFrames, transferBuffers.GetBuffers())) return 0;
 	/* Copy data to 64-bit float buffer and resample to output format */
 	if (outputFormat.SampleRate != fileFormat.SampleRate) {
 		for (size_t i = 0; i < 2; i++) {
@@ -176,10 +176,11 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		}
 	}
 
-	return true;
+	CalculateFrames64(FreeFrames, fileFormat.SampleRate, outputFormat.SampleRate, frame_out);
+	return frame_out;
 }
 
-bool 
+fr_i64
 CRIFFMediaResource::ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData)
 {
 	tempBuffer.Resize(FramesCount * fileFormat.Channels);
