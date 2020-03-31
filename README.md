@@ -7,6 +7,14 @@ Fast, simple and modern multimedia sound library
 This library lets you write audio without any problems with system audio in C or C++ that
 will compile and run on Windows, macOS and Linux. 
 
+# Used libraries
+* [Resonance Audio](https://github.com/resonance-audio/resonance-audio)
+* [R8Brain](https://github.com/avaneev/r8brain-free-src)
+* [Opus]()
+* [Opusfile](https://github.com/xiph/opusfile)
+* [OGG](https://github.com/xiph/ogg)
+* [libnx](https://github.com/switchbrew/libnx)
+
 # Audio backends
 * WASAPI (80%, tested in production)
 * XAudio2 (10%, in development)
