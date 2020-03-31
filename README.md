@@ -16,7 +16,7 @@ will compile and run on Windows, macOS and Linux.
 * [libnx](https://github.com/switchbrew/libnx)
 
 # Audio backends
-* WASAPI (80%, tested in production)
+* WASAPI (95%, perfectly working)
 * XAudio2 (10%, in development)
 * ALSA (5%, in development)
 * AAudio (0%, in development)
