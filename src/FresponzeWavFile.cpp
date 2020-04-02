@@ -166,7 +166,7 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		DoubleToFloat(transferBuffers.GetBuffers(), resamplerBuffers[1].GetBuffers(), fileFormat.Channels, (fr_i32)FramesCount);
 	}
 	
-	if (fileFormat.Channels == 1 * outputFormat.Channels >= 2) {
+	if (fileFormat.Channels == 1 && outputFormat.Channels >= 2) {
 		for (size_t i = 0; i < 2; i++) {
 			memcpy(ppFloatData[i], transferBuffers.GetBufferData(0), FramesCount * sizeof(fr_f32));
 		}
@@ -199,6 +199,5 @@ fr_i64
 CRIFFMediaResource::SetPosition(fr_i64 FramePosition)
 {
 	fr_i64 frame_out = 0;
-	CalculateFrames64(FramePosition, outputFormat.SampleRate, fileFormat.SampleRate, frame_out);
 	return (this->FramePosition = FramePosition);
 }

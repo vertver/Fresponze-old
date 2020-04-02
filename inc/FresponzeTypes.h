@@ -859,26 +859,30 @@ public:
 	}
 
 	fr_i32 ReadData(fr_f32* OutBuffer, fr_i32 Samples) {
+		fr_i32 WriteSamples = Samples;
 		fr_i32 ReadSamples = 0;
 		fr_i32 SampleReturn = 0;
+		fr_f32* pCurrentBuffer = GetData();
 
-		if (BuffersLeft <= 0) return 0;
-		for (size_t i = 0; i < Samples; i++) {
-			if (BufferPosition >= BuffersSize) { 
+		while (WriteSamples > 0) {
+			if (BufferPosition >= BuffersSize) {
 				NextBuffer();
-				BuffersLeft--; 
+				pCurrentBuffer = GetData();
+				BuffersLeft--;
 			}
 
 			if (BuffersLeft <= 0) {
 				return ReadSamples;
 			}
 
-			OutBuffer[i] = GetData()[BufferPosition];
-			BufferPosition++;
-			ReadSamples++;
+			ReadSamples = min(BuffersSize - BufferPosition, WriteSamples);
+			memcpy(&OutBuffer[SampleReturn], &pCurrentBuffer[BufferPosition], ReadSamples * sizeof(fr_f32));
+			BufferPosition += ReadSamples;
+			SampleReturn += ReadSamples;
+			WriteSamples -= ReadSamples;
 		}
 
-		return ReadSamples;
+		return SampleReturn;
 	}
 
 	fr_i32 GetLeftSamples() { return (BuffersLeft * BuffersSize) - BufferPosition; }

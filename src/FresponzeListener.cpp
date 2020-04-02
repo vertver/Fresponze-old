@@ -57,7 +57,7 @@ CMediaListener::SetResource(IMediaResource* pInitialResource)
 fr_i32	
 CMediaListener::SetPosition(fr_f32 FloatPosition)
 {
-	return SetPosition(fr_i64(((fr_f64)ListenerFormat.Frames * FloatPosition)));
+	return SetPosition(fr_i64(((fr_f64)ResourceFormat.Frames * FloatPosition)));
 }
 
 fr_i32	

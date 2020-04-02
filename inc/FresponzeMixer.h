@@ -73,6 +73,8 @@ public:
 		else if (CurrentEndpointType == CaptureType) {
 			return (pAudioMixer->Record(pData, Frames, Channels, SampleRate) ? 0 : -1);
 		}
+
+		return -2;
 	}
 
 	fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
