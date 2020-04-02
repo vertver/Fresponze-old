@@ -23,8 +23,6 @@ class IAudioMixer : public IBaseInterface
 protected:
 	fr_i32 BufferPosition = 0;
 	fr_i32 CurrentBuffer = 0;
-	fr_i32 QueuedSamples = 0;
-	fr_i32 QueuedBuffers = 0;
 	SoundState InputState = NoneState;
 	SoundNodeStruct* pSoundsNode = nullptr;
 	EffectNodeStruct* pInputFirstEffect = nullptr;

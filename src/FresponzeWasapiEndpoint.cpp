@@ -48,7 +48,7 @@ GetSleepTime(
 	float fRet = 0.f;
 	if (!SampleRate) return 0;
 
-	fRet = ((((float)Frames / (float)SampleRate) * 1000.f) / 2.f);
+	fRet = ((((float)Frames / (float)SampleRate) * 1000.f) / 4.f);
 	return (DWORD)fRet;
 }
 
@@ -214,6 +214,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 
 					AvailableFrames = FramesInBuffer;
 					AvailableFrames -= StreamPadding;
+					pAudioCallback->RenderCallback(FramesInBuffer, CurrentChannels, (fr_i32)SampleRate);
 				}
 			}
 			break;

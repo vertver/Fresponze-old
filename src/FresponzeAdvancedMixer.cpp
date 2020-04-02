@@ -126,16 +126,12 @@ CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 {
 	fr_i32 UpdatedSamples = 0;
 	if (RingBuffer.GetLeftBuffers() <= 0) {
-		QueuedBuffers = 0;
-		QueuedSamples = 0;
 		Render(BufferedSamples, Channels, SampleRate);
 	}
 
 	fr_i32 ret = RingBuffer.ReadData(pBuffer, Frames * Channels);
 	UpdatedSamples += ret / Channels;
 	if (UpdatedSamples < Frames) {
-		QueuedBuffers = 0;
-		QueuedSamples = 0;
 		Render(BufferedSamples, Channels, SampleRate);
 		ret = RingBuffer.ReadData(&pBuffer[ret], (Frames - UpdatedSamples) * Channels);
 		UpdatedSamples += ret / Channels;
@@ -162,14 +158,12 @@ CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 bool
 CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
-	if (QueuedBuffers || QueuedSamples) return false;
+	if (RingBuffer.GetLeftBuffers()) return false;
 	RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
 	RingBuffer.Resize(Frames * Channels);
 	OutputBuffer.Resize(Frames * Channels);
 	tempBuffer.Resize(Channels, Frames);
 	mixBuffer.Resize(Channels, Frames);
-	QueuedBuffers = 0;
-	QueuedSamples = 0;
 
 	for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
 		mixBuffer.Clear();
@@ -179,13 +173,8 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 		while (pListNode) {
 			/* Source restart issue  */
 			pListNode->pListener->Process(tempBuffer.GetBuffers(), Frames);
-
 			for (size_t o = 0; o < Channels; o++) {
-				fr_f32* pFirst = tempBuffer.GetBufferData((fr_i32)o);
-				fr_f32* pSecond = mixBuffer.GetBufferData((fr_i32)o);
-				for (size_t i = 0; i < Frames; i++) {
-					pSecond[i] += pFirst[i];
-				}
+				MixerAddToBuffer(mixBuffer.GetBufferData((fr_i32)o), tempBuffer.GetBufferData((fr_i32)o), Frames);
 			}
 
 			pListNode = pListNode->pNext;
@@ -194,8 +183,6 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 		PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * Channels, Channels);
 		RingBuffer.PushBuffer(OutputBuffer.Data(), Frames * Channels);
 		RingBuffer.NextBuffer();
-		QueuedBuffers++;
-		QueuedSamples += Frames;
 	}
 
 	return true;

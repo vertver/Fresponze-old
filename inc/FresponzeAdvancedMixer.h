@@ -34,14 +34,6 @@ protected:
 public:
 	void SetBufferSamples(fr_i32 SamplesIn) { BufferedSamples = SamplesIn; }
 
-	fr_i32 BuffersInQueue() {
-		return QueuedBuffers;
-	}
-
-	fr_i32 SamplesInQueue() {
-		return QueuedSamples;
-	}
-
 	bool SetMixFormat(PcmFormat& NewFormat) override;
 	bool GetMixFormat(PcmFormat& ThisFormat) override;
 

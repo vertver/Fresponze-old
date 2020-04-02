@@ -864,6 +864,7 @@ public:
 		fr_i32 SampleReturn = 0;
 		fr_f32* pCurrentBuffer = GetData();
 
+		if (WriteSamples <= 0) return 0;
 		while (WriteSamples > 0) {
 			if (BufferPosition >= BuffersSize) {
 				NextBuffer();
@@ -880,6 +881,12 @@ public:
 			BufferPosition += ReadSamples;
 			SampleReturn += ReadSamples;
 			WriteSamples -= ReadSamples;
+
+			if (BufferPosition >= BuffersSize) {
+				NextBuffer();
+				pCurrentBuffer = GetData();
+				BuffersLeft--;
+			}
 		}
 
 		return SampleReturn;
@@ -1025,6 +1032,19 @@ public:
 	virtual fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) = 0;
 	virtual fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };
+
+inline
+void
+MixerAddToBuffer(
+	fr_f32* pFirstBuffer,
+	fr_f32* pSecondBuffer,
+	fr_i64 Samples
+)
+{
+	for (size_t i = 0; i < Samples; i++) {
+		pFirstBuffer[i] += pSecondBuffer[i];
+	}
+}
 
 inline
 void
