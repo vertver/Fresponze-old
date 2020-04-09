@@ -51,7 +51,27 @@ struct EmittersNode
 	IBaseEmitter* pEmitter = nullptr;
 };
 
-class CMediaListener : public IBaseInterface
+class IMediaListener : public IBaseInterface
+{
+public:
+	virtual bool AddEmitter(IBaseEmitter* pNewEmitter) = 0;
+	virtual bool DeleteEmitter(IBaseEmitter* pEmitter) = 0;
+	virtual bool GetEmitter(IBaseEmitter* pEmitter) = 0;
+
+	virtual bool SetResource(IMediaResource* pInitialResource) = 0;
+
+	virtual fr_i32 SetPosition(fr_f32 FloatPosition) = 0;		// 0.0f to 1.0f
+	virtual fr_i32 SetPosition(fr_i64 FramePosition) = 0;		// 0 to x (end) 
+
+	virtual fr_i32 GetFullFrames() = 0;
+
+	virtual fr_i32 GetFormat(PcmFormat& fmt) = 0;
+	virtual fr_i32 SetFormat(PcmFormat fmt) = 0;
+
+	virtual fr_i32 Process(fr_f32** ppOutputFloatData, fr_i32 frames) = 0;
+};
+
+class CMediaListener : public IMediaListener
 {
 protected:
 	fr_i64 framesPos = 0;
@@ -71,21 +91,21 @@ public:
 	CMediaListener(IMediaResource* pInitialResource = nullptr);
 	~CMediaListener();
 
-	bool AddEmitter(IBaseEmitter* pNewEmitter);
-	bool DeleteEmitter(IBaseEmitter* pEmitter);
-	bool GetEmitter(IBaseEmitter* pEmitter);
+	bool AddEmitter(IBaseEmitter* pNewEmitter) override;
+	bool DeleteEmitter(IBaseEmitter* pEmitter) override;
+	bool GetEmitter(IBaseEmitter* pEmitter) override;
 
-	bool SetResource(IMediaResource* pInitialResource);
+	bool SetResource(IMediaResource* pInitialResource) override;
 
-	fr_i32 SetPosition(fr_f32 FloatPosition);		// 0.0f to 1.0f
-	fr_i32 SetPosition(fr_i64 FramePosition);		// 0 to x (end) 
+	fr_i32 SetPosition(fr_f32 FloatPosition) override;		// 0.0f to 1.0f
+	fr_i32 SetPosition(fr_i64 FramePosition) override;		// 0 to x (end) 
 
-	fr_i32 GetFullFrames();
+	fr_i32 GetFullFrames() override;
 
-	fr_i32 GetFormat(PcmFormat& fmt);
-	fr_i32 SetFormat(PcmFormat fmt);
+	fr_i32 GetFormat(PcmFormat& fmt) override;
+	fr_i32 SetFormat(PcmFormat fmt) override;
 
-	fr_i32 Process(fr_f32** ppOutputFloatData, fr_i32 frames);
+	fr_i32 Process(fr_f32** ppOutputFloatData, fr_i32 frames) override;
 };
 
 
@@ -94,5 +114,5 @@ struct ListenersNode
 {
 	ListenersNode* pNext = nullptr;
 	ListenersNode* pPrev = nullptr;
-	CMediaListener* pListener = nullptr;
+	IMediaListener* pListener = nullptr;
 };

@@ -54,7 +54,7 @@ private:
 public:
 	CWASAPIAudioEnpoint(fr_i32 DeviceType, void* pMMDevice, EndpointInformation& Info)
 	{
-		_InterlockedIncrement(&Counter);
+		AddRef();
 		IMMDevice* pTempDevice = (IMMDevice*)pMMDevice;
 		if (!pTempDevice) return;
 

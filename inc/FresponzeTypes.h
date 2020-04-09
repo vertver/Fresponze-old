@@ -105,8 +105,11 @@ typedef fr_utf16 fr_wstring4k[4096];
 typedef fr_utf16 fr_wstring8k[8192];
 #endif
 
-bool InitMemory();
-void DestroyMemory();
+namespace Fresponze {
+	bool InitMemory();
+	void DestroyMemory();
+}
+
 void* FastMemAlloc(fr_i32 SizeToAllocate);
 void* VirtMemAlloc(fr_i64 SizeToAllocate);
 void FreeFastMemory(void* Ptr);

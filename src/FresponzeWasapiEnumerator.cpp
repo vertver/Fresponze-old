@@ -32,7 +32,7 @@ extern const PROPERTYKEY FRRPKEY_Device_FriendlyName = { { 0xa45c254e, 0xdf1c, 0
 
 CWASAPIAudioEnumerator::CWASAPIAudioEnumerator()
 {
-	_InterlockedIncrement(&Counter);
+	AddRef();
 	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pDeviceEnumerator));
 }
 

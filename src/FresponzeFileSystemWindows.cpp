@@ -19,6 +19,16 @@
 
 extern fr_u32 MemoryGranularity;
 
+CWindowsMapFile::CWindowsMapFile()
+{
+	AddRef();
+}
+
+CWindowsMapFile::~CWindowsMapFile()
+{
+
+}
+
 bool
 CWindowsMapFile::Open(const fr_utf8* FileLink, fr_i32 Flags)
 {

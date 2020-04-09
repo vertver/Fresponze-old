@@ -17,6 +17,7 @@
 *****************************************************************/
 #include "Fresponze.h"
 #include "FresponzeWasapiHardware.h"
+#include "FresponzeAdvancedMixer.h"
 
 void* hModule = nullptr;
 
@@ -66,7 +67,20 @@ CFresponze::GetMixerInterface(
 	void** ppMixerInterface
 )
 {
-
+	switch (mixerType)
+	{
+	case eMixerNoneType:
+		break;
+	case eMixerGameType:
+		break;
+	case eMixerAdvancedType:
+		*ppMixerInterface = new CAdvancedMixer();
+		break;
+	case eMixerCustomType:
+		break;
+	default:
+		break;
+	}
 }
 
 void* 
@@ -92,7 +106,7 @@ extern "C"
 		void** ppOutInstance
 	)
 	{
-		if (!InitMemory()) return -1;
+		if (!Fresponze::InitMemory()) return -1;
 #if defined(WINDOWS_PLATFORM) && defined(DLL_PLATFORM)
 		GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&hModule, (HMODULE*)&hModule);
 #endif
@@ -108,7 +122,7 @@ extern "C"
 		void* pInstance
 	)
 	{
-		DestroyMemory();
+		Fresponze::DestroyMemory();
 		DeleteInstance(pInstance);
 		return 0;
 	}

@@ -19,20 +19,15 @@
 #include <stdio.h>
 #include "Fresponze.h"
 #include "FresponzeFileSystemWindows.h"
-#include "FresponzeAdvancedMixer.h"
 #include "FresponzeWavFile.h"
+#include "FresponzeListener.h"
+#include "FresponzeMixer.h"
 
 IFresponze* pFresponze = nullptr;
 
 #define BUF_SIZE 4410
 #include <process.h>
 #include <avrt.h>
-
-bool Window_Flag_Resizeing = false;
-HANDLE hCloseEvent = NULL;
-HANDLE hWaitForInit = NULL;
-HANDLE hThread = NULL;
-HWND MainHWND = NULL;
 
 void loop()
 {
@@ -48,10 +43,12 @@ void test1()
 	EndpointInformation* OutputList = nullptr;
 	EndpointInformation OutputLists = {};
 	IAudioHardware* pAudioHardware = nullptr;
-	CAdvancedMixer* pAdvancedMixer = new CAdvancedMixer();
-	IAudioCallback* pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
+	IAdvancedMixer* pAdvancedMixer = nullptr;
+	IAudioCallback* pAudioCallback = nullptr;
 
 	if (FrInitializeInstance((void**)&pFresponze) != 0) return;
+	pFresponze->GetMixerInterface(eMixerAdvancedType, (void**)&pAdvancedMixer);
+	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
 	pAudioHardware->GetDevicesList(InputList, OutputList);
 	char* pPtr = OutputList->EndpointName;
@@ -64,14 +61,13 @@ void test1()
 	}
 
 	loop();
+	FrDestroyInstance(pFresponze);
 }
-
-
 
 int main()
 {
-	InitMemory();
 	if constexpr (false) {
+		Fresponze::InitMemory();
 		int64_t reads = 0;
 		DWORD dwp = 0;
 		CFloatBuffer floatBufs[2];
@@ -106,7 +102,8 @@ int main()
 			WriteFile(hFile, outFloat[0], (writesize * sizeof(fr_f32)), &dwp, nullptr);
 			reads -= writesize * sizeof(fr_f32);
 		}
+		Fresponze::DestroyMemory();
 	} else test1();
-	DestroyMemory();
+
 	return 0;
 }

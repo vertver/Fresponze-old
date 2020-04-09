@@ -25,19 +25,20 @@ HANDLE hFresponzeHeap = nullptr;
 fr_u32 MemoryGranularity = 0;
 
 bool
-InitMemory()
+Fresponze::InitMemory()
 {
 	SYSTEM_INFO sysInfo = {};
 	GetNativeSystemInfo(&sysInfo);
 	MemoryGranularity = sysInfo.dwAllocationGranularity;
 	hFresponzeHeap = HeapCreate(0, 0x040000, 0);
-	CoInitialize(nullptr);
+	HRESULT hr = CoInitialize(nullptr);
+	if (FAILED(hr)) return false;
 	GetDebugTime(nullptr, 0);
 	return !IsInvalidHandle(hFresponzeHeap);
 }
 
 void
-DestroyMemory()
+Fresponze::DestroyMemory()
 {
 	CoUninitialize();
 	if (!IsInvalidHandle(hFresponzeHeap)) HeapDestroy(hFresponzeHeap);

@@ -25,6 +25,9 @@ private:
 	fr_i64 mapviewSize = 0;
 
 public:
+	CWindowsMapFile();
+	~CWindowsMapFile();
+
 	bool Open(const fr_utf8* FileLink, fr_i32 Flags) override;
 	void Close() override;
 

@@ -99,7 +99,7 @@ private:
 public:
 	CWASAPIAudioHardware(IAudioCallback* pParentAudioCallback)
 	{
-		_InterlockedIncrement(&Counter);
+		AddRef();
 		pAudioCallback = pParentAudioCallback;
 		pAudioEnumerator = new CWASAPIAudioEnumerator();
 		pNotificationCallback = new CWASAPIAudioNotificationCallback();

@@ -19,6 +19,7 @@
 
 CRIFFMediaResource::CRIFFMediaResource(IFreponzeMapFile* pNewMapper)
 { 
+	AddRef();
 	if (!pNewMapper) pMapper = (IFreponzeMapFile*)GetMapFileSystem();
 	else pNewMapper->Clone((void**)&pMapper);
 }

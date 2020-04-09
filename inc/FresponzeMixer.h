@@ -17,6 +17,7 @@
 *****************************************************************/
 #pragma once
 #include "FresponzeEffect.h"
+#include "FresponzeListener.h"
 
 class IAudioMixer : public IBaseInterface
 {
@@ -80,4 +81,20 @@ public:
 		if (!pAudioMixer) return -1;
 		return (pAudioMixer->Render(Frames, Channels, SampleRate) ? 0 : -1);
 	}
+};
+
+class IAdvancedMixer : public IAudioMixer
+{
+public:
+	virtual void SetBufferSamples(fr_i32 SamplesIn) = 0;
+
+	virtual bool SetMixFormat(PcmFormat& NewFormat) = 0;
+	virtual bool GetMixFormat(PcmFormat& ThisFormat) = 0;
+
+	virtual bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
+	virtual bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
+	virtual bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
+
+	virtual bool CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat = {}) = 0;
+	virtual bool DeleteListener(ListenersNode* pListNode) = 0;
 };

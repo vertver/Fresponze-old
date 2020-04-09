@@ -56,7 +56,7 @@ enum MixerType
 {
 	eMixerNoneType,
 	eMixerGameType,
-	eMixerEditType,
+	eMixerAdvancedType,
 	eMixerCustomType
 };
 
@@ -89,6 +89,7 @@ public:
 class CFresponze : public IFresponze
 {
 public:
+	CFresponze() { AddRef(); }
 	void GetMixerInterface(MixerType mixerType, void** ppMixerInterface) override;
 	void GetHardwareInterface(EndpointType endpointType, void* pCustomCallback, void** ppHardwareInterface) override;
 };

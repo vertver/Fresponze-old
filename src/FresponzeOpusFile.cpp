@@ -21,6 +21,7 @@
 
 COpusMediaResource::COpusMediaResource(void* pResourceLinker)
 {
+	AddRef();
 	OpenResource(pResourceLinker);
 }
 

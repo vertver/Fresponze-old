@@ -19,6 +19,7 @@
 
 CMediaListener::CMediaListener(IMediaResource* pInitialResource)
 {
+	AddRef();
 	pInitialResource->Clone((void**)&pLocalResource);
 	pLocalResource->GetFormat(ResourceFormat);
 	ListenerFormat = ResourceFormat;

@@ -33,56 +33,45 @@ public:
 		pParentAudioVolume = pAudioVolume;
 	}
 
-	virtual HRESULT STDMETHODCALLTYPE OnDisplayNameChanged(LPCWSTR NewDisplayName, LPCGUID EventContext) override
-	{
+	virtual HRESULT STDMETHODCALLTYPE OnDisplayNameChanged(LPCWSTR NewDisplayName, LPCGUID EventContext) override {
 		return S_OK;
 	}
 
-	virtual HRESULT STDMETHODCALLTYPE OnIconPathChanged(LPCWSTR NewIconPath, LPCGUID EventContext) override
-	{
+	virtual HRESULT STDMETHODCALLTYPE OnIconPathChanged(LPCWSTR NewIconPath, LPCGUID EventContext) override {
 		return S_OK;
 	}
 
-	virtual HRESULT STDMETHODCALLTYPE OnSimpleVolumeChanged(float NewVolume, BOOL NewMute, LPCGUID EventContext) override
-	{
+	virtual HRESULT STDMETHODCALLTYPE OnSimpleVolumeChanged(float NewVolume, BOOL NewMute, LPCGUID EventContext) override {
 		return S_OK;
 	}
 
-	virtual HRESULT STDMETHODCALLTYPE OnChannelVolumeChanged(DWORD ChannelCount, float NewChannelVolumeArray[], DWORD ChangedChannel, LPCGUID EventContext) override
-	{
+	virtual HRESULT STDMETHODCALLTYPE OnChannelVolumeChanged(DWORD ChannelCount, float NewChannelVolumeArray[], DWORD ChangedChannel, LPCGUID EventContext) override {
 		return S_OK;
 	}
 
-	virtual HRESULT STDMETHODCALLTYPE OnGroupingParamChanged(LPCGUID NewGroupingParam, LPCGUID EventContext) override
-	{
+	virtual HRESULT STDMETHODCALLTYPE OnGroupingParamChanged(LPCGUID NewGroupingParam, LPCGUID EventContext) override {
 		return S_OK;
 	}
 
-	virtual HRESULT STDMETHODCALLTYPE OnStateChanged(AudioSessionState NewState) override
-	{
+	virtual HRESULT STDMETHODCALLTYPE OnStateChanged(AudioSessionState NewState) override {
 		return S_OK;
 	}
 
-	virtual HRESULT STDMETHODCALLTYPE OnSessionDisconnected(AudioSessionDisconnectReason DisconnectReason) override
-	{
+	virtual HRESULT STDMETHODCALLTYPE OnSessionDisconnected(AudioSessionDisconnectReason DisconnectReason) override {
 		return S_OK;
 	}
 
-	HRESULT STDMETHODCALLTYPE QueryInterface(const IID &, void **) override
-	{
+	HRESULT STDMETHODCALLTYPE QueryInterface(const IID &, void **) override {
 		return S_OK;
 	}
 
-	ULONG STDMETHODCALLTYPE AddRef() override
-	{
+	ULONG STDMETHODCALLTYPE AddRef() override {
 		return _InterlockedIncrement(&Ref);
 	}
 
-	ULONG STDMETHODCALLTYPE Release() override
-	{
+	ULONG STDMETHODCALLTYPE Release() override {
 		ULONG ulRef = _InterlockedDecrement(&Ref);
-		if (0 == ulRef)
-		{
+		if (0 == ulRef) {
 			delete this;
 		}
 		return ulRef;
