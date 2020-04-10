@@ -435,6 +435,7 @@
     <ClCompile Include="..\..\modules\r8brain-free-src\pffft.cpp" />
     <ClCompile Include="..\..\modules\r8brain-free-src\r8bbase.cpp" />
     <ClCompile Include="..\..\src\FresponzeAdvancedMixer.cpp" />
+    <ClCompile Include="..\..\src\FresponzeEmitter.cpp" />
     <ClCompile Include="..\..\src\FresponzeFabric.cpp" />
     <ClCompile Include="..\..\src\FresponzeFileSystemWindows.cpp" />
     <ClCompile Include="..\..\src\FresponzeGameMixer.cpp" />
@@ -453,6 +454,7 @@
     <ClInclude Include="..\..\inc\FresponzeAdvancedMixer.h" />
     <ClInclude Include="..\..\inc\FresponzeConfig.h" />
     <ClInclude Include="..\..\inc\FresponzeEffect.h" />
+    <ClInclude Include="..\..\inc\FresponzeEmitter.h" />
     <ClInclude Include="..\..\inc\FresponzeEndpoint.h" />
     <ClInclude Include="..\..\inc\FresponzeEnumerator.h" />
     <ClInclude Include="..\..\inc\FresponzeFileSystemWindows.h" />

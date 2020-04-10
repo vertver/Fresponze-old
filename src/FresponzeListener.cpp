@@ -27,31 +27,58 @@ CMediaListener::CMediaListener(IMediaResource* pInitialResource)
 
 CMediaListener::~CMediaListener()
 {
-	if (pLocalResource) _RELEASE(pLocalResource);
+	_RELEASE(pLocalResource);
 }
 
 bool
 CMediaListener::AddEmitter(IBaseEmitter* pNewEmitter)
 {
+	if (!pLastEmitter) {
+		pFirstEmitter = new EmittersNode;
+		memset(pFirstEmitter, 0, sizeof(EmittersNode));
+		pLastEmitter = pFirstEmitter;
+		pNewEmitter->Clone((void**)&pLastEmitter->pEmitter);
+	} else {
+		EmittersNode* pTemp = new EmittersNode;
+		memset(pFirstEmitter, 0, sizeof(EmittersNode));
+		pNewEmitter->Clone((void**)&pTemp->pEmitter);
+		pLastEmitter->pNext = pTemp;
+		pTemp->pPrev = pLastEmitter;
+		pLastEmitter = pTemp;
+	}
+
 	return true;
 }
 
 bool 
 CMediaListener::DeleteEmitter(IBaseEmitter* pEmitter)
 {
-	return true;
+	EmittersNode* pNode = nullptr;
+	GetFirstEmitter(&pNode);
+	while (pNode) {
+		if (pNode->pEmitter == pEmitter) {
+			pNode->pPrev->pNext = pNode->pNext;
+			pNode->pNext->pPrev = pNode->pPrev;
+			_RELEASE(pNode->pEmitter);
+			delete pNode;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool 
-CMediaListener::GetEmitter(IBaseEmitter* pEmitter)
+CMediaListener::GetFirstEmitter(EmittersNode** pFirstEmitter)
 {
+	*pFirstEmitter = this->pFirstEmitter;
 	return true;
 }
 
 bool	
 CMediaListener::SetResource(IMediaResource* pInitialResource)
 {
-	if (pLocalResource) _RELEASE(pLocalResource);
+	_RELEASE(pLocalResource);
 	return pInitialResource->Clone((void**)&pLocalResource);
 }
 
@@ -66,7 +93,15 @@ CMediaListener::SetPosition(fr_i64 FramePosition)
 {
 	fr_i64 outputFrames = 0;
 	CalculateFrames64(FramePosition, ListenerFormat.SampleRate, ResourceFormat.SampleRate, outputFrames);
-	return (fr_i32)pLocalResource->SetPosition(outputFrames );
+	return (fr_i32)pLocalResource->SetPosition(outputFrames);
+}
+
+fr_i64
+CMediaListener::GetPosition()
+{
+	fr_i64 outputFrames = pLocalResource->GetPosition();
+	CalculateFrames64(outputFrames, ResourceFormat.SampleRate, ListenerFormat.SampleRate, outputFrames);
+	return outputFrames;
 }
 
 fr_i32 
@@ -80,7 +115,7 @@ CMediaListener::GetFullFrames()
 fr_i32	
 CMediaListener::GetFormat(PcmFormat& fmt)
 {
-	fmt = ResourceFormat;
+	fmt = ListenerFormat;
 	return 0;
 }
 
@@ -89,6 +124,7 @@ CMediaListener::SetFormat(PcmFormat fmt)
 {
 	ListenerFormat = fmt;
 	pLocalResource->SetFormat(ListenerFormat);
+	pLocalResource->GetFormat(ResourceFormat);
 	return 0;
 }
 

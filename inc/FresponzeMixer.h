@@ -95,6 +95,9 @@ public:
 	virtual bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 	virtual bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 
+	virtual bool AddEmitterToListener(ListenersNode* pListener, IBaseEmitter* pEmmiter) = 0;
+	virtual bool DeleteEmitterFromListener(ListenersNode* pListener, IBaseEmitter* pEmmiter) = 0;
+
 	virtual bool CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat = {}) = 0;
 	virtual bool DeleteListener(ListenersNode* pListNode) = 0;
 };

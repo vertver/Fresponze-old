@@ -167,6 +167,7 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		DoubleToFloat(transferBuffers.GetBuffers(), resamplerBuffers[1].GetBuffers(), fileFormat.Channels, (fr_i32)FramesCount);
 	}
 	
+	/* if mono - set middle channels mode for stereo */
 	if (fileFormat.Channels == 1 && outputFormat.Channels >= 2) {
 		for (size_t i = 0; i < 2; i++) {
 			memcpy(ppFloatData[i], transferBuffers.GetBufferData(0), FramesCount * sizeof(fr_f32));
@@ -201,4 +202,11 @@ CRIFFMediaResource::SetPosition(fr_i64 FramePosition)
 {
 	fr_i64 frame_out = 0;
 	return (this->FramePosition = FramePosition);
+}
+
+
+fr_i64
+CRIFFMediaResource::GetPosition()
+{
+	return FramePosition;
 }

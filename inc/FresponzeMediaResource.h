@@ -46,4 +46,5 @@ public:
 	virtual fr_i64 ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) = 0;
 
 	virtual fr_i64 SetPosition(fr_i64 FramePosition) = 0;
+	virtual fr_i64 GetPosition() = 0;
 };

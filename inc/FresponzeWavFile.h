@@ -41,4 +41,5 @@ public:
 	fr_i64 ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) override;
 
 	fr_i64 SetPosition(fr_i64 FramePosition) override;
+	fr_i64 GetPosition() override;
 };

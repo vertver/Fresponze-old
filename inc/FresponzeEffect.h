@@ -18,15 +18,17 @@
 #pragma once
 #include "FresponzeTypes.h"
 
+/* Effect chain type and FFT settings */
 enum EEffectType : fr_i32
 {
 	UnknownEffectType,		// No effect
 	SoundEffectType,		// For single sound or input signal
 	PreMixEffect,			// For pre-master state, for check audio engine picture 
 	AfterMixEffect, 		// For master-channel
-	FFTEffectType			// Special FFT-effect, in FFT chain
+	FFTEffectType			// Special FFT-effect, in FFT chain. Do not recommended add more then 2 parallel FFT effects (bad perfomance issue)
 };
 
+/* Visualisation and knobs */
 enum EKnobType : fr_i32
 {
 	NoKnobType,		// Text
@@ -35,24 +37,30 @@ enum EKnobType : fr_i32
 	CustomKnob		// Custom knob, just draw it yourself
 };
 
+/* FREFFECT VERSION 1.1 (DO NOT DELETE) */
 class IBaseEffect : public IBaseInterface
 {
-protected:
-
 public:
 	virtual bool GetEffectCategory(fr_i32& EffectCategory) = 0;			// Use BasePluginCategory enum here
-	virtual bool GetEffectType(fr_i32& EffectTpye) = 0;
+	virtual bool GetEffectType(fr_i32& EffectType) = 0;
 
 	virtual bool GetPluginName(fr_string64& DescriptionString) = 0;
 	virtual bool GetPluginVendor(fr_string64& DescriptionString) = 0;
+	virtual bool GetPluginDescription(fr_string256& DescriptionString) = 0;
 
 	virtual bool GetVariablesCount(fr_i32& CountOfVariables) = 0;
+
+	/* VERSION 1.1 ADDITION BEGIN */
 	virtual bool GetVariableDescription(fr_i32 VariableIndex, fr_string128& DescriptionString) = 0;
+	/* VERSION 1.1 ADDITION END */
+
 	virtual bool GetVariableKnob(fr_i32 VariableIndex, fr_i32& KnobType) = 0;
 	virtual void SetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize) = 0;
 	virtual void GetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize) = 0;
 
 	virtual bool Process(fr_f32** ppData, fr_i32 Frames) = 0;
+
+	/* Add functions to interface here */
 }; 
 
 struct EffectNodeStruct;

@@ -19,9 +19,9 @@
 #include "FresponzeMediaResource.h"
 #include "FresponzeEffect.h"
 
-enum EListenerState
+enum EListenerState : fr_i32
 {
-	eStopState,
+	eStopState = 0,
 	ePauseState,
 	ePlayState,
 	eReplayState
@@ -43,6 +43,8 @@ public:
 	virtual fr_i64 GetPosition() = 0;
 };
 
+IBaseEmitter* GetAdvancedEmitter();
+
 struct EmittersNode;
 struct EmittersNode 
 {
@@ -56,12 +58,13 @@ class IMediaListener : public IBaseInterface
 public:
 	virtual bool AddEmitter(IBaseEmitter* pNewEmitter) = 0;
 	virtual bool DeleteEmitter(IBaseEmitter* pEmitter) = 0;
-	virtual bool GetEmitter(IBaseEmitter* pEmitter) = 0;
+	virtual bool GetFirstEmitter(EmittersNode** pFirstEmitter) = 0;
 
 	virtual bool SetResource(IMediaResource* pInitialResource) = 0;
 
 	virtual fr_i32 SetPosition(fr_f32 FloatPosition) = 0;		// 0.0f to 1.0f
 	virtual fr_i32 SetPosition(fr_i64 FramePosition) = 0;		// 0 to x (end) 
+	virtual fr_i64 GetPosition() = 0;
 
 	virtual fr_i32 GetFullFrames() = 0;
 
@@ -71,7 +74,7 @@ public:
 	virtual fr_i32 Process(fr_f32** ppOutputFloatData, fr_i32 frames) = 0;
 };
 
-class CMediaListener : public IMediaListener
+class CMediaListener final : public IMediaListener
 {
 protected:
 	fr_i64 framesPos = 0;
@@ -93,12 +96,13 @@ public:
 
 	bool AddEmitter(IBaseEmitter* pNewEmitter) override;
 	bool DeleteEmitter(IBaseEmitter* pEmitter) override;
-	bool GetEmitter(IBaseEmitter* pEmitter) override;
+	bool GetFirstEmitter(EmittersNode** pFirstEmitter) override;
 
 	bool SetResource(IMediaResource* pInitialResource) override;
 
 	fr_i32 SetPosition(fr_f32 FloatPosition) override;		// 0.0f to 1.0f
 	fr_i32 SetPosition(fr_i64 FramePosition) override;		// 0 to x (end) 
+	fr_i64 GetPosition() override;
 
 	fr_i32 GetFullFrames() override;
 

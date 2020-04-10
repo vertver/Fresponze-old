@@ -42,6 +42,8 @@ void test1()
 	EndpointInformation* InputList = nullptr;
 	EndpointInformation* OutputList = nullptr;
 	EndpointInformation OutputLists = {};
+	IBaseEmitter* pBaseEmitter = GetAdvancedEmitter();
+	IBaseEmitter* pBaseEmitterSecond = GetAdvancedEmitter();
 	IAudioHardware* pAudioHardware = nullptr;
 	IAdvancedMixer* pAdvancedMixer = nullptr;
 	IAudioCallback* pAudioCallback = nullptr;
@@ -54,7 +56,10 @@ void test1()
 	char* pPtr = OutputList->EndpointName;
 	if (pAudioHardware->Open(RenderType, 50.f)) {
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
-		if (pAdvancedMixer->CreateListener((void*)"X:\WhitePlace.wav", listNode)) {
+		if (pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_one.wav", listNode)) {
+			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
+			pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_two.wav", listNode);
+			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitterSecond);
 			pAdvancedMixer->SetMixFormat(OutputLists.EndpointFormat);
 			pAudioHardware->Start();
 		}

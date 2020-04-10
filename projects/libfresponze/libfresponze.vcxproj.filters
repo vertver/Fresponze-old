@@ -552,6 +552,9 @@
     <ClCompile Include="..\..\src\FresponzeWindows.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeEmitter.cpp">
+      <Filter>src\Base\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -891,6 +894,9 @@
       <Filter>src\Base\API</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeConfig.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeEmitter.h">
       <Filter>src\Base\API</Filter>
     </ClInclude>
   </ItemGroup>

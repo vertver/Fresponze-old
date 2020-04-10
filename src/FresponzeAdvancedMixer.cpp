@@ -84,6 +84,7 @@ CAdvancedMixer::CreateNode(ListenersNode*& pNode)
 		pFirstListener = pLastListener;
 	} else {
 		pLastListener->pNext = new ListenersNode;
+		pLastListener->pNext->pPrev = pLastListener;
 		pLastListener = pLastListener->pNext;
 	}
 
@@ -117,6 +118,22 @@ GetFormatListener(char* pListenerOpenLink)
 	if (!strcmp(GetFilePathFormat(pListenerOpenLink), ".wav")) return new CRIFFMediaResource();
 	return nullptr;
 } 
+
+bool 
+CAdvancedMixer::AddEmitterToListener(ListenersNode* pListener, IBaseEmitter* pEmmiter)
+{
+	if (!pListener->pListener->AddEmitter(pEmmiter)) return false;
+	pEmmiter->SetListener(pListener->pListener);
+	return true;
+}
+
+bool 
+CAdvancedMixer::DeleteEmitterFromListener(ListenersNode* pListener, IBaseEmitter* pEmmiter)
+{
+	if (!pListener->pListener->DeleteEmitter(pEmmiter)) return false;
+	pEmmiter->SetListener(nullptr);
+	return true;
+}
 
 bool
 CAdvancedMixer::CreateListener(void* pListenerOpenLink, ListenersNode*& pNewListener, PcmFormat ListFormat)
@@ -190,31 +207,73 @@ bool
 CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
 	/* Update buffer size if output endpoint change sample rate/bitrate/*/
-	if (RingBuffer.GetLeftBuffers()) return false; 
-	RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
-	RingBuffer.Resize(Frames * Channels);
-	OutputBuffer.Resize(Frames * Channels);
-	tempBuffer.Resize(Channels, Frames);
-	mixBuffer.Resize(Channels, Frames);
+	if constexpr (true) {
+		if (RingBuffer.GetLeftBuffers()) return false;
+		RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
+		RingBuffer.Resize(Frames * Channels);
+		OutputBuffer.Resize(Frames * Channels);
+		tempBuffer.Resize(Channels, Frames);
+		mixBuffer.Resize(Channels, Frames);
 
-	for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
+		for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
+			tempBuffer.Clear();
+			mixBuffer.Clear();
+			ListenersNode* pListNode = pFirstListener;
+			while (pListNode) {
+				/* Source restart issue  */
+				EmittersNode* pEmittersNode = nullptr;
+				pListNode->pListener->GetFirstEmitter(&pEmittersNode);
+				while (pEmittersNode) {
+					tempBuffer.Clear();
+					pEmittersNode->pEmitter->Process(tempBuffer.GetBuffers(), Frames);
+					for (size_t o = 0; o < Channels; o++) {
+						MixerAddToBuffer(mixBuffer.GetBufferData((fr_i32)o), tempBuffer.GetBufferData((fr_i32)o), Frames);
+					}
+
+					pEmittersNode = pEmittersNode->pNext;
+				}
+
+				pListNode = pListNode->pNext;
+			}
+
+			/* Update ring buffer state for pushing new data */
+			PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * Channels, Channels);
+			RingBuffer.PushBuffer(OutputBuffer.Data(), Frames * Channels);
+			RingBuffer.NextBuffer();
+		}
+	} else {
+		if (RingBuffer.GetLeftBuffers()) return false;
+		RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
+		RingBuffer.Resize(Frames * Channels);
+		OutputBuffer.Resize(Frames * RING_BUFFERS_COUNT * Channels);
+		tempBuffer.Resize(Channels, Frames * RING_BUFFERS_COUNT);
+		mixBuffer.Resize(Channels, Frames * RING_BUFFERS_COUNT);
 		mixBuffer.Clear();
 		tempBuffer.Clear();
+
 		ListenersNode* pListNode = pFirstListener;
 		while (pListNode) {
 			/* Source restart issue  */
-			pListNode->pListener->Process(tempBuffer.GetBuffers(), Frames);
-			for (size_t o = 0; o < Channels; o++) {
-				MixerAddToBuffer(mixBuffer.GetBufferData((fr_i32)o), tempBuffer.GetBufferData((fr_i32)o), Frames);
+			EmittersNode* pEmittersNode = nullptr;
+			pListNode->pListener->GetFirstEmitter(&pEmittersNode);
+			while (pEmittersNode) {
+				pEmittersNode->pEmitter->Process(tempBuffer.GetBuffers(), Frames * RING_BUFFERS_COUNT);
+				for (size_t o = 0; o < Channels; o++) {
+					MixerAddToBuffer(mixBuffer.GetBufferData((fr_i32)o), tempBuffer.GetBufferData((fr_i32)o), Frames * RING_BUFFERS_COUNT);
+				}
+
+				pEmittersNode = pEmittersNode->pNext;
 			}
 
 			pListNode = pListNode->pNext;
 		}
 
 		/* Update ring buffer state for pushing new data */
-		PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * Channels, Channels);
-		RingBuffer.PushBuffer(OutputBuffer.Data(), Frames * Channels);
-		RingBuffer.NextBuffer();
+		PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * RING_BUFFERS_COUNT * Channels, Channels);
+		for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
+			RingBuffer.PushBuffer(&OutputBuffer.Data()[Frames * i], Frames * Channels);
+			RingBuffer.NextBuffer();
+		}
 	}
 
 	return true;

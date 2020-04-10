@@ -17,7 +17,7 @@
 *****************************************************************/
 #pragma once
 #include "FresponzeConfig.h"
-
+#define _USE_MATH_DEFINES 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -457,178 +457,6 @@ struct ProcessBuffer {
 	fr_u32 Frames = 0;
 	fr_f32* Data[MAX_CHANNELS] = {};
 };
-/*
-class CAudioBuffer
-{
-private:
-	void AllocateBuffer(fr_i32 bufLength) {
-		for (size_t i = 0; i < MAX_CHANNELS; i++) {
-			if (localBuffer.Data[i]) {
-				void* ptrtemp = FastMemTryRealloc(localBuffer.Data[i], bufLength * sizeof(fr_f32), localBuffer.Frames * sizeof(fr_f32));
-				if (ptrtemp) { localBuffer.Data[i] = (fr_f32*)ptrtemp; continue; }
-			}
-		}
-
-		localBuffer.Frames = bufLength;
-	}
-
-	void DestroyBuffer() {
-		for (size_t i = 0; i < MAX_CHANNELS; i++) {
-			if (localBuffer.Data[i]) {
-				FreeFastMemory(localBuffer.Data[i]);
-				localBuffer.Data[i] = nullptr;
-			}
-		}
-	}
-
-public:
-	ProcessBuffer localBuffer = {};
-
-	CAudioBuffer() {}
-	~CAudioBuffer() {}
-
-	fr_i32 GetFrames() {
-		if (localBuffer.PositionWrite >= localBuffer.PositionRead) return localBuffer.PositionWrite - localBuffer.PositionRead;
-		return (localBuffer.Frames - localBuffer.PositionRead) + localBuffer.PositionWrite;
-	}
-
-	fr_i32 GetFreeFrames() {
-		return localBuffer.Frames - GetFrames();
-	}
-
-	void Resize(fr_i32 BufSize) {
-		if (BufSize != localBuffer.Frames)
-		AllocateBuffer(BufSize);
-	}
-
-	void Destroy() { DestroyBuffer(); }
-
-	void Reset(fr_i32 BufSize) {
-		localBuffer.Position = 0;
-		ToBegin();
-		Resize(BufSize);
-	}
-
-	void ToBegin() {
-		localBuffer.PositionWrite = 0;
-		localBuffer.PositionRead = 0;
-	}
-
-	fr_i32 Flush(fr_i32 FramesToFlush, fr_i32 Channels) {
-		fr_i32 FreeCount = GetFreeFrames();
-		if (FramesToFlush > FreeCount) return -1;
-
-		// Free all our buffers 
-		fr_i32 TempCount = min(FramesToFlush, localBuffer.Frames - localBuffer.PositionWrite);
-		for (size_t i = 0; i < Channels; i++) {
-			fr_f32* pDataWrite = &localBuffer.Data[i][localBuffer.PositionWrite];
-			memset(pDataWrite, 0, sizeof(fr_f32) * TempCount);
-		}
-
-		// Reset if our buffer is overflowed 
-		localBuffer.PositionWrite += TempCount;
-		if (localBuffer.isQueueBuffer && localBuffer.PositionWrite == localBuffer.Frames) {
-			localBuffer.PositionWrite = 0;
-			fr_i32 SecondTempCount = FramesToFlush - TempCount;
-			for (size_t i = 0; i < Channels; i++) {
-				fr_f32* DataWrite = &localBuffer.Data[i][localBuffer.PositionWrite];
-				memset(DataWrite, 0, sizeof(fr_f32) * SecondTempCount);
-			}
-
-			localBuffer.PositionWrite += SecondTempCount;
-			return TempCount + SecondTempCount;
-		}
-
-		return TempCount;
-	}
-
-	fr_i32 Write(fr_f32** pSource, fr_i32 FramesWrite, fr_i32 Channels) {
-		fr_i32 FreeCount = GetFreeFrames();
-		if (FramesWrite > FreeCount) return -1;
-
-		// Flush all our buffers 
-		fr_i32 TempCount = min(FramesWrite, (fr_i32)localBuffer.Frames - (fr_i32)localBuffer.PositionWrite);
-		for (size_t i = 0; i < Channels; i++) {
-			fr_f32* DataRead = pSource[i];
-			fr_f32* DataWrite = &localBuffer.Data[i][localBuffer.PositionWrite];
-			memcpy(DataWrite, DataRead, sizeof(fr_f32) * TempCount);
-		}
-
-		// Reset if our buffer is overflowed 
-		localBuffer.PositionWrite += TempCount;
-		if (localBuffer.isQueueBuffer && localBuffer.PositionWrite == localBuffer.Frames) {
-			localBuffer.PositionWrite = 0;
-			fr_i32 SecondTempCount = FramesWrite - TempCount;
-			for (size_t i = 0; i < Channels; i++) {
-				fr_f32* DataRead = pSource[i];
-				fr_f32* DataWrite = &localBuffer.Data[i][localBuffer.PositionWrite];
-				memcpy(DataWrite, DataRead, sizeof(fr_f32) * SecondTempCount);
-			}
-
-			localBuffer.PositionWrite += SecondTempCount;
-			return TempCount + SecondTempCount;
-		}
-
-		return TempCount;
-	}
-
-	fr_i32 WriteBuffer(ProcessBuffer* Buffer, fr_u32 CountWrite, fr_i32 Channels) {
-		fr_u32 FreeCount = GetFreeFrames();
-		if (FreeCount < CountWrite) return -1;
-
-		fr_u32 ACount = min(CountWrite, Buffer->Frames - Buffer->PositionRead);
-		fr_f32* SourceOffset[MAX_CHANNELS] = { nullptr };
-		for (fr_u32 chNum = 0; chNum < Channels; chNum++) {
-			SourceOffset[chNum] = &Buffer->Data[chNum][Buffer->PositionRead];
-		}
-
-		fr_i32 WriteCount = Write(SourceOffset, ACount, Channels);
-		if (WriteCount < 0) return -2;
-
-		Buffer->PositionRead += WriteCount;
-		if (Buffer->isQueueBuffer && Buffer->PositionRead == Buffer->Frames) {
-			Buffer->PositionRead = 0;
-			fr_u32 BCount = CountWrite - WriteCount;
-			fr_i32 WriteCount2 = Write(Buffer->Data, BCount, Channels);
-			if (WriteCount2 < 0) return -3;
-			Buffer->PositionRead += WriteCount2;
-			return WriteCount + WriteCount2;
-		}
-
-		return WriteCount;
-	}
-
-	fr_i32 Read(fr_f32** pSource, fr_i32 FramesRead, fr_i32 Channels) {
-		fr_i32 RealCount = GetFrames();
-		if (FramesRead < RealCount) return -1;
-
-		// Flush all our buffers 
-		fr_u32 TempCount = min(FramesRead, localBuffer.Frames - localBuffer.PositionRead);
-		for (fr_i32 chNum = 0; chNum < Channels; chNum++) {
-			fr_f32* DataRead = &localBuffer.Data[chNum][localBuffer.PositionRead];
-			fr_f32* DataWrite = pSource[chNum];
-			memcpy(DataWrite, DataRead, sizeof(fr_f32) * TempCount);
-		}
-
-		// Reset if our buffer is overflowed 
-		localBuffer.PositionRead += TempCount;
-		if (localBuffer.isQueueBuffer && localBuffer.PositionRead == localBuffer.Frames) {
-			localBuffer.PositionRead = 0;
-			fr_u32 SecondTempCount = FramesRead - TempCount;
-			for (fr_u32 chNum = 0; chNum < Channels; chNum++) {
-				fr_f32* DataRead = &localBuffer.Data[chNum][localBuffer.PositionRead];
-				fr_f32* DataWrite = &pSource[chNum][TempCount];
-				memcpy(DataWrite, DataRead, sizeof(fr_f32) * SecondTempCount);
-			}
-
-			localBuffer.PositionRead += SecondTempCount;
-			return SecondTempCount + TempCount;
-		}
-
-		return TempCount;
-	}
-};
-*/
 
 typedef CBuffer<fr_f64> CDoubleBuffer;
 typedef CBuffer<fr_f32> CFloatBuffer;
@@ -1307,7 +1135,6 @@ GetFilePathFormat(char* pathToFile)
 	if (StringEnd == pathToFile) return nullptr;
 	return StringEnd == pathToFile ? nullptr : StringEnd;
 }
-
 
 inline
 void
