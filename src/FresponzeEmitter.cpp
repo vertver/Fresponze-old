@@ -220,7 +220,7 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 {
 	if (!pParentListener) return false;
 	fr_i32 BaseEmitterPosition = 0;
-	fr_i32 BaseListenerPosition =0;
+	fr_i32 BaseListenerPosition = 0;
 	fr_i32 FramesReaded = 0;
 	IMediaListener* ThisListener = (IMediaListener*)pParentListener;
 	PcmFormat ListenerFormat = {};

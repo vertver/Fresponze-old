@@ -74,7 +74,7 @@ public:
 	virtual fr_i32 Process(fr_f32** ppOutputFloatData, fr_i32 frames) = 0;
 };
 
-class CMediaListener final : public IMediaListener
+class CMediaListener : public IMediaListener
 {
 protected:
 	fr_i64 framesPos = 0;

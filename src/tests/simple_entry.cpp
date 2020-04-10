@@ -42,8 +42,8 @@ void test1()
 	EndpointInformation* InputList = nullptr;
 	EndpointInformation* OutputList = nullptr;
 	EndpointInformation OutputLists = {};
-	IBaseEmitter* pBaseEmitter = GetAdvancedEmitter();
-	IBaseEmitter* pBaseEmitterSecond = GetAdvancedEmitter();
+	IBaseEmitter* pBaseEmitter = nullptr;
+	IBaseEmitter* pBaseEmitterSecond = nullptr;
 	IAudioHardware* pAudioHardware = nullptr;
 	IAdvancedMixer* pAdvancedMixer = nullptr;
 	IAudioCallback* pAudioCallback = nullptr;
@@ -51,6 +51,8 @@ void test1()
 	if (FrInitializeInstance((void**)&pFresponze) != 0) return;
 	pFresponze->GetMixerInterface(eMixerAdvancedType, (void**)&pAdvancedMixer);
 	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
+	pAdvancedMixer->CreateEmitter(pBaseEmitter);
+	pAdvancedMixer->CreateEmitter(pBaseEmitterSecond);
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
 	pAudioHardware->GetDevicesList(InputList, OutputList);
 	char* pPtr = OutputList->EndpointName;

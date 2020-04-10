@@ -160,6 +160,13 @@ CAdvancedMixer::DeleteListener(ListenersNode* pListNode)
 }
 
 bool
+CAdvancedMixer::CreateEmitter(IBaseEmitter*& pEmitterToCreate)
+{
+	pEmitterToCreate = GetAdvancedEmitter();
+	return true;
+}
+
+bool
 CAdvancedMixer::Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
 	return false;
@@ -207,59 +214,26 @@ bool
 CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
 	/* Update buffer size if output endpoint change sample rate/bitrate/*/
-	if constexpr (true) {
-		if (RingBuffer.GetLeftBuffers()) return false;
-		RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
-		RingBuffer.Resize(Frames * Channels);
-		OutputBuffer.Resize(Frames * Channels);
-		tempBuffer.Resize(Channels, Frames);
-		mixBuffer.Resize(Channels, Frames);
+	if (RingBuffer.GetLeftBuffers()) return false;
+	RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
+	RingBuffer.Resize(Frames * Channels);
+	OutputBuffer.Resize(Frames * Channels);
+	tempBuffer.Resize(Channels, Frames);
+	mixBuffer.Resize(Channels, Frames);
 
-		for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
-			tempBuffer.Clear();
-			mixBuffer.Clear();
-			ListenersNode* pListNode = pFirstListener;
-			while (pListNode) {
-				/* Source restart issue  */
-				EmittersNode* pEmittersNode = nullptr;
-				pListNode->pListener->GetFirstEmitter(&pEmittersNode);
-				while (pEmittersNode) {
-					tempBuffer.Clear();
-					pEmittersNode->pEmitter->Process(tempBuffer.GetBuffers(), Frames);
-					for (size_t o = 0; o < Channels; o++) {
-						MixerAddToBuffer(mixBuffer.GetBufferData((fr_i32)o), tempBuffer.GetBufferData((fr_i32)o), Frames);
-					}
-
-					pEmittersNode = pEmittersNode->pNext;
-				}
-
-				pListNode = pListNode->pNext;
-			}
-
-			/* Update ring buffer state for pushing new data */
-			PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * Channels, Channels);
-			RingBuffer.PushBuffer(OutputBuffer.Data(), Frames * Channels);
-			RingBuffer.NextBuffer();
-		}
-	} else {
-		if (RingBuffer.GetLeftBuffers()) return false;
-		RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
-		RingBuffer.Resize(Frames * Channels);
-		OutputBuffer.Resize(Frames * RING_BUFFERS_COUNT * Channels);
-		tempBuffer.Resize(Channels, Frames * RING_BUFFERS_COUNT);
-		mixBuffer.Resize(Channels, Frames * RING_BUFFERS_COUNT);
-		mixBuffer.Clear();
+	for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
 		tempBuffer.Clear();
-
+		mixBuffer.Clear();
 		ListenersNode* pListNode = pFirstListener;
 		while (pListNode) {
 			/* Source restart issue  */
 			EmittersNode* pEmittersNode = nullptr;
 			pListNode->pListener->GetFirstEmitter(&pEmittersNode);
 			while (pEmittersNode) {
-				pEmittersNode->pEmitter->Process(tempBuffer.GetBuffers(), Frames * RING_BUFFERS_COUNT);
+				tempBuffer.Clear();
+				pEmittersNode->pEmitter->Process(tempBuffer.GetBuffers(), Frames);
 				for (size_t o = 0; o < Channels; o++) {
-					MixerAddToBuffer(mixBuffer.GetBufferData((fr_i32)o), tempBuffer.GetBufferData((fr_i32)o), Frames * RING_BUFFERS_COUNT);
+					MixerAddToBuffer(mixBuffer.GetBufferData((fr_i32)o), tempBuffer.GetBufferData((fr_i32)o), Frames);
 				}
 
 				pEmittersNode = pEmittersNode->pNext;
@@ -269,11 +243,9 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 		}
 
 		/* Update ring buffer state for pushing new data */
-		PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * RING_BUFFERS_COUNT * Channels, Channels);
-		for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
-			RingBuffer.PushBuffer(&OutputBuffer.Data()[Frames * i], Frames * Channels);
-			RingBuffer.NextBuffer();
-		}
+		PlanarToLinear(mixBuffer.GetBuffers(), OutputBuffer.Data(), Frames * Channels, Channels);
+		RingBuffer.PushBuffer(OutputBuffer.Data(), Frames * Channels);
+		RingBuffer.NextBuffer();
 	}
 
 	return true;
