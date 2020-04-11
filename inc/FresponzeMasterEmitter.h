@@ -23,7 +23,7 @@
 	Ex. Integrating wWise into Fresponze Audio Engine and
 	set output via custom WASAPI (or other) output.
 */
-class CFresponzeEmitter : public CBaseEmitter
+class CResonanceAudioEmitter : public IBaseEmitter
 {
 
 };

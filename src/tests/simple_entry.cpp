@@ -53,15 +53,20 @@ void test1()
 	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
 	pAdvancedMixer->CreateEmitter(pBaseEmitter);
 	pAdvancedMixer->CreateEmitter(pBaseEmitterSecond);
+
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
 	pAudioHardware->GetDevicesList(InputList, OutputList);
+
 	char* pPtr = OutputList->EndpointName;
 	if (pAudioHardware->Open(RenderType, 50.f)) {
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
+		/* Create base listener with emitter to play */
 		if (pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_one.wav", listNode)) {
 			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
+			pBaseEmitter->SetState(eReplayState);
 			pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_two.wav", listNode);
 			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitterSecond);
+			pBaseEmitterSecond->SetState(eReplayState);
 			pAdvancedMixer->SetMixFormat(OutputLists.EndpointFormat);
 			pAudioHardware->Start();
 		}

@@ -187,30 +187,13 @@ CAdvancedEmitter::ProcessInternal(fr_f32** ppData, fr_i32 Frames, fr_i32 Channel
 	fr_f32 fLowFreq = LowPassSettings.FilterFrequency;
 	fr_f32 fHighFreq = HighPassSettings.FilterFrequency;
 
-	//for (size_t i = 0; i < Channels; i++) {
-	//	fr_f32 TempValue = 0.f;
-	//	fr_f32 TempValue2 = 0.f;
-	//	fr_f32* pLowPassTemp = LowPassTempArray[i];
-	//	fr_f32* pHighPassTemp = HighPassTempArray[i];
-	//
-	//	for (size_t o = 0; o < Frames; o++) {
-	//		TempValue = ppData[i][o];
-	//		pLowPassTemp[0] += fLowFreq * (TempValue - pLowPassTemp[0] + LowPassFeedback * (pLowPassTemp[0] - pLowPassTemp[1]));
-	//		pLowPassTemp[1] += fLowFreq * (pLowPassTemp[0] - pLowPassTemp[1]);
-	//		pLowPassTemp[2] += fLowFreq * (pLowPassTemp[1] - pLowPassTemp[2]);
-	//		pLowPassTemp[3] += fLowFreq * (pLowPassTemp[2] - pLowPassTemp[3]);
-	//		ppData[i][o] = pLowPassTemp[3];
-	//
-	//		/* Apple volume gain */
-	//		ppData[i][o] *= VolumeLevel;
-	//	}
-	//}
-
 	/* Apple angle to signal */
 	if (Channels >= 2) {
+		fr_f32 leftcoeff = cosf(Angle) - sinf(Angle);
+		fr_f32 rightcoeff = cosf(Angle) + sinf(Angle);
 		for (size_t o = 0; o < Frames; o++) {
-			ppData[0][o] *= (0.707106f * (cosf(Angle) - sinf(Angle)));
-			ppData[1][o] *= (0.707106f * (cosf(Angle) + sinf(Angle)));
+			ppData[0][o] *= leftcoeff;
+			ppData[1][o] *= rightcoeff;
 		}
 	}
 }
@@ -224,6 +207,8 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	fr_i32 FramesReaded = 0;
 	IMediaListener* ThisListener = (IMediaListener*)pParentListener;
 	PcmFormat ListenerFormat = {};
+
+	if (EmittersState == eStopState || EmittersState == ePauseState) return false;
 
 	/* Get current position of listener and emitter to reset old state */
 	ThisListener->GetFormat(ListenerFormat);

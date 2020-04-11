@@ -49,7 +49,7 @@ protected:
 	/* Plugin process settings */
 	fr_i32 EmittersState = 0;
 	fr_f32 VolumeLevel = 0.5f;
-	fr_f32 Angle = M_PI;		
+	fr_f32 Angle = 0;		
 	fr_f32 LowPassTempValue[8] = {};
 	fr_f32 HighPassTempValue[8] = {};
 	fr_f32 LowPassTempArray[8][8] = {};
