@@ -29,12 +29,6 @@ enum AdvancedEmitterConfiguration
 {
 	eVolumeParameter,
 	eAngleParameter,			// Angle from quart value
-	eLPParameterResonance,
-	eLPParameterFrequency,
-	eLPParameterVolume,
-	eHPParameterResonance,
-	eHPParameterFrequency,
-	eHPParameterVolume,
 	ePluginParametersCount,
 	eInvalidParameter = 0xFFFF	// Max value for configuration values
 };

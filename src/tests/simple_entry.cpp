@@ -22,6 +22,7 @@
 #include "FresponzeWavFile.h"
 #include "FresponzeListener.h"
 #include "FresponzeMixer.h"
+#include "FresponzeMasterEmitter.h"
 
 IFresponze* pFresponze = nullptr;
 
@@ -39,6 +40,7 @@ void loop()
 void test1()
 {
 	ListenersNode* listNode = nullptr;
+	PcmFormat format = {};
 	EndpointInformation* InputList = nullptr;
 	EndpointInformation* OutputList = nullptr;
 	EndpointInformation OutputLists = {};
@@ -51,8 +53,10 @@ void test1()
 	if (FrInitializeInstance((void**)&pFresponze) != 0) return;
 	pFresponze->GetMixerInterface(eMixerAdvancedType, (void**)&pAdvancedMixer);
 	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
-	pAdvancedMixer->CreateEmitter(pBaseEmitter);
-	pAdvancedMixer->CreateEmitter(pBaseEmitterSecond);
+	pBaseEmitter = new CSteamAudioEmitter;
+	//pBaseEmitterSecond = new CSteamAudioEmitter;
+	//pAdvancedMixer->CreateEmitter(pBaseEmitter);
+	//pAdvancedMixer->CreateEmitter(pBaseEmitterSecond);
 
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
 	pAudioHardware->GetDevicesList(InputList, OutputList);
@@ -60,13 +64,14 @@ void test1()
 	char* pPtr = OutputList->EndpointName;
 	if (pAudioHardware->Open(RenderType, 50.f)) {
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
+		pAdvancedMixer->SetBufferSamples(OutputLists.EndpointFormat.Frames);
 		/* Create base listener with emitter to play */
-		if (pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_one.wav", listNode)) {
+		if (pAdvancedMixer->CreateListener((void*)"X:\\WhitePlace.wav", listNode, OutputLists.EndpointFormat)) {
 			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
 			pBaseEmitter->SetState(eReplayState);
-			pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_two.wav", listNode);
-			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitterSecond);
-			pBaseEmitterSecond->SetState(eReplayState);
+			//pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_two.wav", listNode, OutputLists.EndpointFormat);
+			//pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitterSecond);
+			//pBaseEmitterSecond->SetState(eReplayState);
 			pAdvancedMixer->SetMixFormat(OutputLists.EndpointFormat);
 			pAudioHardware->Start();
 		}

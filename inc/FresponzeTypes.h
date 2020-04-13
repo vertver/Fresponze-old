@@ -892,6 +892,21 @@ PlanarToLinear(
 }
 
 inline
+void
+LinearToPlanar(
+	fr_f32** pPlanar,
+	fr_f32* pLinear,
+	fr_i32 SamplesCount,
+	fr_i32 Channels
+)
+{
+	for (size_t i = 0; i < SamplesCount; i++) {
+		pPlanar[i % Channels][i / Channels] = pLinear[i];
+	}
+}
+
+
+inline
 bool
 MixComplexToArray(
 	fr_f32* pComplex,

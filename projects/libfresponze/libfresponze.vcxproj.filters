@@ -555,6 +555,9 @@
     <ClCompile Include="..\..\src\FresponzeEmitter.cpp">
       <Filter>src\Base\Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeMasterEmitter.cpp">
+      <Filter>src\Base\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">

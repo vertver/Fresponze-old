@@ -150,6 +150,7 @@ CAdvancedMixer::CreateListener(void* pListenerOpenLink, ListenersNode*& pNewList
 
 	if (ListFormat.Bits) pNewResource->SetFormat(ListFormat);
 	pNewListener->pListener = new CMediaListener(pNewResource);
+	pNewListener->pListener->SetFormat(ListFormat);
 	return true;
 }
 

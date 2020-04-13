@@ -143,12 +143,6 @@ CAdvancedEmitter::SetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 	{
 	case eVolumeParameter:		VolumeLevel = ValueToApply;
 	case eAngleParameter:		Angle = ValueToApply;
-	case eLPParameterResonance: LowPassSettings.FilterResonance = ValueToApply;
-	case eLPParameterFrequency:	LowPassSettings.FilterFrequency = ValueToApply;
-	case eLPParameterVolume:	LowPassSettings.FilterVolume = ValueToApply;
-	case eHPParameterResonance: HighPassSettings.FilterResonance = ValueToApply;
-	case eHPParameterFrequency:	HighPassSettings.FilterFrequency = ValueToApply;
-	case eHPParameterVolume:	HighPassSettings.FilterVolume = ValueToApply;
 	default:
 		break;
 	}
@@ -160,18 +154,12 @@ CAdvancedEmitter::GetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 	if (!pData) return;
 	if (Option >= ePluginParametersCount) return;
 	if (DataSize != sizeof(fr_f32)) return;
-	fr_f32 ValueToApply = *pData;
+	fr_f32& ValueToApply = *pData;
 
 	switch (Option)
 	{
-	case eVolumeParameter:		VolumeLevel = ValueToApply;
-	case eAngleParameter:		Angle = ValueToApply;
-	case eLPParameterResonance: LowPassSettings.FilterResonance = ValueToApply;
-	case eLPParameterFrequency:	LowPassSettings.FilterFrequency = ValueToApply;
-	case eLPParameterVolume:	LowPassSettings.FilterVolume = ValueToApply;
-	case eHPParameterResonance: HighPassSettings.FilterResonance = ValueToApply;
-	case eHPParameterFrequency:	HighPassSettings.FilterFrequency = ValueToApply;
-	case eHPParameterVolume:	HighPassSettings.FilterVolume = ValueToApply;
+	case eVolumeParameter:		ValueToApply = VolumeLevel;
+	case eAngleParameter:		ValueToApply = Angle;
 	default:
 		break;
 	}

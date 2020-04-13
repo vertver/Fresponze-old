@@ -17,13 +17,65 @@
 *****************************************************************/
 #pragma once
 #include "FresponzeEmitter.h"
+#include "phonon.h"
+
+enum ESteamAudioOptions
+{
+	eVolumeParameter,
+	eXAxis,
+	eYAxis,
+	eZAxis,
+	eCountOfParameters
+};
 
 /* 
 	Master emitter created for post and pre mixer processing.
 	Ex. Integrating wWise into Fresponze Audio Engine and
 	set output via custom WASAPI (or other) output.
 */
-class CResonanceAudioEmitter : public IBaseEmitter
+class CSteamAudioEmitter : public IBaseEmitter
 {
+private:
+	fr_f32 VolumeLevel = 0.f;
+	fr_i32 EmittersState = 0;
+	fr_i32 CurrentSourceId = 0;
+	PcmFormat outputFormat = {};
+	IPLVector3 vectorOfAngle = {};
+	  
+	IPLhandle BinauralRender = {};
+	IPLhandle BinauralEffect = {};
+	IPLAudioFormat EmitterFormat = {};
+	IPLRenderingSettings EmitterSettings = {};
+	IPLHrtfParams hrtfParams = {};
+	IPLAudioBuffer InputBuffer = {};
+	IPLAudioBuffer OutputBuffer = {};
 
+	void Reset();
+
+public:
+	CSteamAudioEmitter();
+	~CSteamAudioEmitter();
+
+	void SetListener(void* pListener) override;
+	void SetState(fr_i32 state) override;
+	void SetPosition(fr_i64 FPosition) override;
+
+	void* GetListener() override;
+	fr_i32 GetState() override;
+	fr_i64 GetPosition() override;
+
+	bool GetEffectCategory(fr_i32& EffectCategory) override;
+	bool GetEffectType(fr_i32& EffectType) override;
+
+	bool GetPluginName(fr_string64& DescriptionString) override;
+	bool GetPluginVendor(fr_string64& DescriptionString) override;
+	bool GetPluginDescription(fr_string256& DescriptionString) override;
+
+	bool GetVariablesCount(fr_i32& CountOfVariables) override;
+	bool GetVariableDescription(fr_i32 VariableIndex, fr_string128& DescriptionString) override;
+	bool GetVariableKnob(fr_i32 VariableIndex, fr_i32& KnobType) override;
+	void SetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize) override;
+	void GetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize) override;
+
+	bool Process(fr_f32** ppData, fr_i32 Frames) override;
 };
