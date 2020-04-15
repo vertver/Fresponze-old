@@ -283,7 +283,7 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	/* Set emitter position to listener and read data */
 	ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
 	FramesReaded = ThisListener->Process(ppData, Frames);
-	if (FramesReaded < Frames) {
+	if (FramesReaded < Frames || ThisListener->GetPosition() < BaseListenerPosition) {
 		/* We don't want replay audio if we set this flag */
 		if (EmittersState == ePlayState) EmittersState = eStopState;
 		BaseEmitterPosition = 0;

@@ -276,6 +276,10 @@ COpusMediaResource::SetPosition(fr_i64 FramePosition)
 	if (!op_seekable(of)) return -1;
 	fr_i64 frame_out = 0;
 	ret = op_pcm_seek(of, FramePosition);
+	if (ret == OP_EINVAL) {
+		FramePosition = 0;
+		ret = op_pcm_seek(of, FramePosition);
+	}
 	BugAssert((!ret), "Can't seek OPUS file");
 	FSeek = FramePosition;
 	return 0;// ret;

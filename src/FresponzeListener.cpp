@@ -152,7 +152,6 @@ CMediaListener::Process(fr_f32** ppOutputFloatData, fr_i32 frames)
 {
 	fr_i32 inFrames = 0;
 	inFrames = (fr_i32)pLocalResource->Read(frames, ppOutputFloatData);
-	if (inFrames < frames) framesPos = 0;
-	else framesPos += inFrames;
+	framesPos = pLocalResource->GetPosition();
 	return inFrames;
 }

@@ -66,7 +66,7 @@ void test1()
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
 		pAdvancedMixer->SetBufferSamples(OutputLists.EndpointFormat.Frames);
 		/* Create base listener with emitter to play */
-		if (pAdvancedMixer->CreateListener((void*)"I:\\Downloads\\ehren-paper_lights-96.opus", listNode, OutputLists.EndpointFormat)) {
+		if (pAdvancedMixer->CreateListener((void*)"X:\\WhitePlace.opus", listNode, OutputLists.EndpointFormat)) {
 			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
 			pBaseEmitter->SetState(eReplayState);
 			//fr_f32 x = -2.25;

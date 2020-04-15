@@ -228,13 +228,6 @@ CAdvancedEmitter::GetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 void
 CAdvancedEmitter::ProcessInternal(fr_f32** ppData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
-	fr_f32* LowPasArray = FiltersTempValues[0];
-	fr_f32* HighPasArray = FiltersTempValues[1];
-	fr_f32 LowPassFeedback = LowPassSettings.FilterResonance * (1.0f + 1.0f / (1.0f - LowPassSettings.FilterFrequency));
-	fr_f32 HighPassFeedback = HighPassSettings.FilterResonance * (1.0f + 1.0f / (1.0f - HighPassSettings.FilterFrequency));
-	fr_f32 fLowFreq = LowPassSettings.FilterFrequency;
-	fr_f32 fHighFreq = HighPassSettings.FilterFrequency;
-
 	/* Apple angle to signal */
 	if (Channels >= 2) {
 		fr_f32 leftcoeff = cosf(Angle) - sinf(Angle);
@@ -264,7 +257,7 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	/* Set emitter position to listener and read data */
 	ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
 	FramesReaded = ThisListener->Process(ppData, Frames);
-	if (FramesReaded < Frames) {
+	if (FramesReaded < Frames || ThisListener->GetPosition() < BaseListenerPosition) {
 		/* We don't want replay audio if we set this flag */
 		if (EmittersState == ePlayState) EmittersState = eStopState;
 		BaseEmitterPosition = 0;

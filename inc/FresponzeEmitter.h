@@ -44,16 +44,9 @@ protected:
 	fr_i32 EmittersState = 0;
 	fr_f32 VolumeLevel = 0.5f;
 	fr_f32 Angle = 0;		
-	fr_f32 LowPassTempValue[8] = {};
-	fr_f32 HighPassTempValue[8] = {};
-	fr_f32 LowPassTempArray[8][8] = {};
-	fr_f32 HighPassTempArray[8][8] = {};
-	FilterParameter LowPassSettings = { 0.5f, 0.3f, 0.5f };
-	FilterParameter HighPassSettings = { 0.3f, 0.8f, 1.f };
 	PcmFormat ListenerFormat = {};
 
 	/* Parameters and flags */
-	fr_f32 FiltersTempValues[2][4] = {};		// 2 filters with 24db/oct cut
 	fr_i32 EmitterEffectCategory = CategoryEffect;
 	fr_i32 EmitterEffectType = SoundEffectType;
 	fr_i32 EmitterConfigurationKnob[ePluginParametersCount] = { CircleKnob, LineKnob };
