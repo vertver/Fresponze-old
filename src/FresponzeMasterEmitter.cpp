@@ -1,39 +1,32 @@
 #include "FresponzeMasterEmitter.h"
 
 IPLhandle context = nullptr;
-long Counter = 0;
+long ContextCounter = 0;
 
 void
 CSteamAudioEmitter::Reset()
 {
-
-}
-
-CSteamAudioEmitter::CSteamAudioEmitter()
-{
-	AddRef();
-	if (!context) iplCreateContext(nullptr, nullptr, nullptr, &context);
-	Counter++;
-}
-
-CSteamAudioEmitter::~CSteamAudioEmitter()
-{
-	IMediaListener* pTemp = ((IMediaListener*)pParentListener);
-	_RELEASE(pTemp);
-	Counter--;
-	if (Counter <= 0) {
+	if (BinauralEffect) iplDestroyBinauralEffect(&BinauralEffect);
+	if (BinauralRender) iplDestroyBinauralRenderer(&BinauralRender);
+	if (OutputBuffer.deinterleavedBuffer) {
+		for (size_t i = 0; i < outputFormat.Channels; i++) {
+			if (OutputBuffer.deinterleavedBuffer[i]) FreeFastMemory(OutputBuffer.deinterleavedBuffer[i]);
+		}
+	}
+	if (InputBuffer.deinterleavedBuffer) {
+		for (size_t i = 0; i < outputFormat.Channels; i++) {
+			if (InputBuffer.deinterleavedBuffer[i]) FreeFastMemory(InputBuffer.deinterleavedBuffer[i]);
+		}
+	}
+	if (ContextCounter <= 0) {
 		iplDestroyContext(&context);
 		context = nullptr;
 	}
 }
 
-void	
-CSteamAudioEmitter::SetListener(void* pListener) 
+void
+CSteamAudioEmitter::Create()
 {
-	IMediaListener* pMediaListener = (IMediaListener*)pListener;
-	pParentListener = pListener;
-	pMediaListener->GetFormat(outputFormat);
-
 	/* Steam audio API settings apply */
 	EmitterSettings.convolutionType = IPL_CONVOLUTIONTYPE_PHONON;
 	EmitterSettings.frameSize = outputFormat.Frames;
@@ -42,9 +35,9 @@ CSteamAudioEmitter::SetListener(void* pListener)
 	iplCreateBinauralRenderer(context, EmitterSettings, hrtfParams, &BinauralRender);
 	EmitterFormat.channelLayoutType = IPL_CHANNELLAYOUTTYPE_SPEAKERS;
 	EmitterFormat.channelLayout =
-		outputFormat.Channels == 2 ? IPL_CHANNELLAYOUT_STEREO		: outputFormat.Channels == 4 ? IPL_CHANNELLAYOUT_QUADRAPHONIC :
-		outputFormat.Channels == 6 ? IPL_CHANNELLAYOUT_FIVEPOINTONE : outputFormat.Channels == 8 ? IPL_CHANNELLAYOUT_SEVENPOINTONE : 
-		outputFormat.Channels == 1 ? IPL_CHANNELLAYOUT_MONO			: IPL_CHANNELLAYOUT_STEREO;
+		outputFormat.Channels == 2 ? IPL_CHANNELLAYOUT_STEREO : outputFormat.Channels == 4 ? IPL_CHANNELLAYOUT_QUADRAPHONIC :
+		outputFormat.Channels == 6 ? IPL_CHANNELLAYOUT_FIVEPOINTONE : outputFormat.Channels == 8 ? IPL_CHANNELLAYOUT_SEVENPOINTONE :
+		outputFormat.Channels == 1 ? IPL_CHANNELLAYOUT_MONO : IPL_CHANNELLAYOUT_STEREO;
 	EmitterFormat.channelOrder = IPL_CHANNELORDER_DEINTERLEAVED;
 
 	iplCreateBinauralEffect(BinauralRender, EmitterFormat, EmitterFormat, &BinauralEffect);
@@ -58,6 +51,78 @@ CSteamAudioEmitter::SetListener(void* pListener)
 		InputBuffer.deinterleavedBuffer[i] = (IPLfloat32*)FastMemAlloc(outputFormat.Frames * sizeof(fr_f32));
 		OutputBuffer.deinterleavedBuffer[i] = (IPLfloat32*)FastMemAlloc(outputFormat.Frames * sizeof(fr_f32));
 	}
+}
+
+CSteamAudioEmitter::CSteamAudioEmitter()
+{
+	AddRef();
+	if (!context) iplCreateContext(nullptr, nullptr, nullptr, &context);
+	ContextCounter++;
+}
+
+CSteamAudioEmitter::~CSteamAudioEmitter()
+{
+	IMediaListener* pTemp = ((IMediaListener*)pParentListener);
+	_RELEASE(pTemp);
+	ContextCounter--;
+	Reset(); 
+	FreeStuff();
+}
+
+void 
+CSteamAudioEmitter::FreeStuff()
+{
+	EffectNodeStruct* pNode = pFirstEffect;
+	EffectNodeStruct* pThisNode = nullptr;
+	while (pNode) {
+		pThisNode = pNode->pNext;
+		_RELEASE(pNode->pEffect);
+		delete pNode;
+		pNode = pThisNode;
+	}
+}
+
+void 
+CSteamAudioEmitter::AddEffect(IBaseEffect* pNewEffect)
+{
+	if (!pLastEffect) {
+		pFirstEffect = new EffectNodeStruct;
+		memset(pFirstEffect, 0, sizeof(EffectNodeStruct));
+		pLastEffect = pFirstEffect;
+		pNewEffect->Clone((void**)&pLastEffect->pEffect);
+	}
+	else {
+		EffectNodeStruct* pTemp = new EffectNodeStruct;
+		memset(pFirstEffect, 0, sizeof(EffectNodeStruct));
+		pNewEffect->Clone((void**)&pTemp->pEffect);
+		pLastEffect->pNext = pTemp;
+		pTemp->pPrev = pLastEffect;
+		pLastEffect = pTemp;
+	}
+}
+
+void 
+CSteamAudioEmitter::DeleteEffect(IBaseEffect* pNewEffect)
+{
+	EffectNodeStruct* pNode = pFirstEffect;
+	while (pNode) {
+		if (pNode->pEffect == pNewEffect) {
+			pNode->pPrev->pNext = pNode->pNext;
+			pNode->pNext->pPrev = pNode->pPrev;
+			_RELEASE(pNode->pEffect);
+			delete pNode;
+			return;
+		}
+	}
+}
+
+void	
+CSteamAudioEmitter::SetListener(void* pListener) 
+{
+	IMediaListener* pMediaListener = (IMediaListener*)pListener;
+	pMediaListener->Clone(&pParentListener);
+	pMediaListener->GetFormat(outputFormat);
+	Create();
 }
 
 void	
@@ -155,10 +220,10 @@ CSteamAudioEmitter::SetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 
 	switch (Option)
 	{
-	case eVolumeParameter:		VolumeLevel = ValueToApply;
-	case eXAxis:				vectorOfAngle.x = ValueToApply;
-	case eYAxis:				vectorOfAngle.y = ValueToApply;
-	case eZAxis:				vectorOfAngle.z = ValueToApply;
+	case eSVolumeParameter:		VolumeLevel = ValueToApply; break;
+	case eXAxis:				vectorOfAngle.x = ValueToApply; break;
+	case eYAxis:				vectorOfAngle.y = ValueToApply; break;
+	case eZAxis:				vectorOfAngle.z = ValueToApply; break;
 	default:
 		break;
 	}
@@ -174,10 +239,10 @@ CSteamAudioEmitter::GetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 
 	switch (Option)
 	{
-	case eVolumeParameter:		ValueToApply = VolumeLevel;
-	case eXAxis:				ValueToApply = vectorOfAngle.x;
-	case eYAxis:				ValueToApply = vectorOfAngle.y;
-	case eZAxis:				ValueToApply = vectorOfAngle.z;
+	case eSVolumeParameter:		ValueToApply = VolumeLevel; break;
+	case eXAxis:				ValueToApply = vectorOfAngle.x; break;
+	case eYAxis:				ValueToApply = vectorOfAngle.y; break;
+	case eZAxis:				ValueToApply = vectorOfAngle.z; break;
 	default:
 		break;
 	}
@@ -197,7 +262,11 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 
 	/* Get current position of listener and emitter to reset old state */
 	ThisListener->GetFormat(ListenerFormat);
-	if (memcmp(&ListenerFormat, &outputFormat, sizeof(PcmFormat))) Reset();
+	if (memcmp(&ListenerFormat, &outputFormat, sizeof(PcmFormat))) {
+		Reset(); 
+		Create();
+	}
+
 	BaseEmitterPosition = GetPosition();
 	BaseListenerPosition = ThisListener->GetPosition();
 
@@ -213,20 +282,20 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 		BaseEmitterPosition += FramesReaded;
 	}
 
-	static bool state = false;
-	static fr_f32 phase = 0.f;
-
 	/* Process by emitter effect */
 	for (size_t i = 0; i < outputFormat.Channels; i++) {
 		memcpy(InputBuffer.deinterleavedBuffer[i], ppData[i], sizeof(fr_f32) * Frames);
 	}
-
-	iplApplyBinauralEffect(BinauralEffect, BinauralRender, InputBuffer, IPLVector3{ 2.0f * sinf(phase), 0.0f, 2.0f * cosf(phase) }, IPL_HRTFINTERPOLATION_NEAREST, OutputBuffer);
+	iplApplyBinauralEffect(BinauralEffect, BinauralRender, InputBuffer, vectorOfAngle, IPL_HRTFINTERPOLATION_NEAREST, OutputBuffer);
 	for (size_t i = 0; i < outputFormat.Channels; i++) {
 		memcpy(ppData[i], OutputBuffer.deinterleavedBuffer[i], sizeof(fr_f32) * Frames);
 	}
 
-	phase += 0.1f;
+	EffectNodeStruct* pEffectToProcess = pFirstEffect;
+	while (pEffectToProcess) {
+		pEffectToProcess->pEffect->Process(ppData, Frames);
+		pEffectToProcess = pEffectToProcess->pNext;
+	}
 
 	SetPosition(BaseEmitterPosition);
 	ThisListener->SetPosition((fr_i64)BaseListenerPosition);

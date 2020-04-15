@@ -224,7 +224,7 @@ CGameMixer::AddInputEffect(IBaseEffect* pEffectToClone)
 	if (!pThisEffectNode) {
 		pInputFirstEffect = (EffectNodeStruct*)FastMemAlloc(sizeof(EffectNodeStruct));
 		pEffectToClone->Clone((void**)&pInputFirstEffect->pEffect);
-		pInputFirstEffect->pModuleHandle = hModule;
+		//pInputFirstEffect->pModuleHandle = hModule;
 	} else {
 		while (true) {
 			pNextEffectNode = pThisEffectNode->pNext;
@@ -235,7 +235,7 @@ CGameMixer::AddInputEffect(IBaseEffect* pEffectToClone)
 	
 		pThisEffectNode->pNext = (EffectNodeStruct*)FastMemAlloc(sizeof(EffectNodeStruct));
 		pEffectToClone->Clone((void**)&pThisEffectNode->pNext->pEffect);
-		pThisEffectNode->pNext->pModuleHandle = hModule;
+		//pThisEffectNode->pNext->pModuleHandle = hModule;
 	}
 
 	return true;
@@ -340,7 +340,7 @@ CGameMixer::AddEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToClone)
 	if (!pThisEffectNode) {
 		pThisNode->pFirstEffectNode = (EffectNodeStruct*)FastMemAlloc(sizeof(EffectNodeStruct));
 		pEffectToClone->Clone((void**)&pThisNode->pFirstEffectNode->pEffect);
-		pThisNode->pFirstEffectNode->pModuleHandle = hModule;
+		//pThisNode->pFirstEffectNode->pModuleHandle = hModule;
 	}
 	else {
 		while (true) {
@@ -352,7 +352,7 @@ CGameMixer::AddEffect(CBaseSound* pNeedySound, IBaseEffect* pEffectToClone)
 
 		pThisEffectNode->pNext = (EffectNodeStruct*)FastMemAlloc(sizeof(EffectNodeStruct));
 		pEffectToClone->Clone((void**)&pThisEffectNode->pNext->pEffect);
-		pThisEffectNode->pNext->pModuleHandle = hModule;
+		//pThisEffectNode->pNext->pModuleHandle = hModule;
 	}
 
 	return true;

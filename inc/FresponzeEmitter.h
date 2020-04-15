@@ -55,7 +55,7 @@ protected:
 	fr_f32 FiltersTempValues[2][4] = {};		// 2 filters with 24db/oct cut
 	fr_i32 EmitterEffectCategory = CategoryEffect;
 	fr_i32 EmitterEffectType = SoundEffectType;
-	fr_i32 EmitterConfigurationKnob[ePluginParametersCount] = { CircleKnob, LineKnob, CircleKnob, CircleKnob };
+	fr_i32 EmitterConfigurationKnob[ePluginParametersCount] = { CircleKnob, LineKnob };
 
 	/* Names and descriptions */
 	const char* EmitterName = "Advanced Pan Emitter";
@@ -63,21 +63,19 @@ protected:
 	const char* EmitterVendor = "Fresponze";
 	const char* EmitterConfigurationDescription[ePluginParametersCount] = {
 		"Volume level of audio", 
-		"View angle",
-		"Low-pass resonance", 
-		"Low-pass frequency cut", 
-		"Low-pass volume", 
-		"High-pass resonance" 
-		"High-pass frequency cut" 
-		"High-pass volume" 
+		"View angle"
 	};
 
 	/* Counting and support functions */
 	void ProcessInternal(fr_f32** ppData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate);
+	void FreeStuff();
 
 public:
 	CAdvancedEmitter();
 	~CAdvancedEmitter();
+
+	void AddEffect(IBaseEffect* pNewEffect) override;
+	void DeleteEffect(IBaseEffect* pNewEffect) override;
 
 	void SetListener(void* pListener) override;
 	void SetState(fr_i32 state) override;

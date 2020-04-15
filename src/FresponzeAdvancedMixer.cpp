@@ -17,6 +17,7 @@
 *****************************************************************/
 #include "FresponzeAdvancedMixer.h"
 #include "FresponzeWavFile.h"
+#include "FresponzeOpusFile.h"
 
 #define RING_BUFFERS_COUNT 2
 
@@ -116,6 +117,7 @@ void*
 GetFormatListener(char* pListenerOpenLink)
 {
 	if (!strcmp(GetFilePathFormat(pListenerOpenLink), ".wav")) return new CRIFFMediaResource();
+	if (!strcmp(GetFilePathFormat(pListenerOpenLink), ".opus")) return new COpusMediaResource();
 	return nullptr;
 } 
 

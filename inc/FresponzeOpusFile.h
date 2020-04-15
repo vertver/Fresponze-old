@@ -32,18 +32,20 @@ private:
 	fr_i32 CurrentBuffer = 0;
 	fr_i32 FileReadSize = 0;
 	fr_i64 pcm_offset = 0;
+	fr_i64 PtrSize = 0;
+	fr_i64 FSeek = 0;
+	fr_ptr FilePtr = nullptr;
 	OggOpusFile* of = nullptr;
 	const char* opusVendor = nullptr;
 	const char** opusComments = nullptr;
 	PcmFormat formatOfFile = {};
-	PcmFormat OutputFormat = {};
 	OpusFileCallbacks cb = { nullptr, nullptr, nullptr, nullptr };
 	CFloatBuffer tempBuffer = {};
 	C2DFloatBuffer* floatBuffers = {};
 	C2DDoubleBuffer* doubleBuffers[2] = {};
 	CR8BrainResampler resampler;
 
-	bool NextBlock();
+	bool NextBlock(fr_i64 FramesCount);
 	void ClearBuffers();
 	void AllocateBuffers(fr_i32 ChannelsCount);
 
@@ -53,17 +55,17 @@ private:
 	fr_i32 CompareSize(fr_i32 InputFrames);
 
 public:
-	COpusMediaResource() {}
-	COpusMediaResource(void* pResourceLinker);
+	COpusMediaResource(IFreponzeMapFile* pNewMapper = nullptr);
 	~COpusMediaResource();
 
 	bool OpenResource(void* pResourceLinker) override;
 	bool CloseResource() override;
 
-	void GetVendorName(const char*& vendorName) override;		// vendor name, in tags structure
-	void GetVendorString(const char*& vendorString) override;	// vendor comment, in tags structure
 	void GetFormat(PcmFormat& format) override;
 	void SetFormat(PcmFormat outputFormat) override;
+
+	void GetVendorName(const char*& vendorName) override;		// vendor name, in tags structure
+	void GetVendorString(const char*& vendorString) override;	// vendor comment, in tags structure
 
 	fr_i64 Read(fr_i64 FramesCount, fr_f32** ppFloatData) override;
 	fr_i64 ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData) override;

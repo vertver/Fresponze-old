@@ -67,8 +67,8 @@ struct EffectNodeStruct;
 struct EffectNodeStruct
 {
 	EffectNodeStruct* pNext;
+	EffectNodeStruct* pPrev;
 	IBaseEffect* pEffect;  
-	void* pModuleHandle;  
 	void* pReserved;
 };
 

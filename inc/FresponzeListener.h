@@ -30,10 +30,15 @@ enum EListenerState : fr_i32
 class IBaseEmitter : public IBaseEffect
 {
 protected:
+	EffectNodeStruct* pFirstEffect = nullptr;
+	EffectNodeStruct* pLastEffect = nullptr;
 	void* pParentListener = nullptr;
 	fr_i64 FilePosition = 0;
 
 public:
+	virtual void AddEffect(IBaseEffect* pNewEffect) = 0;
+	virtual void DeleteEffect(IBaseEffect* pNewEffect) = 0;
+
 	virtual void SetListener(void* pListener) = 0;
 	virtual void SetState(fr_i32 state) = 0;
 	virtual void SetPosition(fr_i64 FPosition) = 0;
@@ -83,6 +88,8 @@ protected:
 	IMediaResource* pLocalResource = nullptr;
 	EmittersNode* pFirstEmitter = nullptr;
 	EmittersNode* pLastEmitter = nullptr;
+
+	void FreeStuff();
 
 public:
 	/*

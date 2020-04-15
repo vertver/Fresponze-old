@@ -28,6 +28,20 @@ CMediaListener::CMediaListener(IMediaResource* pInitialResource)
 CMediaListener::~CMediaListener()
 {
 	_RELEASE(pLocalResource);
+	FreeStuff();
+}
+
+void
+CMediaListener::FreeStuff()
+{
+	EmittersNode* pNode = pFirstEmitter;
+	EmittersNode* pThisNode = nullptr;
+	while (pNode) {
+		pThisNode = pNode->pNext;
+		_RELEASE(pNode->pEmitter);
+		delete pNode;
+		pNode = pThisNode;
+	}
 }
 
 bool
@@ -85,7 +99,7 @@ CMediaListener::SetResource(IMediaResource* pInitialResource)
 fr_i32	
 CMediaListener::SetPosition(fr_f32 FloatPosition)
 {
-	return SetPosition(fr_i64(((fr_f64)ResourceFormat.Frames * FloatPosition)));
+	return SetPosition(fr_i64(((fr_f64)ResourceFormat.Frames * fabs(FloatPosition))));
 }
 
 fr_i32	

@@ -32,7 +32,56 @@ CAdvancedEmitter::~CAdvancedEmitter()
 {
 	IMediaListener* pTemp = ((IMediaListener*)pParentListener);
 	_RELEASE(pTemp);
+	FreeStuff();
 }
+
+void 
+CAdvancedEmitter::FreeStuff()
+{
+	EffectNodeStruct* pNode = pFirstEffect;
+	EffectNodeStruct* pThisNode = nullptr;
+	while (pNode) {
+		pThisNode = pNode->pNext;
+		_RELEASE(pNode->pEffect);
+		delete pNode;
+		pNode = pThisNode;
+	}
+}
+
+void
+CAdvancedEmitter::AddEffect(IBaseEffect* pNewEffect)
+{
+	if (!pLastEffect) {
+		pFirstEffect = new EffectNodeStruct;
+		memset(pFirstEffect, 0, sizeof(EffectNodeStruct));
+		pLastEffect = pFirstEffect;
+		pNewEffect->Clone((void**)&pLastEffect->pEffect);
+	}
+	else {
+		EffectNodeStruct* pTemp = new EffectNodeStruct;
+		memset(pFirstEffect, 0, sizeof(EffectNodeStruct));
+		pNewEffect->Clone((void**)&pTemp->pEffect);
+		pLastEffect->pNext = pTemp;
+		pTemp->pPrev = pLastEffect;
+		pLastEffect = pTemp;
+	}
+}
+
+void
+CAdvancedEmitter::DeleteEffect(IBaseEffect* pNewEffect)
+{
+	EffectNodeStruct* pNode = pFirstEffect;
+	while (pNode) {
+		if (pNode->pEffect == pNewEffect) {
+			pNode->pPrev->pNext = pNode->pNext;
+			pNode->pNext->pPrev = pNode->pPrev;
+			_RELEASE(pNode->pEffect);
+			delete pNode;
+			return;
+		}
+	}
+}
+
 
 /* Base emitter code (parent source, position, state) */
 void   
@@ -141,8 +190,8 @@ CAdvancedEmitter::SetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 
 	switch (Option)
 	{
-	case eVolumeParameter:		VolumeLevel = ValueToApply;
-	case eAngleParameter:		Angle = ValueToApply;
+	case eVolumeParameter:		VolumeLevel = ValueToApply; break;
+	case eAngleParameter:		Angle = ValueToApply; break;
 	default:
 		break;
 	}
@@ -158,8 +207,8 @@ CAdvancedEmitter::GetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 
 	switch (Option)
 	{
-	case eVolumeParameter:		ValueToApply = VolumeLevel;
-	case eAngleParameter:		ValueToApply = Angle;
+	case eVolumeParameter:		ValueToApply = VolumeLevel; break;
+	case eAngleParameter:		ValueToApply = Angle; break;
 	default:
 		break;
 	}
@@ -216,6 +265,11 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 
 	/* Process by emitter effect */
 	ProcessInternal(ppData, Frames, ListenerFormat.Channels, ListenerFormat.SampleRate);
+	EffectNodeStruct* pEffectToProcess = pFirstEffect;
+	while (pEffectToProcess) {
+		pEffectToProcess->pEffect->Process(ppData, Frames);
+		pEffectToProcess = pEffectToProcess->pNext;
+	}
 
 	SetPosition(BaseEmitterPosition);
 	ThisListener->SetPosition((fr_i64)BaseListenerPosition);

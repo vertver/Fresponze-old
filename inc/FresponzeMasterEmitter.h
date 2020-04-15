@@ -21,7 +21,7 @@
 
 enum ESteamAudioOptions
 {
-	eVolumeParameter,
+	eSVolumeParameter,
 	eXAxis,
 	eYAxis,
 	eZAxis,
@@ -40,7 +40,7 @@ private:
 	fr_i32 EmittersState = 0;
 	fr_i32 CurrentSourceId = 0;
 	PcmFormat outputFormat = {};
-	IPLVector3 vectorOfAngle = {};
+	IPLVector3 vectorOfAngle = { 0.5f, 0.f, 0.5f};
 	  
 	IPLhandle BinauralRender = {};
 	IPLhandle BinauralEffect = {};
@@ -51,10 +51,15 @@ private:
 	IPLAudioBuffer OutputBuffer = {};
 
 	void Reset();
+	void Create();
+	void FreeStuff();
 
 public:
 	CSteamAudioEmitter();
 	~CSteamAudioEmitter();
+
+	void AddEffect(IBaseEffect* pNewEffect) override;
+	void DeleteEffect(IBaseEffect* pNewEffect) override;
 
 	void SetListener(void* pListener) override;
 	void SetState(fr_i32 state) override;
