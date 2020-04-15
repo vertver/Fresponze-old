@@ -18,7 +18,6 @@
 #include "FresponzeOpusFile.h"
 
 #define OPUS_BUFFER 11520		// 120 ms on 48000Hz
-#define RANGE_OF_SEEK 32	
 
 COpusMediaResource::COpusMediaResource(IFreponzeMapFile* pNewMapper)
 {
@@ -30,6 +29,7 @@ COpusMediaResource::COpusMediaResource(IFreponzeMapFile* pNewMapper)
 COpusMediaResource::~COpusMediaResource()
 {
 	CloseResource();
+	if (pMapper) _RELEASE(pMapper);
 }
 
 void
@@ -119,6 +119,8 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 // 			}
 // 		}
 // 	}
+
+	FreeFastMemory(bufferFrames);
 	return true;
 }
 
@@ -128,6 +130,7 @@ COpusMediaResource::CloseResource()
 	if (of) op_free(of);
 	if (pMapper) {
 		pMapper->UnmapFile(FilePtr); 
+		pMapper->Close();
 		FilePtr = nullptr;
 	}
 	ClearBuffers();
