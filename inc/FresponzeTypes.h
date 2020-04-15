@@ -367,8 +367,7 @@ CalculateFrames(
 	fr_i32& OutputFramesCount
 )
 {
-	fr_f32 fLatency = (fr_f32)FramesCount / (fr_f32)InputSampleRate;
-	OutputFramesCount = (fr_i32)(fLatency * (fr_f32)OutputSampleRate);
+	OutputFramesCount = FramesCount * OutputSampleRate / InputSampleRate;
 }
 
 inline
@@ -380,8 +379,7 @@ CalculateFrames64(
 	fr_i64& OutputFramesCount
 )
 {
-	fr_f64 fLatency = (fr_f64)FramesCount / (fr_f64)InputSampleRate;
-	OutputFramesCount = (fr_i64)(fLatency * (fr_f64)OutputSampleRate);
+	OutputFramesCount = FramesCount * OutputSampleRate / InputSampleRate;;
 }
 
 template
@@ -412,6 +410,12 @@ public:
 		if (index >= DataSize || index < 0) pLocalData[0];
 		return pLocalData[index];
 	}
+
+	void Clear()
+	{
+		if (pLocalData) { memset(pLocalData, 0, DataSize * sizeof(TYPE)); }
+	}
+
 
 	void Free()
 	{

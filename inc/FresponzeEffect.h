@@ -60,6 +60,8 @@ public:
 
 	virtual bool Process(fr_f32** ppData, fr_i32 Frames) = 0;
 
+	virtual void SetFormat(PcmFormat* pFormat) = 0;
+	virtual void GetFormat(PcmFormat* pFormat) = 0;
 	/* Add functions to interface here */
 }; 
 

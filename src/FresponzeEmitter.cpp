@@ -82,6 +82,17 @@ CAdvancedEmitter::DeleteEffect(IBaseEffect* pNewEffect)
 	}
 }
 
+void 
+CAdvancedEmitter::SetFormat(PcmFormat* pFormat)
+{
+	ListenerFormat = *pFormat;
+}
+
+void
+CAdvancedEmitter::GetFormat(PcmFormat* pFormat)
+{
+	*pFormat = ListenerFormat;
+}
 
 /* Base emitter code (parent source, position, state) */
 void   
@@ -243,12 +254,10 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	fr_i32 BaseListenerPosition = 0;
 	fr_i32 FramesReaded = 0;
 	IMediaListener* ThisListener = (IMediaListener*)pParentListener;
-	PcmFormat ListenerFormat = {};
 
 	if (EmittersState == eStopState || EmittersState == ePauseState) return false;
 
 	/* Get current position of listener and emitter to reset old state */
-	ThisListener->GetFormat(ListenerFormat);
 	BaseEmitterPosition = GetPosition();
 	BaseListenerPosition = ThisListener->GetPosition();
 
@@ -272,7 +281,6 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	}
 
 	SetPosition(BaseEmitterPosition);
-	ThisListener->SetPosition((fr_i64)BaseListenerPosition);
 
 	return true;
 }

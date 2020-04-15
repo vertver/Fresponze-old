@@ -18,6 +18,7 @@
 #include "FresponzeOpusFile.h"
 
 #define OPUS_BUFFER 11520		// 120 ms on 48000Hz
+#define RANGE_OF_SEEK 32	
 
 COpusMediaResource::COpusMediaResource(IFreponzeMapFile* pNewMapper)
 {
@@ -90,10 +91,10 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 	li = op_current_link(of);
 	head = op_head(of, li);
 
-	formatOfFile.Bits = 0;
+	formatOfFile.Bits = 32;
 	formatOfFile.Index = 0;
 	formatOfFile.Channels = head->channel_count;
-	formatOfFile.IsFloat = false;
+	formatOfFile.IsFloat = true;
 	formatOfFile.SampleRate = 48000;		// use full quality Opus
 
 	if (op_seekable(of)) {
@@ -106,18 +107,18 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 		}
 	}
 
-	if (tags) {
-		if (tags->vendor) opusVendor = _strdup(tags->vendor);
-		if (tags->comments) {
-			commentsCount = tags->comments;
-			opusComments = (const char**)FastMemAlloc(sizeof(void*) * commentsCount);
-			if (tags->user_comments && opusComments){
-				for (size_t i = 0; i < commentsCount; i++) {
-					if (tags->user_comments[i]) opusComments[i] = _strdup(tags->user_comments[i]);
-				}
-			}
-		}
-	}
+// 	if (tags) {
+// 		if (tags->vendor) opusVendor = _strdup(tags->vendor);
+// 		if (tags->comments) {
+// 			commentsCount = tags->comments;
+// 			opusComments = (const char**)FastMemAlloc(sizeof(void*) * commentsCount);
+// 			if (tags->user_comments && opusComments){
+// 				for (size_t i = 0; i < commentsCount; i++) {
+// 					if (tags->user_comments[i]) opusComments[i] = _strdup(tags->user_comments[i]);
+// 				}
+// 			}
+// 		}
+// 	}
 	return true;
 }
 
@@ -136,13 +137,15 @@ COpusMediaResource::CloseResource()
 void 
 COpusMediaResource::GetVendorName(const char*& vendorName)
 {
-	if (opusVendor) vendorName = _strdup(vendorName);
+	vendorName = "OPUS";
+	//if (opusVendor) vendorName = _strdup(vendorName);
 }
 
 void 
 COpusMediaResource::GetVendorString(const char*& vendorString)
 {
-	if (opusComments) if (opusComments[0]) vendorString = _strdup(opusComments[0]);
+	vendorString = "Opus decoder";
+	//if (opusComments) if (opusComments[0]) vendorString = _strdup(opusComments[0]);
 }
 
 void 
@@ -194,6 +197,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	fr_i32 CopySize = 0;
 	fr_i32 TempChannels = outputFormat.Channels;
 	fr_i32 ret = 0;
+	fr_i64 ret64 = 0;
 	fr_i32 li = 0;
 	const OpusHead* head = nullptr;
 	const OpusTags* tags = nullptr;
@@ -203,6 +207,8 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	CalculateFrames64(FramesCount, outputFormat.SampleRate, formatOfFile.SampleRate, frame_out);
 	transferBuffers.Resize(formatOfFile.Channels, max(FramesCount, frame_out));
 	tempBuffer.Resize(OPUS_BUFFER);
+	transferBuffers.Clear();
+	tempBuffer.Clear();
 	FileReadSize = frame_out;
 	while (FileReadSize) {
 		/* The file can be corrupted, so we must to check it before read data */
@@ -210,7 +216,9 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		ret = op_read_float(of, tempBuffer.Data() + ptr_shift, FileReadSize * formatOfFile.Channels, &li);
 		if (ret == OP_HOLE) continue;
 		else if (ret < 0) return false;
-		else if (!ret) break;		// the end is here
+		else if (!ret) {
+			break;		// the end is here
+		}
 
 		/*
 			If our new block has new channel count - we must to verify with new format.
@@ -250,9 +258,9 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		}
 	}
 
-	CalculateFrames64(frame_out - FileReadSize, formatOfFile.SampleRate, outputFormat.SampleRate, frame_out);
+	CalculateFrames64(frame_out - FileReadSize, formatOfFile.SampleRate, outputFormat.SampleRate, ret64);
 	FSeek += frame_out - FileReadSize;
-	return frame_out;
+	return ret64;
 }
 
 fr_i64
@@ -267,7 +275,6 @@ COpusMediaResource::SetPosition(fr_i64 FramePosition)
 	fr_i64 ret = 0;
 	if (!op_seekable(of)) return -1;
 	fr_i64 frame_out = 0;
-	if (FramePosition == FSeek) return -2;
 	ret = op_pcm_seek(of, FramePosition);
 	BugAssert((!ret), "Can't seek OPUS file");
 	FSeek = FramePosition;

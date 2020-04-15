@@ -16,6 +16,7 @@
 * limitations under the License.
 *****************************************************************/
 #include "FresponzeWavFile.h"
+#define RANGE_OF_SEEK 32	
 
 CRIFFMediaResource::CRIFFMediaResource(IFreponzeMapFile* pNewMapper)
 { 

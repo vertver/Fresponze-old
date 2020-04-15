@@ -53,9 +53,9 @@ void test1()
 	if (FrInitializeInstance((void**)&pFresponze) != 0) return;
 	pFresponze->GetMixerInterface(eMixerAdvancedType, (void**)&pAdvancedMixer);
 	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
-	pBaseEmitter = new CSteamAudioEmitter;
-	pBaseEmitterSecond = new CSteamAudioEmitter;
-	//pAdvancedMixer->CreateEmitter(pBaseEmitter);
+	//pBaseEmitter = new CSteamAudioEmitter;
+	//pBaseEmitterSecond = new CSteamAudioEmitter;
+	pAdvancedMixer->CreateEmitter(pBaseEmitter);
 	//pAdvancedMixer->CreateEmitter(pBaseEmitterSecond);
 
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
@@ -66,16 +66,16 @@ void test1()
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
 		pAdvancedMixer->SetBufferSamples(OutputLists.EndpointFormat.Frames);
 		/* Create base listener with emitter to play */
-		if (pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_one.wav", listNode, OutputLists.EndpointFormat)) {
+		if (pAdvancedMixer->CreateListener((void*)"I:\\Downloads\\ehren-paper_lights-96.opus", listNode, OutputLists.EndpointFormat)) {
 			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
 			pBaseEmitter->SetState(eReplayState);
-			fr_f32 x = -2.25;
-			fr_f32 y = 2.75;
-			pBaseEmitter->SetOption(eXAxis, &x, sizeof(fr_f32));
-			pBaseEmitter->SetOption(eZAxis, &y, sizeof(fr_f32));
-			pAdvancedMixer->CreateListener((void*)"I:\\Downloads\\ehren-paper_lights-96.opus", listNode, OutputLists.EndpointFormat);
-			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitterSecond);
-			pBaseEmitterSecond->SetState(eReplayState);
+			//fr_f32 x = -2.25;
+			//fr_f32 y = 2.75;
+			//pBaseEmitter->SetOption(eXAxis, &x, sizeof(fr_f32));
+			//pBaseEmitter->SetOption(eZAxis, &y, sizeof(fr_f32));
+			//pAdvancedMixer->CreateListener((void*)"C:\\sem\\fasa_one.wav", listNode, OutputLists.EndpointFormat);
+			//pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitterSecond);
+			//pBaseEmitterSecond->SetState(eReplayState);
 			pAdvancedMixer->SetMixFormat(OutputLists.EndpointFormat);
 			pAudioHardware->Start();
 		}

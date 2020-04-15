@@ -41,7 +41,7 @@ private:
 	fr_i32 CurrentSourceId = 0;
 	PcmFormat outputFormat = {};
 	IPLVector3 vectorOfAngle = { 0.5f, 0.f, 0.5f};
-	  
+	PcmFormat ListenerFormat = {};
 	IPLhandle BinauralRender = {};
 	IPLhandle BinauralEffect = {};
 	IPLAudioFormat EmitterFormat = {};
@@ -60,6 +60,9 @@ public:
 
 	void AddEffect(IBaseEffect* pNewEffect) override;
 	void DeleteEffect(IBaseEffect* pNewEffect) override;
+
+	void SetFormat(PcmFormat* pFormat) override;
+	void GetFormat(PcmFormat* pFormat) override;
 
 	void SetListener(void* pListener) override;
 	void SetState(fr_i32 state) override;

@@ -50,6 +50,7 @@ protected:
 	fr_f32 HighPassTempArray[8][8] = {};
 	FilterParameter LowPassSettings = { 0.5f, 0.3f, 0.5f };
 	FilterParameter HighPassSettings = { 0.3f, 0.8f, 1.f };
+	PcmFormat ListenerFormat = {};
 
 	/* Parameters and flags */
 	fr_f32 FiltersTempValues[2][4] = {};		// 2 filters with 24db/oct cut
@@ -76,6 +77,9 @@ public:
 
 	void AddEffect(IBaseEffect* pNewEffect) override;
 	void DeleteEffect(IBaseEffect* pNewEffect) override;
+
+	void SetFormat(PcmFormat* pFormat) override;
+	void GetFormat(PcmFormat* pFormat) override;
 
 	void SetListener(void* pListener) override;
 	void SetState(fr_i32 state) override;

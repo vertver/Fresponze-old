@@ -116,6 +116,18 @@ CSteamAudioEmitter::DeleteEffect(IBaseEffect* pNewEffect)
 	}
 }
 
+void
+CSteamAudioEmitter::SetFormat(PcmFormat* pFormat)
+{
+	ListenerFormat = *pFormat;
+}
+
+void
+CSteamAudioEmitter::GetFormat(PcmFormat* pFormat)
+{
+	*pFormat = ListenerFormat;
+}
+
 void	
 CSteamAudioEmitter::SetListener(void* pListener) 
 {
@@ -256,12 +268,10 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	fr_i32 BaseListenerPosition = 0;
 	fr_i32 FramesReaded = 0;
 	IMediaListener* ThisListener = (IMediaListener*)pParentListener;
-	PcmFormat ListenerFormat = {};
 
 	if (EmittersState == eStopState || EmittersState == ePauseState) return false;
 
 	/* Get current position of listener and emitter to reset old state */
-	ThisListener->GetFormat(ListenerFormat);
 	if (memcmp(&ListenerFormat, &outputFormat, sizeof(PcmFormat))) {
 		Reset(); 
 		Create();

@@ -136,9 +136,14 @@ CMediaListener::GetFormat(PcmFormat& fmt)
 fr_i32
 CMediaListener::SetFormat(PcmFormat fmt)
 {
+	EmittersNode* pProcessEmitter = pFirstEmitter;
 	ListenerFormat = fmt;
 	pLocalResource->SetFormat(ListenerFormat);
 	pLocalResource->GetFormat(ResourceFormat);
+	while (pProcessEmitter) {
+		pProcessEmitter->pEmitter->SetFormat(&ListenerFormat);
+		pProcessEmitter = pProcessEmitter->pNext;
+	}
 	return 0;
 }
 
