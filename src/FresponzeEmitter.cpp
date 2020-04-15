@@ -86,6 +86,11 @@ void
 CAdvancedEmitter::SetFormat(PcmFormat* pFormat)
 {
 	ListenerFormat = *pFormat;
+	EffectNodeStruct* pNEffect = pFirstEffect;
+	while (pNEffect) {
+		pNEffect->pEffect->SetFormat(pFormat);
+		pNEffect = pNEffect->pNext;
+	}
 }
 
 void
