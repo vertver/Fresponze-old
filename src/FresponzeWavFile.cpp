@@ -133,7 +133,7 @@ void
 CRIFFMediaResource::SetFormat(PcmFormat outputFormat)
 {
 	this->outputFormat = outputFormat;
-	resampler->Reset(outputFormat.Frames, fileFormat.SampleRate, outputFormat.SampleRate, fileFormat.Channels, false);
+	resampler->Reset(outputFormat.Frames, fileFormat.SampleRate, outputFormat.SampleRate, fileFormat.Channels, !!outputFormat.Index);
 }
 
 fr_f32

@@ -122,7 +122,7 @@ void
 COpusMediaResource::SetFormat(PcmFormat outputFormat)
 {
 	this->outputFormat = outputFormat;
-	resampler->Reset(outputFormat.Frames, formatOfFile.SampleRate, outputFormat.SampleRate, formatOfFile.Channels, false);
+	resampler->Reset(outputFormat.Frames, formatOfFile.SampleRate, outputFormat.SampleRate, formatOfFile.Channels, !!outputFormat.Index);
 }
 
 fr_i64

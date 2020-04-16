@@ -42,7 +42,7 @@ private:
 	fr_i32 outSRate = 0;
 	fr_i32 channels = 0;
 	C2DDoubleBuffer doubleBuffers[2] = {};
-	r8b::CDSPResampler24* resampler[MAX_CHANNELS] = {};
+	r8b::CDSPResampler* resampler[MAX_CHANNELS] = {};
 
 public:
 	~CR8BrainResampler()
@@ -58,12 +58,12 @@ public:
 		inSRate = InputSampleRate;
 		outSRate = OutputSampleRate;
 		channels = ChannelsCount;
-		for (size_t i = 0; i < ChannelsCount; i++){
-			resampler[i] = new r8b::CDSPResampler24(inSRate, outSRate, bufLength);
+		for (size_t i = 0; i < ChannelsCount; i++) {
+			resampler[i] = new r8b::CDSPResampler(inSRate, outSRate, bufLength, 2.0, isLinear ? 136.45 : 109.56, isLinear ? r8b::fprLinearPhase : r8b::fprMinPhase);
 		}	
 	}
 
-	void Destroy()  override
+	void Destroy() override
 	{
 		size_t index = 0;
 		for (size_t i = 0; i < MAX_CHANNELS; i++) {
