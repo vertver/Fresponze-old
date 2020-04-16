@@ -72,16 +72,19 @@ public:
 
 		if (!pInputStringUUID) {
 			if (!pParentHardware->Restart(CaptureType, -1)) return false;
+			if (!pParentHardware->Start()) return false;
 			return true;
 		}
 
 		if (!wcscmp(pThisEndpoint, pOutputStringUUID)) {
 			if (!pParentHardware->Restart(RenderType, -1)) return false;
+			if (!pParentHardware->Start()) return false;
 			return true;
 		}
 
 		if (!wcscmp(pThisEndpoint, pInputStringUUID)) {
 			if (!pParentHardware->Restart(CaptureType, -1)) return false;
+			if (!pParentHardware->Start()) return false;
 			return true;
 		}
 
@@ -91,9 +94,13 @@ public:
 	bool DefaultDeviceChanged(fr_i32 DeviceType) override
 	{
 		if (DeviceType == RenderType) {
-			if (bDefaultOutputDevice) if (!pParentHardware->Restart(RenderType, -1)) return false;
+			if (bDefaultOutputDevice) {
+				if (!pParentHardware->Restart(RenderType, -1)) return false;
+			}
 		} else if (DeviceType == CaptureType) {
-			if (bDefaultInputDevice) if (!pParentHardware->Restart(CaptureType, -1)) return false;
+			if (bDefaultOutputDevice) {
+				if (bDefaultInputDevice) if (!pParentHardware->Restart(CaptureType, -1)) return false;
+			}
 		}
 
 		return true;
@@ -161,6 +168,9 @@ public:
 			return false;
 		}
 
+		void* rawPtr = nullptr;
+		pThisEndpoint->GetDevicePointer(rawPtr);
+		pNotificationCallback->SetCurrentDevice(DeviceType, true, rawPtr);
 		pThisEndpoint->SetCallback(pAudioCallback);
 		return true;
 	}
@@ -183,6 +193,9 @@ public:
 			FreeAndRestoreVolumeShit(pPointer);
 		}
 
+		void* rawPtr = nullptr;
+		pThisEndpoint->GetDevicePointer(rawPtr);
+		pNotificationCallback->SetCurrentDevice(DeviceType, false, rawPtr);
 		pThisEndpoint->SetCallback(pAudioCallback);
 		return true;
 	}
@@ -205,6 +218,9 @@ public:
 			FreeAndRestoreVolumeShit(pPointer);
 		}
 
+		void* rawPtr = nullptr;
+		pThisEndpoint->GetDevicePointer(rawPtr);
+		pNotificationCallback->SetCurrentDevice(DeviceType, DeviceId == -1 ? true : false, rawPtr);
 		pThisEndpoint->SetCallback(pAudioCallback);
 		return true;
 	}

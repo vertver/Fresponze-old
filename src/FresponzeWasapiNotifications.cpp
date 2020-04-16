@@ -31,6 +31,7 @@ CWASAPIAudioNotification::OnDeviceStateChanged(
 	IMMDevice* pDevice = nullptr;
 	if (dwNewState == DEVICE_STATE_DISABLED || dwNewState == DEVICE_STATE_UNPLUGGED || dwNewState == DEVICE_STATE_NOTPRESENT) {
 		if (!pCallback->DeviceDisabled((void*)(pwstrDeviceId))) return E_FAIL;
+		if (!pCallback->ListOfDevicesChanded()) return E_FAIL;
 	}
 
 	return S_OK;
