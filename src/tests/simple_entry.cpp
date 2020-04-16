@@ -62,7 +62,7 @@ void test1()
 	pAudioHardware->GetDevicesList(InputList, OutputList);
 
 	char* pPtr = OutputList->EndpointName;
-	if (pAudioHardware->Open(RenderType, 50.f)) {
+	if (pAudioHardware->Open(RenderType, 100.f)) {
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
 		pAdvancedMixer->SetBufferSamples(OutputLists.EndpointFormat.Frames);
 		/* Create base listener with emitter to play */

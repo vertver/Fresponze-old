@@ -535,8 +535,8 @@ public:
 
 	void Resize(fr_i32 NewBuffersCount, fr_i32 SizeToResize)
 	{
+		if (NewBuffersCount > BuffersCount) SetBuffersCount(NewBuffersCount);
 		if (SizeToResize > DataSize) {
-			if (NewBuffersCount > BuffersCount) SetBuffersCount(NewBuffersCount);
 			for (size_t i = 0; i < BuffersCount; i++) { 
 				pDoublePointer[i] = (TYPE*)FastMemTryRealloc(pDoublePointer[i], SizeToResize * sizeof(TYPE), DataSize * sizeof(TYPE));
 			}
@@ -642,6 +642,15 @@ public:
 
 			ppBuffers = ppTempBuffers;
 			BuffersCount = CountOfBuffers;
+		}
+	}
+
+	void Clear()
+	{
+		if (ppBuffers) {
+			for (size_t i = 0; i < BuffersCount; i++) {
+				if (ppBuffers[i]) memset(ppBuffers[i], 0, BuffersSize * sizeof(fr_f32));
+			}
 		}
 	}
 
@@ -864,6 +873,7 @@ public:
 class IAudioCallback : public IBaseInterface
 {
 public:
+	virtual fr_err FlushCallback() = 0;
 	virtual fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) = 0;
 	virtual fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };

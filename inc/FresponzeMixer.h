@@ -46,6 +46,7 @@ public:
 	virtual bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 	virtual bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 	virtual bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
+	virtual bool Flush() = 0;
 };
 
 class CMixerAudioCallback final : public IAudioCallback
@@ -60,6 +61,11 @@ public:
 		_InterlockedIncrement(&Counter);
 #endif
 		pAudioMixer = pParentMixer;
+	}
+
+	fr_err FlushCallback() override
+	{
+		return pAudioMixer->Flush() ? 0 : -1;
 	}
 
 	fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) override

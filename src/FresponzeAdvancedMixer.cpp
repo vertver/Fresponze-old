@@ -253,3 +253,9 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 
 	return true;
 }
+
+bool 
+CAdvancedMixer::Flush()
+{
+	return true;
+}

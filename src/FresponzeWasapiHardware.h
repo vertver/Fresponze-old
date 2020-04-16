@@ -28,6 +28,16 @@ private:
 	IAudioHardware* pParentHardware = nullptr;
 
 public:
+	CWASAPIAudioNotificationCallback(IAudioHardware* pHardwareNew)
+	{
+		pHardwareNew->Clone((void**)&pParentHardware);
+	}
+
+	~CWASAPIAudioNotificationCallback()
+	{
+		_RELEASE(pParentHardware);
+	}
+
 	bool SetCurrentDevice(fr_i32 DeviceType, bool IsDefaultDevice, void* pDevicePointer) override
 	{
 		wchar_t** ppThisEndpoint = ((DeviceType == RenderType) ? &pOutputStringUUID : DeviceType == CaptureType ? &pInputStringUUID : nullptr);
@@ -54,6 +64,17 @@ public:
 	{
 		wchar_t* pThisEndpoint = (wchar_t*)pDeviceDisabled;
 		if (!pParentHardware->Enumerate()) return false;
+		if (!pOutputStringUUID) {
+			if (!pParentHardware->Restart(RenderType, -1)) return false;
+			if (!pParentHardware->Start()) return false;
+			return true;
+		}
+
+		if (!pInputStringUUID) {
+			if (!pParentHardware->Restart(CaptureType, -1)) return false;
+			return true;
+		}
+
 		if (!wcscmp(pThisEndpoint, pOutputStringUUID)) {
 			if (!pParentHardware->Restart(RenderType, -1)) return false;
 			return true;
@@ -102,7 +123,7 @@ public:
 		AddRef();
 		pAudioCallback = pParentAudioCallback;
 		pAudioEnumerator = new CWASAPIAudioEnumerator();
-		pNotificationCallback = new CWASAPIAudioNotificationCallback();
+		pNotificationCallback = new CWASAPIAudioNotificationCallback(this);
 		pNotifyClient = new CWASAPIAudioNotification(pNotificationCallback);
 	}
 

@@ -45,6 +45,7 @@ public:
 	bool Record(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
 	bool Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
 	bool Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) override;
+	bool Flush() override;
 
 	bool AddEmitterToListener(ListenersNode* pListener, IBaseEmitter* pEmmiter) override;
 	bool DeleteEmitterFromListener(ListenersNode* pListener, IBaseEmitter* pEmmiter) override;

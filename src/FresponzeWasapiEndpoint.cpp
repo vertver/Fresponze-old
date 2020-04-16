@@ -171,7 +171,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 
 	pSyncEvent->Raise();
 	pStartEvent->Wait();
-
+	if (pAudioCallback) pAudioCallback->FlushCallback();
 	while (!pThreadEvent->Wait(dwFlushTime)) {
 		try {
 			switch (EndpointInfo.Type) {
@@ -455,7 +455,7 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	{
 		fr_string512 temp_string = {};
 		_snprintf_s(temp_string, sizeof(temp_string),
-			"WASAPI: Device initalized (Shared, Sample rate: %i, Channels: %i, Latency: %i",
+			"WASAPI: Device initialized (Shared, Sample rate: %i, Channels: %i, Latency: %i",
 			EndpointInfo.EndpointFormat.SampleRate, EndpointInfo.EndpointFormat.Channels, EndpointInfo.EndpointFormat.Frames
 		);
 		TypeToLog(temp_string);
@@ -477,9 +477,24 @@ bool
 CWASAPIAudioEnpoint::Close()
 {
 	Stop();
+	if (pAudioClient) {
+		ULONG ref = pAudioClient->AddRef();
+		_RELEASE(pAudioClient);
+	}
 	_RELEASE(pAudioClient);
+
+	if (pCaptureClient) {
+		ULONG ref = pCaptureClient->AddRef();
+		_RELEASE(pCaptureClient);
+	}
 	_RELEASE(pCaptureClient);
+
+	if (pRenderClient) {
+		ULONG ref = pRenderClient->AddRef();
+		_RELEASE(pRenderClient);
+	}
 	_RELEASE(pRenderClient);
+
 	return true;
 }
 
@@ -488,7 +503,7 @@ CWASAPIAudioEnpoint::Start()
 {
 	CreateWasapiThread();
 	pStartEvent->Raise();
-	return pAudioClient->Start();
+	return SUCCEEDED(pAudioClient->Start());
 }
 
 bool
@@ -498,9 +513,11 @@ CWASAPIAudioEnpoint::Stop()
 	if (!IsInvalidHandle(hThread)) {
 		pThreadEvent->Raise();
 		pStartEvent->Reset();
-		if (WaitForSingleObject(hThread, 30) == WAIT_TIMEOUT) {
+		if (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT) {
 			TerminateThread(hThread, (DWORD)-1);
 		}
+
+		if (pAudioClient) pAudioClient->Reset();
 
 		if (pTempBuffer) {
 			FreeFastMemory(pTempBuffer);
