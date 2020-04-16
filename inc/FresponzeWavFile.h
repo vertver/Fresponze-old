@@ -21,7 +21,7 @@
 class CRIFFMediaResource : public IMediaResource
 {
 private:
-	CR8BrainResampler resampler;
+	IBaseResampler* resampler = nullptr;
 
 	fr_f32 GetSample(fr_i64 Index);
 

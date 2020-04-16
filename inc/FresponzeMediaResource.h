@@ -27,7 +27,6 @@ protected:
 	fr_ptr pMappedArea = nullptr;
 	CFloatBuffer tempBuffer = {};			// while we reading file
 	C2DFloatBuffer transferBuffers = {};	// on read function
-	C2DDoubleBuffer resamplerBuffers[2] = {};	// on read function
 	PcmFormat fileFormat = {};				// input format, from file
 	PcmFormat outputFormat = {};			// format for read function
 	IFreponzeMapFile* pMapper = nullptr;

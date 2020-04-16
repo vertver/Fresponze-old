@@ -73,7 +73,7 @@ VirtMemAlloc(
 	fr_i64 SizeToAllocate
 )
 {
-	return VirtualAlloc(nullptr, ALIGN_SIZE(SizeToAllocate, MemoryGranularity), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	return VirtualAlloc(nullptr, ALIGN_SIZE(SizeToAllocate, (fr_i64)MemoryGranularity), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
 void

@@ -19,7 +19,21 @@
 #include "FresponzeTypes.h"
 #include "CDSPResampler.h"
 
-class CR8BrainResampler
+class IBaseResampler
+{
+public:
+	virtual void Initialize(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear) = 0;
+	virtual void Destroy() = 0;
+	virtual void Reset(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear) = 0;
+	virtual void Resample(fr_i32 frames, fr_f32** inputData, fr_f32** outputData) = 0;
+	virtual void ResampleDouble(fr_i32 frames, fr_f64** inputData, fr_f64** outputData) = 0;
+};
+
+#ifdef USE_LIBSOXR_RESAMPLER
+
+#endif
+
+class CR8BrainResampler : public IBaseResampler
 {
 private:
 	bool lin = false;
@@ -27,15 +41,18 @@ private:
 	fr_i32 inSRate = 0;
 	fr_i32 outSRate = 0;
 	fr_i32 channels = 0;
+	C2DDoubleBuffer doubleBuffers[2] = {};
 	r8b::CDSPResampler24* resampler[MAX_CHANNELS] = {};
 
 public:
 	~CR8BrainResampler()
 	{
 		Destroy();
+		doubleBuffers[0].Free();
+		doubleBuffers[1].Free();
 	}
 
-	void Initialize(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear)
+	void Initialize(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear) override
 	{
 		bufLength = MaxBufferIn;
 		inSRate = InputSampleRate;
@@ -46,7 +63,7 @@ public:
 		}	
 	}
 
-	void Destroy()
+	void Destroy()  override
 	{
 		size_t index = 0;
 		for (size_t i = 0; i < MAX_CHANNELS; i++) {
@@ -54,17 +71,38 @@ public:
 		}
 	}
 
-	void Reset(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear)
+	void Reset(fr_i32 MaxBufferIn, fr_i32 InputSampleRate, fr_i32 OutputSampleRate, fr_i32 ChannelsCount, bool isLinear)  override
 	{
 		Destroy();
 		Initialize(MaxBufferIn, InputSampleRate, OutputSampleRate, ChannelsCount, isLinear);
 	}
 	
-	void Resample(fr_i32 frames, fr_f64** inputData, fr_f64** outputData)
+	void ResampleDouble(fr_i32 frames, fr_f64** inputData, fr_f64** outputData)  override
 	{
 		if (frames > bufLength) Reset(frames, inSRate, outSRate, channels, lin);
 		for (size_t i = 0; i < channels; i++) {
 			resampler[i]->process(inputData[i], frames, outputData[i]);
 		}
 	}
+
+	void Resample(fr_i32 frames, fr_f32** inputData, fr_f32** outputData)  override
+	{
+		if (frames > bufLength) Reset(frames, inSRate, outSRate, channels, lin);
+
+		doubleBuffers[0].Resize(channels, frames);
+		doubleBuffers[1].Resize(channels, frames);
+		FloatToDouble(inputData, doubleBuffers[0].GetBuffers(), channels, frames);
+		for (size_t i = 0; i < channels; i++) {
+			resampler[i]->process(doubleBuffers[0][i], frames, doubleBuffers[1][i]);
+		}
+
+		DoubleToFloat(outputData, doubleBuffers[1].GetBuffers(), channels, frames);
+	}
 };
+
+inline
+IBaseResampler*
+GetCurrentResampler()
+{
+	return new CR8BrainResampler();
+}

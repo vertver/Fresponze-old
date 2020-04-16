@@ -125,6 +125,7 @@ int main()
 	//	}
 	//	Fresponze::DestroyMemory();
 	//} else
+
 	test1();
 
 	return 0;

@@ -335,7 +335,6 @@ InitializeXAudio2(fr_i32& Version)
 	PXAudio2CreateInfoFunc pXAudio2Create = nullptr;
 	PXAudio2CreateWithVersionInfoFunc pXAudio2CreateWithVersion = nullptr;
 
-tryTo29:
 	hLibrary = LoadLibraryW(L"xaudio2_9.dll");
 	if (IsInvalidHandle(hLibrary)) goto tryTo28;
 

@@ -876,7 +876,7 @@ MixerAddToBuffer(
 	fr_i64 Samples
 )
 {
-	for (size_t i = 0; i < Samples; i++) {
+	for (fr_i64 i = 0; i < Samples; i++) {
 		pFirstBuffer[i] += pSecondBuffer[i];
 	}
 }
@@ -890,7 +890,7 @@ PlanarToLinear(
 	fr_i32 Channels
 )
 {
-	for (size_t i = 0; i < SamplesCount; i++) {
+	for (fr_i32 i = 0; i < SamplesCount; i++) {
 		pLinear[i] = pPlanar[i % Channels][i / Channels];
 	}
 }
@@ -904,7 +904,7 @@ LinearToPlanar(
 	fr_i32 Channels
 )
 {
-	for (size_t i = 0; i < SamplesCount; i++) {
+	for (fr_i32 i = 0; i < SamplesCount; i++) {
 		pPlanar[i % Channels][i / Channels] = pLinear[i];
 	}
 }
@@ -921,8 +921,8 @@ MixComplexToArray(
 {
 	if (!pComplex || !ppArray || !*ppArray) return false;
 
-	for (size_t i = 0; i < FramesToConvert / Channels; i++) {
-		for (size_t o = 0; o < Channels; o++) {
+	for (fr_i64 i = 0; i < FramesToConvert / Channels; i++) {
+		for (fr_i32 o = 0; o < Channels; o++) {
 			ppArray[o][i] += pComplex[i * Channels + o];
 		}
 	}
@@ -937,10 +937,10 @@ FloatToDouble(
 	fr_i32 FramesCount
 )
 {
-	for (size_t i = 0; i < ChannelsCount; i++) {
+	for (fr_i32 i = 0; i < ChannelsCount; i++) {
 		fr_f32* pTempData = pFloat[i];
 		fr_f64* pDoubleData = pDouble[i];
-		for (size_t o = 0; o < FramesCount; o++) {
+		for (fr_i32 o = 0; o < FramesCount; o++) {
 			pDoubleData[o] = pTempData[o];
 		}
 	}
@@ -955,10 +955,10 @@ DoubleToFloat(
 	fr_i32 FramesCount
 )
 {
-	for (size_t i = 0; i < ChannelsCount; i++) {
+	for (fr_i32 i = 0; i < ChannelsCount; i++) {
 		fr_f32* pTempData = pFloat[i];
 		fr_f64* pDoubleData = pDouble[i];
-		for (size_t o = 0; o < FramesCount; o++) {
+		for (fr_i32 o = 0; o < FramesCount; o++) {
 			pTempData[o] = (fr_f32)pDoubleData[o];
 		}
 	}

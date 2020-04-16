@@ -277,8 +277,8 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 
 	if (EmittersState == eStopState || EmittersState == ePauseState) return false;
 
-	BaseEmitterPosition = GetPosition();
-	BaseListenerPosition = ThisListener->GetPosition();
+	BaseEmitterPosition = (fr_i32)GetPosition();
+	BaseListenerPosition = (fr_i32)ThisListener->GetPosition();
 
 	/* Set emitter position to listener and read data */
 	ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
@@ -309,4 +309,5 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 
 	SetPosition(BaseEmitterPosition);
 	ThisListener->SetPosition((fr_i64)BaseListenerPosition);
+	return true;
 }

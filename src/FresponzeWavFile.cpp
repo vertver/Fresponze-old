@@ -21,12 +21,14 @@
 CRIFFMediaResource::CRIFFMediaResource(IFreponzeMapFile* pNewMapper)
 { 
 	AddRef();
+	resampler = GetCurrentResampler();
 	if (!pNewMapper) pMapper = (IFreponzeMapFile*)GetMapFileSystem();
 	else pNewMapper->Clone((void**)&pMapper);
 }
 
 CRIFFMediaResource::~CRIFFMediaResource()
 {
+	if (resampler) delete resampler;
 	CloseResource();
 }
 
@@ -131,7 +133,7 @@ void
 CRIFFMediaResource::SetFormat(PcmFormat outputFormat)
 {
 	this->outputFormat = outputFormat;
-	resampler.Reset(outputFormat.Frames, fileFormat.SampleRate, outputFormat.SampleRate, fileFormat.Channels, false);
+	resampler->Reset(outputFormat.Frames, fileFormat.SampleRate, outputFormat.SampleRate, fileFormat.Channels, false);
 }
 
 fr_f32
@@ -158,14 +160,7 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	if (!ReadRaw(FreeFrames, transferBuffers.GetBuffers())) return 0;
 	/* Copy data to 64-bit float buffer and resample to output format */
 	if (outputFormat.SampleRate != fileFormat.SampleRate) {
-		for (size_t i = 0; i < 2; i++) {
-			resamplerBuffers[i].Resize(fileFormat.Channels, FreeFrames);
-		}
-
-		/* #TODO: Create resampler for 32-float values */
-		FloatToDouble(transferBuffers.GetBuffers(), resamplerBuffers[0].GetBuffers(), fileFormat.Channels, (fr_i32)FreeFrames);
-		resampler.Resample((fr_i32)FreeFrames, resamplerBuffers[0].GetBuffers(), resamplerBuffers[1].GetBuffers());
-		DoubleToFloat(transferBuffers.GetBuffers(), resamplerBuffers[1].GetBuffers(), fileFormat.Channels, (fr_i32)FramesCount);
+		resampler->Resample((fr_i32)frame_out, transferBuffers.GetBuffers(), transferBuffers.GetBuffers());
 	}
 	
 	/* if mono - set middle channels mode for stereo */
@@ -174,8 +169,8 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 			memcpy(ppFloatData[i], transferBuffers.GetBufferData(0), FramesCount * sizeof(fr_f32));
 		}
 	} else {
-		for (size_t i = 0; i < min(fileFormat.Channels, outputFormat.Channels); i++) {
-			memcpy(ppFloatData[i], transferBuffers.GetBufferData(i), FramesCount * sizeof(fr_f32));
+		for (fr_i64 i = 0; i < min(fileFormat.Channels, outputFormat.Channels); i++) {
+			memcpy(ppFloatData[i], transferBuffers.GetBufferData((fr_i32)i), FramesCount * sizeof(fr_f32));
 		}
 	}
 
@@ -186,11 +181,11 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 fr_i64
 CRIFFMediaResource::ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData)
 {
-	tempBuffer.Resize(FramesCount * fileFormat.Channels);
-	transferBuffers.Resize(fileFormat.Channels, FramesCount);
+	tempBuffer.Resize((fr_i32)FramesCount * fileFormat.Channels);
+	transferBuffers.Resize(fileFormat.Channels, (fr_i32)FramesCount);
 
 	/* Convert interleaved to planar buffer */
-	for (size_t i = 0; i < FramesCount * fileFormat.Channels; i++) {
+	for (fr_i64 i = 0; i < FramesCount * fileFormat.Channels; i++) {
 		transferBuffers[i % fileFormat.Channels][i / fileFormat.Channels] = this->GetSample(FramePosition * fileFormat.Channels + i);
 	}
 

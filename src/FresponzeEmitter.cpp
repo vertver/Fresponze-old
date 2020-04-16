@@ -256,8 +256,8 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	if (EmittersState == eStopState || EmittersState == ePauseState) return false;
 
 	/* Get current position of listener and emitter to reset old state */
-	BaseEmitterPosition = GetPosition();
-	BaseListenerPosition = ThisListener->GetPosition();
+	BaseEmitterPosition = (fr_i32)GetPosition();
+	BaseListenerPosition = (fr_i32)ThisListener->GetPosition();
 
 	/* Set emitter position to listener and read data */
 	ThisListener->SetPosition((fr_i64)BaseEmitterPosition);

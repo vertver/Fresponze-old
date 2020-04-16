@@ -23,36 +23,16 @@ class COpusMediaResource : public IMediaResource
 {
 private:
 	bool isOpened = false;
-	fr_i32 file_li = 0;
 	fr_i32 previous_li = 0;
-	fr_i32 commentsCount = 0;
-	fr_i32 BufferPosition = 0;
-	fr_i32 FileBufferPosition = 0;
-	fr_i32 LastBlockSize = 0;
-	fr_i32 CurrentBuffer = 0;
 	fr_i32 FileReadSize = 0;
 	fr_i64 pcm_offset = 0;
 	fr_i64 PtrSize = 0;
 	fr_i64 FSeek = 0;
 	fr_ptr FilePtr = nullptr;
 	OggOpusFile* of = nullptr;
-	const char* opusVendor = nullptr;
-	const char** opusComments = nullptr;
 	PcmFormat formatOfFile = {};
 	OpusFileCallbacks cb = { nullptr, nullptr, nullptr, nullptr };
-	CFloatBuffer tempBuffer = {};
-	C2DFloatBuffer* floatBuffers = {};
-	C2DDoubleBuffer* doubleBuffers[2] = {};
-	CR8BrainResampler resampler;
-
-	bool NextBlock(fr_i64 FramesCount);
-	void ClearBuffers();
-	void AllocateBuffers(fr_i32 ChannelsCount);
-
-	void AddToBuffer(fr_f32* InputBuffer, fr_i32 InputBufferSize, fr_i32 ChannelsCount);
-
-	fr_i64 CompareFileSize(fr_i32 InputFrames);
-	fr_i32 CompareSize(fr_i32 InputFrames);
+	IBaseResampler* resampler = nullptr;
 
 public:
 	COpusMediaResource(IFreponzeMapFile* pNewMapper = nullptr);
