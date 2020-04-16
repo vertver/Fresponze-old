@@ -170,7 +170,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		transferBuffers[i % formatOfFile.Channels][i / formatOfFile.Channels] = tempBuffer[i];
 	}
 
-	if (outputFormat.SampleRate != fileFormat.SampleRate) {
+	if (outputFormat.SampleRate != formatOfFile.SampleRate) {
 		resampler->Resample((fr_i32)frame_out, transferBuffers.GetBuffers(), transferBuffers.GetBuffers());
 	}
 
