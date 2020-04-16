@@ -16,6 +16,24 @@
 * limitations under the License.
 *****************************************************************/
 
+#if defined(_WIN32) || defined(_WIN64)
+#define WINDOWS_PLATFORM 1
+#endif
+
+#ifdef WINDOWS_PLATFORM
+#ifdef DLL_PLATFORM
+#ifdef LIB_EXPORTS
+#define FRAPI __declspec(dllexport)
+#else
+#define FRAPI __declspec(dllimport)
+#endif
+#else 
+#define FRAPI
+#endif
+#else
+#define FRAPI
+#endif
+
 enum FresponzePlatforms : unsigned long {
 	/* Public platforms */
 	eWindowsPlatform,

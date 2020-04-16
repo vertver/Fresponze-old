@@ -12,11 +12,15 @@ CSteamAudioEmitter::Reset()
 		for (size_t i = 0; i < outputFormat.Channels; i++) {
 			if (OutputBuffer.deinterleavedBuffer[i]) FreeFastMemory(OutputBuffer.deinterleavedBuffer[i]);
 		}
+
+		FreeFastMemory(OutputBuffer.deinterleavedBuffer);
 	}
 	if (InputBuffer.deinterleavedBuffer) {
 		for (size_t i = 0; i < outputFormat.Channels; i++) {
 			if (InputBuffer.deinterleavedBuffer[i]) FreeFastMemory(InputBuffer.deinterleavedBuffer[i]);
 		}
+
+		FreeFastMemory(InputBuffer.deinterleavedBuffer);
 	}
 	if (ContextCounter <= 0) {
 		iplDestroyContext(&context);
@@ -234,9 +238,7 @@ CSteamAudioEmitter::SetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 	if (DataSize != sizeof(fr_f32)) return;
 	fr_f32 ValueToApply = *pData;
 
-
-	switch (Option)
-	{
+	switch (Option) {
 	case eSVolumeParameter:		VolumeLevel = ValueToApply; break;
 	case eXAxis:				vectorOfAngle.x = ValueToApply; break;
 	case eYAxis:				vectorOfAngle.y = ValueToApply; break;
@@ -254,8 +256,7 @@ CSteamAudioEmitter::GetOption(fr_i32 Option, fr_f32* pData, fr_i32 DataSize)
 	if (DataSize != sizeof(fr_f32)) return;
 	fr_f32& ValueToApply = *pData;
 
-	switch (Option)
-	{
+	switch (Option) {
 	case eSVolumeParameter:		ValueToApply = VolumeLevel; break;
 	case eXAxis:				ValueToApply = vectorOfAngle.x; break;
 	case eYAxis:				ValueToApply = vectorOfAngle.y; break;
@@ -275,12 +276,6 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	IMediaListener* ThisListener = (IMediaListener*)pParentListener;
 
 	if (EmittersState == eStopState || EmittersState == ePauseState) return false;
-
-	/* Get current position of listener and emitter to reset old state */
-	if (memcmp(&ListenerFormat, &outputFormat, sizeof(PcmFormat))) {
-		Reset(); 
-		Create();
-	}
 
 	BaseEmitterPosition = GetPosition();
 	BaseListenerPosition = ThisListener->GetPosition();

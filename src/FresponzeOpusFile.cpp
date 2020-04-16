@@ -29,7 +29,7 @@ COpusMediaResource::COpusMediaResource(IFreponzeMapFile* pNewMapper)
 COpusMediaResource::~COpusMediaResource()
 {
 	CloseResource();
-	if (pMapper) _RELEASE(pMapper);
+	_RELEASE(pMapper);
 }
 
 void
@@ -107,19 +107,6 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 		}
 	}
 
-// 	if (tags) {
-// 		if (tags->vendor) opusVendor = _strdup(tags->vendor);
-// 		if (tags->comments) {
-// 			commentsCount = tags->comments;
-// 			opusComments = (const char**)FastMemAlloc(sizeof(void*) * commentsCount);
-// 			if (tags->user_comments && opusComments){
-// 				for (size_t i = 0; i < commentsCount; i++) {
-// 					if (tags->user_comments[i]) opusComments[i] = _strdup(tags->user_comments[i]);
-// 				}
-// 			}
-// 		}
-// 	}
-
 	FreeFastMemory(bufferFrames);
 	return true;
 }
@@ -141,14 +128,12 @@ void
 COpusMediaResource::GetVendorName(const char*& vendorName)
 {
 	vendorName = "OPUS";
-	//if (opusVendor) vendorName = _strdup(vendorName);
 }
 
 void 
 COpusMediaResource::GetVendorString(const char*& vendorString)
 {
 	vendorString = "Opus decoder";
-	//if (opusComments) if (opusComments[0]) vendorString = _strdup(opusComments[0]);
 }
 
 void 
@@ -210,8 +195,6 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	CalculateFrames64(FramesCount, outputFormat.SampleRate, formatOfFile.SampleRate, frame_out);
 	transferBuffers.Resize(formatOfFile.Channels, max(FramesCount, frame_out));
 	tempBuffer.Resize(OPUS_BUFFER);
-	transferBuffers.Clear();
-	tempBuffer.Clear();
 	FileReadSize = frame_out;
 	while (FileReadSize) {
 		/* The file can be corrupted, so we must to check it before read data */
