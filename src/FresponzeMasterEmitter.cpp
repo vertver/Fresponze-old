@@ -3,6 +3,12 @@
 IPLhandle context = nullptr;
 long ContextCounter = 0;
 
+IBaseEmitter*
+GetSteamEmitter()
+{
+	return new CSteamAudioEmitter;
+}
+
 void
 CSteamAudioEmitter::Reset()
 {

@@ -900,8 +900,121 @@ PlanarToLinear(
 	fr_i32 Channels
 )
 {
-	for (fr_i32 i = 0; i < SamplesCount; i++) {
-		pLinear[i] = pPlanar[i % Channels][i / Channels];
+	fr_i64 index = 0;
+	fr_i64 index2 = 0;
+
+	switch (Channels)
+	{
+	case 1: {
+		while (SamplesCount >= 8) {
+			pLinear[index] = pPlanar[0][index];
+			pLinear[index + 1] = pPlanar[0][index + 1];
+			pLinear[index + 2] = pPlanar[0][index + 2];
+			pLinear[index + 3] = pPlanar[0][index + 3];
+			pLinear[index + 4] = pPlanar[0][index + 4];
+			pLinear[index + 5] = pPlanar[0][index + 5];
+			pLinear[index + 6] = pPlanar[0][index + 6];
+			pLinear[index + 7] = pPlanar[0][index + 7];
+			index += 8;
+			SamplesCount -= 8;
+		}
+	} break;
+	case 2: {
+		while (SamplesCount >= 8) {
+			fr_f32 A = pPlanar[0][index2];		
+			fr_f32 B = pPlanar[1][index2];		
+			fr_f32 C = pPlanar[0][index2 + 1];
+			fr_f32 D = pPlanar[1][index2 + 1];
+			fr_f32 E = pPlanar[0][index2 + 2];
+			fr_f32 F = pPlanar[1][index2 + 2];
+			fr_f32 G = pPlanar[0][index2 + 3];
+			fr_f32 H = pPlanar[1][index2 + 3];
+			pLinear[index] = A;
+			pLinear[index + 1] = B;
+			pLinear[index + 2] = C;
+			pLinear[index + 3] = D;
+			pLinear[index + 4] = E;
+			pLinear[index + 5] = F;
+			pLinear[index + 6] = G;
+			pLinear[index + 7] = H;
+			index += 8;
+			index2 += 4;
+			SamplesCount -= 8;
+		}
+	} break;
+	case 4: {
+		while (SamplesCount >= 8) {
+			fr_f32 A = pPlanar[0][index2];
+			fr_f32 B = pPlanar[1][index2];
+			fr_f32 C = pPlanar[2][index2];
+			fr_f32 D = pPlanar[3][index2];
+			fr_f32 E = pPlanar[0][index2 + 1];
+			fr_f32 F = pPlanar[1][index2 + 1];
+			fr_f32 G = pPlanar[2][index2 + 1];
+			fr_f32 H = pPlanar[3][index2 + 1];
+			pLinear[index] = A;
+			pLinear[index + 1] = B;
+			pLinear[index + 2] = C;
+			pLinear[index + 3] = D;
+			pLinear[index + 4] = E;
+			pLinear[index + 5] = F;
+			pLinear[index + 6] = G;
+			pLinear[index + 7] = H;
+			index += 8;
+			index2 += 2;
+			SamplesCount -= 8;
+		}
+	} break;
+	case 6: {
+		while (SamplesCount >= 6) {
+			fr_f32 A = pPlanar[0][index2];
+			fr_f32 B = pPlanar[1][index2];
+			fr_f32 C = pPlanar[2][index2];
+			fr_f32 D = pPlanar[3][index2];
+			fr_f32 E = pPlanar[4][index2];
+			fr_f32 F = pPlanar[5][index2];
+			pLinear[index] = A;
+			pLinear[index + 1] = B;
+			pLinear[index + 2] = C;
+			pLinear[index + 3] = D;
+			pLinear[index + 4] = E;
+			pLinear[index + 5] = F;
+			index += 6;
+			index2 += 1;
+			SamplesCount -= 6;
+		}
+	} break;
+	case 8: {
+		while (SamplesCount >= 8) {
+			fr_f32 A = pPlanar[0][index2];
+			fr_f32 B = pPlanar[1][index2];
+			fr_f32 C = pPlanar[2][index2];
+			fr_f32 D = pPlanar[3][index2];
+			fr_f32 E = pPlanar[4][index2];
+			fr_f32 F = pPlanar[5][index2];
+			fr_f32 G = pPlanar[6][index2];
+			fr_f32 H = pPlanar[7][index2];
+			pLinear[index] = A;
+			pLinear[index + 1] = B;
+			pLinear[index + 2] = C;
+			pLinear[index + 3] = D;
+			pLinear[index + 4] = E;
+			pLinear[index + 5] = F;
+			pLinear[index + 6] = G;
+			pLinear[index + 7] = H;
+			index += 8;
+			index2++;
+			SamplesCount -= 8;
+		}
+	} break;
+	default:
+		break;
+	}
+
+	while (SamplesCount > 0) {
+		pLinear[index] = pPlanar[index % Channels][index / Channels];
+		index++;
+		SamplesCount--;
 	}
 }
 
@@ -914,8 +1027,121 @@ LinearToPlanar(
 	fr_i32 Channels
 )
 {
-	for (fr_i32 i = 0; i < SamplesCount; i++) {
-		pPlanar[i % Channels][i / Channels] = pLinear[i];
+	fr_i64 index = 0;
+	fr_i64 index2 = 0;
+
+	switch (Channels)
+	{
+	case 1: {
+		while (SamplesCount >= 8) {
+			pPlanar[0][index] = pLinear[index];
+			pPlanar[0][index + 1] = pLinear[index + 1];
+			pPlanar[0][index + 2] = pLinear[index + 2];
+			pPlanar[0][index + 3] = pLinear[index + 3];
+			pPlanar[0][index + 4] = pLinear[index + 4];
+			pPlanar[0][index + 5] = pLinear[index + 5];
+			pPlanar[0][index + 6] = pLinear[index + 6];
+			pPlanar[0][index + 7] = pLinear[index + 7];
+			index += 8;
+			SamplesCount -= 8;
+		}
+	} break;
+	case 2: {
+		while (SamplesCount >= 8) {
+			fr_f32 A = pLinear[index];
+			fr_f32 B = pLinear[index + 1];
+			fr_f32 C = pLinear[index + 2];
+			fr_f32 D = pLinear[index + 3];
+			fr_f32 E = pLinear[index + 4];
+			fr_f32 F = pLinear[index + 5];
+			fr_f32 G = pLinear[index + 6];
+			fr_f32 H = pLinear[index + 7];
+			pPlanar[0][index2] = A;
+			pPlanar[1][index2] = B;
+			pPlanar[0][index2 + 1] = C;
+			pPlanar[1][index2 + 1] = D;
+			pPlanar[0][index2 + 2] = E;
+			pPlanar[1][index2 + 2] = F;
+			pPlanar[0][index2 + 3] = G;
+			pPlanar[1][index2 + 3] = H; 
+			index += 8;
+			index2 += 4;
+			SamplesCount -= 8;
+		}
+	} break;
+	case 4: {
+		while (SamplesCount >= 8) {
+			fr_f32 A = pLinear[index];
+			fr_f32 B = pLinear[index + 1];
+			fr_f32 C = pLinear[index + 2];
+			fr_f32 D = pLinear[index + 3];
+			fr_f32 E = pLinear[index + 4];
+			fr_f32 F = pLinear[index + 5];
+			fr_f32 G = pLinear[index + 6];
+			fr_f32 H = pLinear[index + 7];
+			pPlanar[0][index2] = A;
+			pPlanar[1][index2] = B;
+			pPlanar[2][index2] = C;
+			pPlanar[3][index2] = D;
+			pPlanar[0][index2 + 1] = E;
+			pPlanar[1][index2 + 1] = F;
+			pPlanar[2][index2 + 1] = G;
+			pPlanar[3][index2 + 1] = H;
+			index += 8;
+			index2 += 2;
+			SamplesCount -= 8;
+		}
+	} break;
+	case 6: {
+		while (SamplesCount >= 6) {
+			fr_f32 A = pLinear[index];
+			fr_f32 B = pLinear[index + 1];
+			fr_f32 C = pLinear[index + 2];
+			fr_f32 D = pLinear[index + 3];
+			fr_f32 E = pLinear[index + 4];
+			fr_f32 F = pLinear[index + 5];
+			pPlanar[0][index2] = A;
+			pPlanar[1][index2] = B;
+			pPlanar[2][index2] = C;
+			pPlanar[3][index2] = D;
+			pPlanar[4][index2] = E;
+			pPlanar[5][index2] = F;
+			index += 6;
+			index2 += 1;
+			SamplesCount -= 6;
+		}
+	} break;
+	case 8: {
+		while (SamplesCount >= 8) {
+			fr_f32 A = pLinear[index];
+			fr_f32 B = pLinear[index + 1];
+			fr_f32 C = pLinear[index + 2];
+			fr_f32 D = pLinear[index + 3];
+			fr_f32 E = pLinear[index + 4];
+			fr_f32 F = pLinear[index + 5];
+			fr_f32 G = pLinear[index + 6];
+			fr_f32 H = pLinear[index + 7];
+			pPlanar[0][index2] = A;
+			pPlanar[1][index2] = B;
+			pPlanar[2][index2] = C;
+			pPlanar[3][index2] = D;
+			pPlanar[4][index2] = E;
+			pPlanar[5][index2] = F;
+			pPlanar[6][index2] = G;
+			pPlanar[7][index2] = H;
+			index += 8;
+			index2++;
+			SamplesCount -= 8;
+		}
+	} break;
+	default:
+		break;
+	}
+
+	while (SamplesCount > 0){
+		pPlanar[index % Channels][index / Channels] = pLinear[index];
+		index++;
+		SamplesCount--;
 	}
 }
 

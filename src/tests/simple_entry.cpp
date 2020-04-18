@@ -53,10 +53,8 @@ void test1()
 	if (FrInitializeInstance((void**)&pFresponze) != 0) return;
 	pFresponze->GetMixerInterface(eMixerAdvancedType, (void**)&pAdvancedMixer);
 	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
-	//pBaseEmitter = new CSteamAudioEmitter;
-	//pBaseEmitterSecond = new CSteamAudioEmitter;
-	pAdvancedMixer->CreateEmitter(pBaseEmitter);
-	//pAdvancedMixer->CreateEmitter(pBaseEmitterSecond);
+	pAdvancedMixer->CreateEmitter(pBaseEmitter, 0);
+	//pAdvancedMixer->CreateEmitter(pBaseEmitterSecond, 1);
 
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
 	pAudioHardware->GetDevicesList(InputList, OutputList);

@@ -20,8 +20,13 @@
 
 class IAudioVolume : public IBaseInterface
 {
+protected:
+	fr_f32 VirtualVolume = 0.f;
+
 public:
 	virtual bool GetVolume(fr_f32& fVolume) = 0;
+	virtual bool GetVirtualVolume(fr_f32& fVolume) = 0;
+	virtual bool SetVirtualVolume(fr_f32 fVolume) = 0;
 	virtual bool SetVolume(fr_f32 fVolume) = 0;
 	virtual bool IsMuted() = 0;
 	virtual bool Mute(bool bState) = 0;

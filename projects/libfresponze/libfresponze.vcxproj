@@ -253,6 +253,8 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\inc;$(ProjectDir)..\..\lib\inc;$(ProjectDir)..\..\modules\opusfile\include;$(ProjectDir)..\..\modules\r8brain-free-src;$(ProjectDir)..\..\modules\opus\include;$(ProjectDir)..\..\modules\ogg\include;$(ProjectDir)..\..\modules\opus\celt;$(ProjectDir)..\..\modules\opus\silk;$(ProjectDir)..\..\modules\opus\silk\float;$(ProjectDir)..\..\modules\opus\silk\x86;$(ProjectDir)..\..\modules\opus\celt\x86;$(ProjectDir)..\..\modules\opus\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;WINDOWS_PLATFORM;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -271,6 +273,8 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\inc;$(ProjectDir)..\..\lib\inc;$(ProjectDir)..\..\modules\opusfile\include;$(ProjectDir)..\..\modules\r8brain-free-src;$(ProjectDir)..\..\modules\opus\include;$(ProjectDir)..\..\modules\ogg\include;$(ProjectDir)..\..\modules\opus\celt;$(ProjectDir)..\..\modules\opus\silk;$(ProjectDir)..\..\modules\opus\silk\float;$(ProjectDir)..\..\modules\opus\silk\x86;$(ProjectDir)..\..\modules\opus\celt\x86;$(ProjectDir)..\..\modules\opus\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_CONFIG_H;_CRT_SECURE_NO_WARNINGS;LIB_EXPORTS;DLL_PLATFORM;WINDOWS_PLATFORM;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

@@ -59,7 +59,7 @@ public:
 	ULONG STDMETHODCALLTYPE AddRef() override
 	{
 		return _InterlockedIncrement(&Ref);
-	}
+	}  
 
 	ULONG STDMETHODCALLTYPE Release() override
 	{

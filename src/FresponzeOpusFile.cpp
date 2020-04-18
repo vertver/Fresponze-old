@@ -166,9 +166,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		FileReadSize -= ret;
 	}
 
-	for (fr_i64 i = 0; i < frame_out * formatOfFile.Channels; i++) {
-		transferBuffers[i % formatOfFile.Channels][i / formatOfFile.Channels] = tempBuffer[i];
-	}
+	LinearToPlanar(transferBuffers.GetBuffers(), tempBuffer.Data(), frame_out * formatOfFile.Channels, formatOfFile.Channels);
 
 	if (outputFormat.SampleRate != formatOfFile.SampleRate) {
 		resampler->Resample((fr_i32)frame_out, transferBuffers.GetBuffers(), transferBuffers.GetBuffers());

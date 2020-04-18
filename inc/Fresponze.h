@@ -20,6 +20,7 @@
 #include "FresponzeEndpoint.h"
 #include "FresponzeEnumerator.h"
 #include "FresponzeHardware.h"
+#include "FresponzeAdvancedMixer.h"
 
 #ifdef USE_FUNCS_PROTOTYPES
 typedef fr_err(FrInitializeInstance_t)(void** ppInstance);
@@ -57,6 +58,13 @@ struct FresponzeInformation
 class IFresponzeRemote : public IBaseInterface
 {
 public:
+	virtual void GetFresponzeInfo(FresponzeInformation* info) = 0;
+};
+
+class CFresponzeRemote : public IFresponzeRemote
+{
+public:
+	CFresponzeRemote();
 	virtual void GetFresponzeInfo(FresponzeInformation* info) = 0;
 };
 

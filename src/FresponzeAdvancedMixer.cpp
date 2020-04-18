@@ -18,6 +18,7 @@
 #include "FresponzeAdvancedMixer.h"
 #include "FresponzeWavFile.h"
 #include "FresponzeOpusFile.h"
+#include "FresponzeMasterEmitter.h"
 
 #define RING_BUFFERS_COUNT 2
 
@@ -163,9 +164,16 @@ CAdvancedMixer::DeleteListener(ListenersNode* pListNode)
 }
 
 bool
-CAdvancedMixer::CreateEmitter(IBaseEmitter*& pEmitterToCreate)
+CAdvancedMixer::CreateEmitter(IBaseEmitter*& pEmitterToCreate, fr_i32 Type)
 {
-	pEmitterToCreate = GetAdvancedEmitter();
+	switch (Type)
+	{
+	case 0: pEmitterToCreate = GetAdvancedEmitter(); break;
+	case 1: pEmitterToCreate = GetSteamEmitter(); break;
+	default:
+		break;
+	}
+
 	return true;
 }
 

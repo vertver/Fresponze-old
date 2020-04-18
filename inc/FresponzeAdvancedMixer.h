@@ -53,5 +53,5 @@ public:
 	bool CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat = {}) override;
 	bool DeleteListener(ListenersNode* pListNode) override;
 
-	bool CreateEmitter(IBaseEmitter*& pEmitterToCreate) override;
+	bool CreateEmitter(IBaseEmitter*& pEmitterToCreate, fr_i32 Type) override;
 };

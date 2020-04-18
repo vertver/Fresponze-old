@@ -87,3 +87,5 @@ public:
 
 	bool Process(fr_f32** ppData, fr_i32 Frames) override;
 };
+
+IBaseEmitter* GetSteamEmitter();

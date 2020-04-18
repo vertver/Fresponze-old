@@ -179,7 +179,10 @@ CWASAPIAudioEnpoint::ThreadProc()
 			case RenderType: {
 				UINT32 StreamPadding = 0;
 				hr = pAudioClient->GetCurrentPadding(&StreamPadding);
-				if (FAILED(hr)) { TypeToLog("WASAPI: pAudioClient->GetCurrentPadding() failed (render callback)"); ; goto EndOfThread; }
+				if (FAILED(hr)) { 
+					TypeToLog("WASAPI: pAudioClient->GetCurrentPadding() failed (render callback)");
+					goto EndOfThread; 
+				}
 
 				BYTE* pByte = nullptr;
 				INT32 AvailableFrames = FramesInBuffer;
@@ -267,6 +270,7 @@ CWASAPIAudioEnpoint::CreateWasapiThread()
 {
 	DWORD dwThreadId = 0;
 
+	if (pThreadEvent->IsRaised()) pThreadEvent->Reset();
 #ifndef XBOX_BUILD
 	hThread = (HANDLE)_beginthread(WASAPIThreadProc, 0, this);
 #else
@@ -275,7 +279,7 @@ CWASAPIAudioEnpoint::CreateWasapiThread()
 
 	if (!IsInvalidHandle(hThread)) {
 		TypeToLog("WASAPI: Waiting for event");
-		if (!pSyncEvent->Wait(1000)) {
+		if (!pSyncEvent->Wait(2000)) {
 			/* Terminate our thread if it was timeouted */
 			if (WaitForSingleObject(hThread, 0) != WAIT_OBJECT_0) {
 				TypeToLog("WASAPI: Failed to init thread");
@@ -477,24 +481,11 @@ bool
 CWASAPIAudioEnpoint::Close()
 {
 	Stop();
-	if (pAudioClient) {
-		ULONG ref = pAudioClient->AddRef();
-		_RELEASE(pAudioClient);
-	}
-	_RELEASE(pAudioClient);
 
-	if (pCaptureClient) {
-		ULONG ref = pCaptureClient->AddRef();
-		_RELEASE(pCaptureClient);
-	}
+	/* This functions must be called in thread, where you create service */
 	_RELEASE(pCaptureClient);
-
-	if (pRenderClient) {
-		ULONG ref = pRenderClient->AddRef();
-		_RELEASE(pRenderClient);
-	}
 	_RELEASE(pRenderClient);
-
+	_RELEASE(pAudioClient);
 	return true;
 }
 

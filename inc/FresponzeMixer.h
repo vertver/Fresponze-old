@@ -107,5 +107,5 @@ public:
 	virtual bool CreateListener(void* pListenerOpenLink /* local or internet link */, ListenersNode*& pNewListener, PcmFormat ListFormat = {}) = 0;
 	virtual bool DeleteListener(ListenersNode* pListNode) = 0;
 
-	virtual bool CreateEmitter(IBaseEmitter*& pEmitterToCreate) = 0;
+	virtual bool CreateEmitter(IBaseEmitter*& pEmitterToCreate, fr_i32 Type) = 0;
 };

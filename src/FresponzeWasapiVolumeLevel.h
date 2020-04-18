@@ -26,11 +26,14 @@ class CWASAPIAudioSessionEvents : public IAudioSessionEvents
 private:
 	long Ref = 0;
 	IAudioVolume* pParentAudioVolume = nullptr;
+	IMMDevice* pParentDevice = nullptr;
 
 public:
-	CWASAPIAudioSessionEvents(IAudioVolume* pAudioVolume)
+	CWASAPIAudioSessionEvents(IAudioVolume* pAudioVolume, IMMDevice* pNParentDevice)
 	{
+		AddRef();
 		pParentAudioVolume = pAudioVolume;
+		pParentDevice = pNParentDevice;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE OnDisplayNameChanged(LPCWSTR NewDisplayName, LPCGUID EventContext) override {
@@ -42,6 +45,7 @@ public:
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE OnSimpleVolumeChanged(float NewVolume, BOOL NewMute, LPCGUID EventContext) override {
+		pParentAudioVolume->SetVirtualVolume(NewVolume);
 		return S_OK;
 	}
 
@@ -54,6 +58,20 @@ public:
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE OnStateChanged(AudioSessionState NewState) override {
+		switch (NewState)
+		{
+		case AudioSessionStateInactive:
+			TypeToLog("WASAPI: Audio session state changed: inactive");
+			break;
+		case AudioSessionStateActive:
+			TypeToLog("WASAPI: Audio session state changed: active");
+			break;
+		case AudioSessionStateExpired:
+			TypeToLog("WASAPI: Audio session state changed: expired");
+			break;
+		default:
+			break;
+		}
 		return S_OK;
 	}
 
@@ -93,7 +111,7 @@ public:
 		if (SUCCEEDED(pDevice->QueryInterface(__uuidof(IMMDevice), (void**)&pParentDevice))) {
 			if (SUCCEEDED(pParentDevice->Activate(__uuidof(IAudioSessionManager), CLSCTX_ALL, NULL, (void**)&pAudioSessionManager))) {
 				if (SUCCEEDED(pAudioSessionManager->GetAudioSessionControl(nullptr, 0, &pAudioSessionControl))) {
-					pAudioSessionEvents = new CWASAPIAudioSessionEvents(this);
+					pAudioSessionEvents = new CWASAPIAudioSessionEvents(this, pDevice);
 					pAudioSessionControl->RegisterAudioSessionNotification(pAudioSessionEvents);
 				}
 
@@ -104,9 +122,14 @@ public:
 
 	~CWASAPIAudioVolume()
 	{
-		if (pAudioSessionControl) pAudioSessionControl->UnregisterAudioSessionNotification(pAudioSessionEvents);
-		if (pAudioSessionEvents) delete pAudioSessionEvents;
+		if (pAudioSessionControl) {
+			pAudioSessionControl->UnregisterAudioSessionNotification(pAudioSessionEvents);
+			pAudioSessionControl->AddRef();
+			_RELEASE(pAudioSessionControl);
+		}
+
 		_RELEASE(pAudioSessionControl);
+		_RELEASE(pAudioSessionEvents);
 		_RELEASE(pSimpleAudioVolume);
 		_RELEASE(pAudioSessionManager);
 		_RELEASE(pParentDevice);
@@ -123,7 +146,23 @@ public:
 		if (!pSimpleAudioVolume) return false;
 		return SUCCEEDED(pSimpleAudioVolume->SetMasterVolume(fVolume, nullptr));
 	}
-	
+
+	bool GetVirtualVolume(fr_f32& fVolume)
+	{
+		if (VirtualVolume < 0.0001f) {
+			GetVolume(VirtualVolume);
+		}
+
+		fVolume = VirtualVolume;
+		return true;
+	}
+
+	bool SetVirtualVolume(fr_f32 fVolume)
+	{
+		VirtualVolume = fVolume;
+		return true;
+	}
+
 	bool IsMuted() override
 	{
 		BOOL bMute = FALSE;
