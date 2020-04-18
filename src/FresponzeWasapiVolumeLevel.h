@@ -25,13 +25,15 @@ class CWASAPIAudioSessionEvents : public IAudioSessionEvents
 {
 private:
 	long Ref = 0;
+	IAudioHardware* pParentHardware = nullptr;
 	IAudioVolume* pParentAudioVolume = nullptr;
 	IMMDevice* pParentDevice = nullptr;
 
 public:
-	CWASAPIAudioSessionEvents(IAudioVolume* pAudioVolume, IMMDevice* pNParentDevice)
+	CWASAPIAudioSessionEvents(IAudioVolume* pAudioVolume, IMMDevice* pNParentDevice, IAudioHardware* pAudioHardware)
 	{
 		AddRef();
+		pParentHardware = pAudioHardware;
 		pParentAudioVolume = pAudioVolume;
 		pParentDevice = pNParentDevice;
 	}
@@ -76,6 +78,7 @@ public:
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE OnSessionDisconnected(AudioSessionDisconnectReason DisconnectReason) override {
+		if (!pParentHardware->Open(RenderType, 100.f)) return E_FAIL;
 		return S_OK;
 	}
 
@@ -99,6 +102,7 @@ public:
 class CWASAPIAudioVolume : public IAudioVolume
 {
 private:
+	IAudioHardware* pParentHardware = nullptr;
 	IMMDevice* pParentDevice = nullptr;
 	IAudioSessionControl* pAudioSessionControl = nullptr;
 	IAudioSessionEvents* pAudioSessionEvents = nullptr;
@@ -106,12 +110,13 @@ private:
 	ISimpleAudioVolume* pSimpleAudioVolume = nullptr;
 
 public:
-	CWASAPIAudioVolume(IMMDevice* pDevice)
+	CWASAPIAudioVolume(IMMDevice* pDevice, IAudioHardware* pAudioHardware)
 	{
+		pAudioHardware->Clone((void**)&pParentHardware);
 		if (SUCCEEDED(pDevice->QueryInterface(__uuidof(IMMDevice), (void**)&pParentDevice))) {
 			if (SUCCEEDED(pParentDevice->Activate(__uuidof(IAudioSessionManager), CLSCTX_ALL, NULL, (void**)&pAudioSessionManager))) {
 				if (SUCCEEDED(pAudioSessionManager->GetAudioSessionControl(nullptr, 0, &pAudioSessionControl))) {
-					pAudioSessionEvents = new CWASAPIAudioSessionEvents(this, pDevice);
+					pAudioSessionEvents = new CWASAPIAudioSessionEvents(this, pDevice, pParentHardware);
 					pAudioSessionControl->RegisterAudioSessionNotification(pAudioSessionEvents);
 				}
 
@@ -133,6 +138,7 @@ public:
 		_RELEASE(pSimpleAudioVolume);
 		_RELEASE(pAudioSessionManager);
 		_RELEASE(pParentDevice);
+		_RELEASE(pParentHardware);
 	}
 
 	bool GetVolume(fr_f32& fVolume) override

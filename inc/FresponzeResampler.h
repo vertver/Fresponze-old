@@ -87,6 +87,8 @@ public:
 
 	void Resample(fr_i32 frames, fr_f32** inputData, fr_f32** outputData)  override
 	{
+		fr_i32 convertedFrames = 0;
+		CalculateFrames(frames, inSRate, outSRate, convertedFrames);
 		if (frames > bufLength) Reset(frames, inSRate, outSRate, channels, lin);
 
 		doubleBuffers[0].Resize(channels, frames);
@@ -96,7 +98,7 @@ public:
 			resampler[i]->process(doubleBuffers[0][i], frames, doubleBuffers[1][i]);
 		}
 
-		DoubleToFloat(outputData, doubleBuffers[1].GetBuffers(), channels, frames);
+		DoubleToFloat(outputData, doubleBuffers[1].GetBuffers(), channels, convertedFrames);
 	}
 };
 

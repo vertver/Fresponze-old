@@ -25,6 +25,7 @@
 class CWASAPIAudioEnpoint final : public IAudioEndpoint
 {
 private:
+	fr_f32 DelayCustom = 0.f;
 	HANDLE hThread = nullptr;
 	IBaseEvent* pThreadEvent = nullptr;
 	IMMDevice* pCurrentDevice = nullptr;

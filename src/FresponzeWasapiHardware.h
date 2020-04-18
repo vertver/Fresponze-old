@@ -62,39 +62,25 @@ public:
 
 	bool DeviceDisabled(void* pDeviceDisabled) override
 	{
-		/*
-			"When releasing an IAudioRenderClient interface instance, the client must call the interface's 
-			Release method from the same thread as the call to IAudioClient::GetService that created the object."
-
-			https://docs.microsoft.com/en-us/windows/win32/api/audioclient/nn-audioclient-iaudiorenderclient
-
-			NO FUCKING WAY MICROSOFT
-			NOW I NEED TO CREATE CALLBACK IN MAIN THREAD FOR RE-CREATING YOUR STUFF
-			WHY? WHY YOU'RE SO BASTARDS?
-		*/
 		wchar_t* pThisEndpoint = (wchar_t*)pDeviceDisabled;
 		if (!pParentHardware->Enumerate()) return false;
 		if (!pOutputStringUUID) {
 			if (!pParentHardware->Restart(RenderType, 100.f)) return false;
-			if (!pParentHardware->Start()) return false;
 			return true;
 		}
 
 		if (!wcscmp(pThisEndpoint, pOutputStringUUID)) {
 			if (!pParentHardware->Restart(RenderType, 100.f)) return false;
-			if (!pParentHardware->Start()) return false;
 			return true;
 		}
 
 		if (!pInputStringUUID) {
 			if (!pParentHardware->Restart(CaptureType, 100.f)) return false;
-			if (!pParentHardware->Start()) return false;
 			return true;
 		}
 
 		if (!wcscmp(pThisEndpoint, pInputStringUUID)) {
 			if (!pParentHardware->Restart(CaptureType, 100.f)) return false;
-			if (!pParentHardware->Start()) return false;
 			return true;
 		}
 
@@ -131,7 +117,7 @@ private:
 	void FreeAndRestoreVolumeShit(void* pPointer)
 	{
 		if (pAudioVolume) _RELEASE(pAudioVolume);
-		pAudioVolume = new CWASAPIAudioVolume((IMMDevice*)pPointer);
+		pAudioVolume = new CWASAPIAudioVolume((IMMDevice*)pPointer, this);
 	}
 
 public:
@@ -305,6 +291,20 @@ public:
 		case RenderType:
 		default:
 			if (pOutputEndpoint) pOutputEndpoint->GetDeviceInfo(endpointInfo);
+			break;
+		}
+	}
+
+	void GetRawPtr(fr_i32 DeviceType, void*& OutPtr) override
+	{
+		switch (DeviceType)
+		{
+		case CaptureType:
+			if (pInputEndpoint) pInputEndpoint->GetDevicePointer(OutPtr);
+			break;
+		case RenderType:
+		default:
+			if (pOutputEndpoint) pOutputEndpoint->GetDevicePointer(OutPtr);
 			break;
 		}
 	}

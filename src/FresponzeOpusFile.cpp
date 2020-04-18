@@ -137,7 +137,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	const OpusTags* tags = nullptr;
 	fr_i64 frame_out = 0;
 
-	/* Translate current frames count for output buffer to file format sample rate frames count */
+	/* Translate current frames count for output buffer to file format frames count */
 	CalculateFrames64(FramesCount, outputFormat.SampleRate, formatOfFile.SampleRate, frame_out);
 	transferBuffers.Resize(formatOfFile.Channels, (fr_i32)max(FramesCount, frame_out));
 	tempBuffer.Resize(OPUS_BUFFER);
@@ -152,11 +152,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 			break;		// the end is here
 		}
 
-		/*
-			If our new block has new channel count - we must to verify with new format.
-			(lower than current channels count? try to convert to backend audio format via mid :
-			bigger than current channels count? try to convert to backend audio format via mid/side)
-		*/
+		/* If our new block has new channel count - we must to verify with new format. */
 		if (li != previous_li) {
 			head = op_head(of, li);
 			formatOfFile.Channels = head->channel_count;
@@ -202,7 +198,7 @@ COpusMediaResource::SetPosition(fr_i64 FramePosition)
 	if (!op_seekable(of)) return -1;
 	fr_i64 frame_out = 0;
 	ret = op_pcm_seek(of, FramePosition);
-	if (ret == OP_EINVAL) {
+	if (ret == OP_EINVAL) {		// that means we are done
 		FramePosition = 0;
 		ret = op_pcm_seek(of, FramePosition);
 	}

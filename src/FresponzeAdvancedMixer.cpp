@@ -143,7 +143,6 @@ CAdvancedMixer::CreateListener(void* pListenerOpenLink, ListenersNode*& pNewList
 {
 	if (!ListFormat.Bits) ListFormat = MixFormat;
 
-	CreateNode(pNewListener);
 	IMediaResource* pNewResource = (IMediaResource*)GetFormatListener((char*)pListenerOpenLink);
 	if (!pNewResource) return false;
 	if (!pNewResource->OpenResource(pListenerOpenLink)) {
@@ -152,6 +151,7 @@ CAdvancedMixer::CreateListener(void* pListenerOpenLink, ListenersNode*& pNewList
 	}
 
 	if (ListFormat.Bits) pNewResource->SetFormat(ListFormat);
+	CreateNode(pNewListener);
 	pNewListener->pListener = new CMediaListener(pNewResource);
 	pNewListener->pListener->SetFormat(ListFormat);
 	return true;
@@ -189,14 +189,18 @@ CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 	fr_i32 UpdatedSamples = 0;
 	if (RingBuffer.GetLeftBuffers() <= 0) {
 		/* No buffers in queue - no data. Render it */
-		Render(BufferedSamples, Channels, SampleRate);
+		if (!Render(BufferedSamples, Channels, SampleRate)) return false;
 	}
 
 	fr_i32 ret = RingBuffer.ReadData(pBuffer, Frames * Channels);
 	UpdatedSamples += ret / Channels;
-	/* If we can't read more data because*/
+	/*
+		If we can't read more data because WASAPI or other output send 
+		non-typical samples count query to ring buffer, we must render
+		data to push new data to required buffer with other write position
+	*/
 	if (UpdatedSamples < Frames) {
-		Render(BufferedSamples, Channels, SampleRate);
+		if (!Render(BufferedSamples, Channels, SampleRate)) return false;
 		ret = RingBuffer.ReadData(&pBuffer[ret], (Frames - UpdatedSamples) * Channels);
 		UpdatedSamples += ret / Channels;
 		if (UpdatedSamples < Frames) {
@@ -224,6 +228,10 @@ CAdvancedMixer::Update(fr_f32* pBuffer, fr_i32 Frames, fr_i32 Channels, fr_i32 S
 bool
 CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 {
+	ListenersNode* pListNode = pFirstListener;
+	PcmFormat fmt = { };
+
+	if (!pFirstListener) return false;
 	/* Update buffer size if output endpoint change sample rate/bitrate/*/
 	if (RingBuffer.GetLeftBuffers()) return false;
 	RingBuffer.SetBuffersCount(RING_BUFFERS_COUNT);
@@ -231,11 +239,22 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 	OutputBuffer.Resize(Frames * Channels);
 	tempBuffer.Resize(Channels, Frames);
 	mixBuffer.Resize(Channels, Frames);
+	
+	pListNode->pListener->GetFormat(fmt);
+	if (fmt.Channels != Channels || fmt.SampleRate != SampleRate) {
+		fmt.Channels = Channels;
+		fmt.SampleRate = SampleRate;
+		while (pListNode) {
+			pListNode->pListener->SetFormat(fmt);
+			pListNode = pListNode->pNext;
+		}
+	}
 
 	for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
 		tempBuffer.Clear();
 		mixBuffer.Clear();
-		ListenersNode* pListNode = pFirstListener;
+
+		pListNode = pFirstListener;
 		while (pListNode) {
 			/* Source restart issue  */
 			EmittersNode* pEmittersNode = nullptr;

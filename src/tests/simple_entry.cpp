@@ -75,7 +75,6 @@ void test1()
 			//pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitterSecond);
 			//pBaseEmitterSecond->SetState(eReplayState);
 			pAdvancedMixer->SetMixFormat(OutputLists.EndpointFormat);
-			pAudioHardware->Start();
 		}
 	}
 

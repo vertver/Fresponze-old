@@ -79,7 +79,7 @@ CWASAPIAudioNotification::OnPropertyValueChanged(
 	if (key.fmtid == FRPKEY_AudioEndpoint_PhysicalSpeakers.fmtid ||
 		key.fmtid == FRPKEY_AudioEngine_DeviceFormat.fmtid ||
 		key.fmtid == FRPKEY_AudioEngine_OEMFormat.fmtid) {
-		if (!pCallback->DeviceDisabled((void*)(pwstrDeviceId))) return E_FAIL;
+		if (!pCallback->ListOfDevicesChanded()) return E_FAIL;
 	}
 
 	return S_OK;

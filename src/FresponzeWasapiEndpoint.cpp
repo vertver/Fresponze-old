@@ -117,8 +117,10 @@ WASAPIThreadProc(
 	void* pData
 )
 {
+	CoInitialize(nullptr);
 	CWASAPIAudioEnpoint* pThis = (CWASAPIAudioEnpoint*)pData;
 	pThis->ThreadProc();
+	CoUninitialize();
 }
 
 void
@@ -132,6 +134,11 @@ CWASAPIAudioEnpoint::GetDevicePointer(
 void
 CWASAPIAudioEnpoint::ThreadProc()
 {	
+	/* This functions must be called in thread, where you create service */
+	_RELEASE(pCaptureClient);
+	_RELEASE(pRenderClient);
+	_RELEASE(pAudioClient);
+	if (!InitializeToPlay(DelayCustom)) return;
 	bool isFloat = EndpointInfo.EndpointFormat.IsFloat;
 	fr_err errCode = 0;
 	UINT32 CurrentFrames = 0;
@@ -171,6 +178,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 
 	pSyncEvent->Raise();
 	pStartEvent->Wait();
+	pThreadEvent->Reset();
 	if (pAudioCallback) pAudioCallback->FlushCallback();
 	while (!pThreadEvent->Wait(dwFlushTime)) {
 		try {
@@ -259,6 +267,10 @@ CWASAPIAudioEnpoint::ThreadProc()
 	}
 
 EndOfThread:
+	/* This functions must be called in thread, where you create service */
+	_RELEASE(pCaptureClient);
+	_RELEASE(pRenderClient);
+	_RELEASE(pAudioClient);
 	TypeToLog("WASAPI: Shutdowning thread");
 	if (pThreadEvent->IsRaised()) pThreadEvent->Reset();
 	if (pSyncEvent->IsRaised()) pSyncEvent->Reset();
@@ -385,7 +397,6 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	REFERENCE_TIME refTimeAccepted = REFERENCE_TIME(Delay * 10000.f);
 	WAVEFORMATEX* pWaveFormat = nullptr;
 
-	Close();
 	if (!InitializeClient(pCurrentDevice)) { TypeToLog("WASAPI: Can't initialize audio client"); return false; }
 	if (!GetEndpointDeviceInfo()) return false;
 	if (FAILED(pAudioClient->GetMixFormat(&pWaveFormat))) { TypeToLog("WASAPI: Can't get mix format"); return false; }
@@ -473,7 +484,8 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 bool
 CWASAPIAudioEnpoint::Open(fr_f32 Delay)
 {
-	if (!InitializeToPlay(Delay)) return false;
+	DelayCustom = Delay;
+	if (!Start()) return false;
 	return true;
 }
 
@@ -481,11 +493,6 @@ bool
 CWASAPIAudioEnpoint::Close()
 {
 	Stop();
-
-	/* This functions must be called in thread, where you create service */
-	_RELEASE(pCaptureClient);
-	_RELEASE(pRenderClient);
-	_RELEASE(pAudioClient);
 	return true;
 }
 
@@ -504,7 +511,7 @@ CWASAPIAudioEnpoint::Stop()
 	if (!IsInvalidHandle(hThread)) {
 		pThreadEvent->Raise();
 		pStartEvent->Reset();
-		if (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT) {
+		if (WaitForSingleObject(hThread, 1000) == WAIT_TIMEOUT) {
 			TerminateThread(hThread, (DWORD)-1);
 		}
 
