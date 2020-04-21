@@ -112,6 +112,14 @@ CopyDataFromBuffer(
 }
 
 void
+CWASAPIAudioEnpoint::GetDevicePointer(
+	void*& pDevice
+)
+{
+	pDevice = pCurrentDevice;
+}
+
+void
 WINAPIV
 WASAPIThreadProc(
 	void* pData
@@ -124,17 +132,9 @@ WASAPIThreadProc(
 }
 
 void
-CWASAPIAudioEnpoint::GetDevicePointer(
-	void*& pDevice
-)
-{
-	pDevice = pCurrentDevice;
-}
-
-void
 CWASAPIAudioEnpoint::ThreadProc()
 {	
-	/* This functions must be called in thread, where you create service */
+	/* This functions must be called in thread, where you create service */ 
 	_RELEASE(pCaptureClient);
 	_RELEASE(pRenderClient);
 	_RELEASE(pAudioClient);

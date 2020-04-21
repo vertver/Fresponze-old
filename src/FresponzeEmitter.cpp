@@ -279,7 +279,6 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	}
 
 	SetPosition(BaseEmitterPosition);
-
 	return true;
 }
 

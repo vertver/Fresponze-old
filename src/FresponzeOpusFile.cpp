@@ -43,6 +43,17 @@ COpusMediaResource::OpenResource(void* pResourceLinker)
 	const OpusHead* head = nullptr;
 	const OpusTags* tags = nullptr;
 
+	/*	#############################################
+		OPT 003: Perfomance issue with file mapping
+		Priority: High
+
+		System file system does not have any caching algorithm for virtual mapping,
+		so in this case the file must be loaded in memory, otherwise we get ring 
+		buffer issue with drive timings (it's can be longer than 100ms).
+
+		Current state: processing
+		#############################################
+	*/
 	if (!pMapper->Open((const fr_utf8*)pResourceLinker, eReadFlag | eMustExistFlag)) return false;
 	if (!pMapper->MapFile(FilePtr, 0, eMappingRead)) {
 		pMapper->Close();
@@ -147,7 +158,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		fr_i32 ptr_shift = ((fr_i32)frame_out - FileReadSize) * formatOfFile.Channels;
 		ret = op_read_float(of, tempBuffer.Data() + ptr_shift, FileReadSize * formatOfFile.Channels, &li);
 		if (ret == OP_HOLE) continue;
-		else if (ret < 0) return false;
+		else if (ret < 0) return -1;
 		else if (!ret) {
 			break;		// the end is here
 		}
@@ -164,6 +175,17 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 
 	LinearToPlanar(transferBuffers.GetBuffers(), tempBuffer.Data(), frame_out * formatOfFile.Channels, formatOfFile.Channels);
 
+	/*	#############################################
+		OPT 002: Perfomance issue with resampler
+		Priority: High
+
+		In this issue, we process file by resampler every time for every file.
+		The mixer can process and mix data in one sample rate, and we resample
+		data only on output.
+
+		Current state: processing
+		#############################################
+	*/
 	if (outputFormat.SampleRate != formatOfFile.SampleRate) {
 		resampler->Resample((fr_i32)frame_out, transferBuffers.GetBuffers(), transferBuffers.GetBuffers());
 	}
@@ -188,7 +210,7 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 fr_i64
 COpusMediaResource::ReadRaw(fr_i64 FramesCount, fr_f32** ppFloatData)
 {
-	return false;
+	return -1;
 }
 
 fr_i64 

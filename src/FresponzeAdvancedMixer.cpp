@@ -250,10 +250,20 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 		}
 	}
 
+	/*	#############################################	
+		OPT 001: Optimization issue with 'for' cycle.
+		Priority: Medium
+
+		We can process the signal only once, rather than every cycle time.
+		This can increase  perfomance by 10-70%, because in this case
+		we don't seek the file pointer.
+
+		Current state: processing
+		############################################# 
+	*/
 	for (size_t i = 0; i < RING_BUFFERS_COUNT; i++) {
 		tempBuffer.Clear();
 		mixBuffer.Clear();
-
 		pListNode = pFirstListener;
 		while (pListNode) {
 			/* Source restart issue  */
