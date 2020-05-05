@@ -255,7 +255,7 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 		Priority: Medium
 
 		We can process the signal only once, rather than every cycle time.
-		This can increase  perfomance by 10-70%, because in this case
+		This can increase perfomance by 10-70%, because in this case
 		we don't seek the file pointer.
 
 		Current state: processing

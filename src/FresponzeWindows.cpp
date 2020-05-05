@@ -24,6 +24,21 @@
 HANDLE hFresponzeHeap = nullptr;
 fr_u32 MemoryGranularity = 0;
 
+fr_i64 
+DebugStamp()
+{
+	LARGE_INTEGER larg_ret = {};
+	fr_i64 freq = 0;
+	if (!freq) {
+		LARGE_INTEGER larg = {};
+		QueryPerformanceFrequency(&larg);
+		freq = larg.QuadPart;
+	}
+
+	QueryPerformanceCounter(&larg_ret);
+	return larg_ret.QuadPart / (freq / 10000);
+}
+
 bool
 Fresponze::InitMemory()
 {

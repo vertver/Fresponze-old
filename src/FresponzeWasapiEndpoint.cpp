@@ -213,7 +213,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 							continue;
 						}
 
-						TypeToLog("WASAPI:pRenderClient->GetBuffer() failed (render callback)");
+						TypeToLog("WASAPI: pRenderClient->GetBuffer() failed (render callback)");
 						goto EndOfThread;
 					}
 

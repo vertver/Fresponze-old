@@ -186,9 +186,11 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		Current state: processing
 		#############################################
 	*/
+	BEGIN_TEST
 	if (outputFormat.SampleRate != formatOfFile.SampleRate) {
 		resampler->Resample((fr_i32)frame_out, transferBuffers.GetBuffers(), transferBuffers.GetBuffers());
 	}
+	END_TEST
 
 	/* if mono - set middle channels mode for stereo */
 	if (formatOfFile.Channels == 1 && outputFormat.Channels >= 2) {

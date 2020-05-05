@@ -558,6 +558,9 @@
     <ClCompile Include="..\..\src\FresponzeMasterEmitter.cpp">
       <Filter>src\Base\Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeTBBTask.cpp">
+      <Filter>src\Base\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -900,6 +903,12 @@
       <Filter>src\Base\API</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeEmitter.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeTask.h">
+      <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\FresponzeTBBTask.h">
       <Filter>src\Base\API</Filter>
     </ClInclude>
   </ItemGroup>

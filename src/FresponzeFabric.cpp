@@ -39,6 +39,23 @@ TypeToLog(const char* Text)
 }
 
 void
+TypeToLog(long long count)
+{
+	static fr_string1k outputString = {};
+	static fr_string64 countString = {};
+	GetDebugTime(outputString, sizeof(outputString));
+
+#ifdef WINDOWS_PLATFORM
+	_i64toa(count, countString, 10);
+	strcat_s(outputString, countString);
+	OutputDebugStringA(outputString);
+	OutputDebugStringA("\n");
+#else
+	printf("%s%s\n", outputString, Text);
+#endif
+}
+
+void
 CFresponze::GetHardwareInterface(
 	EndpointType endpointType, 
 	void* pCustomCallback,

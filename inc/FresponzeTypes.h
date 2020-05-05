@@ -649,7 +649,7 @@ public:
 	{
 		if (ppBuffers) {
 			for (size_t i = 0; i < BuffersCount; i++) {
-				if (ppBuffers[i]) memset(ppBuffers[i], 0, BuffersSize * sizeof(fr_f32));
+				if (ppBuffers[i]) memset(ppBuffers[i], 0, BuffersSize * sizeof(TYPE));
 			}
 		}
 	}
@@ -702,11 +702,11 @@ public:
 		return ppBuffers[index]->Data();
 	}
 
-	fr_i32 ReadData(fr_f32* OutBuffer, fr_i32 Samples) {
+	fr_i32 ReadData(TYPE* OutBuffer, fr_i32 Samples) {
 		fr_i32 WriteSamples = Samples;
 		fr_i32 ReadSamples = 0;
 		fr_i32 SampleReturn = 0;
-		fr_f32* pCurrentBuffer = GetData();
+		TYPE* pCurrentBuffer = GetData();
 
 		if (WriteSamples <= 0) return 0;
 		while (WriteSamples > 0) {
@@ -721,7 +721,7 @@ public:
 			}
 
 			ReadSamples = min(BuffersSize - BufferPosition, WriteSamples);
-			memcpy(&OutBuffer[SampleReturn], &pCurrentBuffer[BufferPosition], ReadSamples * sizeof(fr_f32));
+			memcpy(&OutBuffer[SampleReturn], &pCurrentBuffer[BufferPosition], ReadSamples * sizeof(TYPE));
 			BufferPosition += ReadSamples;
 			SampleReturn += ReadSamples;
 			WriteSamples -= ReadSamples;
@@ -1346,7 +1346,6 @@ public:
 	virtual bool UnmapPointer(fr_i64 SizeToMap, fr_ptr& OutPtr) = 0;
 };
 
-
 inline
 void
 riff_to_pcm(
@@ -1395,7 +1394,6 @@ inline
 void
 GetDebugTime(char* pToPrint, size_t BufSize)
 {
-#ifdef _DEBUG
 	static fr_i64 TickCount = 0;
 	fr_i64 Time_ = 0;
 	fr_i64 ChIDX = 0;
@@ -1434,11 +1432,10 @@ GetDebugTime(char* pToPrint, size_t BufSize)
 	pToPrint[ChIDX++] = ':';
 	pToPrint[ChIDX++] = ' ';
 	pToPrint[ChIDX++] = '\0';
-
-#endif
 }
 
 void TypeToLog(const char* Text);
+void TypeToLog(long long count);
 
 inline 
 void
@@ -1466,3 +1463,18 @@ void* GetMapFileSystem();
 
 #define BugAssert(xx, yy) DebugAssert(!!(xx), yy)
 #define BugAssert1(xx) DebugAssert(!!(xx), nullptr)
+
+#ifndef DISABLE_PERFOMANCE_DEBUG
+fr_i64 DebugStamp(); 
+#define BEGIN_TEST \
+	{ \
+	fr_i64 DebugCounterTick = DebugStamp(); 
+	
+#define END_TEST \
+	DebugCounterTick = DebugStamp() - DebugCounterTick;	\
+		TypeToLog(DebugCounterTick); \
+	}
+#else
+#define BEGIN_TEST 
+#define END_TEST
+#endif
