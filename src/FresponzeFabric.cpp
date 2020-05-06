@@ -26,7 +26,7 @@ TypeToLog(const char* Text)
 {
 	static fr_string1k outputString = {};
 	GetDebugTime(outputString, sizeof(outputString));
-
+	printf("%s%s\n", outputString, Text);
 #ifdef _DEBUG
 #ifdef WINDOWS_PLATFORM
 	strcat_s(outputString, Text);

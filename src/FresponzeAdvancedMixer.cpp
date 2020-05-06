@@ -102,8 +102,8 @@ CAdvancedMixer::DeleteNode(ListenersNode* pNode)
 	while (pCurrent) {
 		if (pCurrent == pNode) {
 			if (pLastListener == pCurrent) pLastListener = pCurrent->pPrev;
-			pCurrent->pPrev->pNext = pCurrent->pNext;
-			pCurrent->pNext->pPrev = pCurrent->pPrev;
+			if (pCurrent->pPrev) pCurrent->pPrev->pNext = pCurrent->pNext;
+			if (pCurrent->pNext) pCurrent->pNext->pPrev = pCurrent->pPrev;
 			_RELEASE(pCurrent->pListener);
 			delete pCurrent;
 			return true;
