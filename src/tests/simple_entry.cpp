@@ -32,7 +32,7 @@ IFresponze* pFresponze = nullptr;
 
 void loop()
 {
-	while (true) {
+	while (getchar() != ' ') {
 		Sleep(5);
 	}
 }
@@ -79,6 +79,10 @@ void test1()
 	}
 
 	loop();
+	pAudioHardware->Stop();
+	_RELEASE(pAdvancedMixer);
+	_RELEASE(pAudioHardware);
+	_RELEASE(pAudioCallback);
 	FrDestroyInstance(pFresponze);
 }
 

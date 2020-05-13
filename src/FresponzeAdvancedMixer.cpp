@@ -39,8 +39,8 @@ CAdvancedMixer::FreeStuff()
 	EmittersNode* pENode = pFirstEmitter;
 	while (pNode) {
 		ListenersNode* pNextNode = pNode->pNext;
-		EmittersNode* pNextENode = pENode->pNext;
-		_RELEASE(pFirstEmitter->pEmitter);
+		EmittersNode* pNextENode = pENode ? pENode->pNext : nullptr;
+		if (pFirstEmitter) _RELEASE(pFirstEmitter->pEmitter);
 		_RELEASE(pNode->pListener);
 		pNode = pNextNode;
 		pENode = pNextENode;

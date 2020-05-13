@@ -38,6 +38,8 @@ CWASAPIAudioEnumerator::CWASAPIAudioEnumerator()
 
 CWASAPIAudioEnumerator::~CWASAPIAudioEnumerator()
 {
+	if (InputDevicesInfo) FreeFastMemory(InputDevicesInfo);
+	if (OutputDevicesInfo) FreeFastMemory(OutputDevicesInfo);
 	_RELEASE(pDeviceEnumerator);
 }
 
