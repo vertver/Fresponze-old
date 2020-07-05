@@ -41,8 +41,6 @@ void test1()
 {
 	ListenersNode* listNode = nullptr;
 	PcmFormat format = {};
-	EndpointInformation* InputList = nullptr;
-	EndpointInformation* OutputList = nullptr;
 	EndpointInformation OutputLists = {};
 	IBaseEmitter* pBaseEmitter = nullptr;
 	IBaseEmitter* pBaseEmitterSecond = nullptr;
@@ -57,14 +55,11 @@ void test1()
 	//pAdvancedMixer->CreateEmitter(pBaseEmitterSecond, 1);
 
 	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
-	pAudioHardware->GetDevicesList(InputList, OutputList);
-
-	char* pPtr = OutputList->EndpointName;
-	if (pAudioHardware->Open(RenderType, 100.f)) {
+	if (pAudioHardware->Open(RenderType, 30.f)) {
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
 		pAdvancedMixer->SetBufferSamples(OutputLists.EndpointFormat.Frames);
 		/* Create base listener with emitter to play */
-		if (pAdvancedMixer->CreateListener((void*)"X:\\WhitePlace.opus", listNode, OutputLists.EndpointFormat)) {
+		if (pAdvancedMixer->CreateListener((void*)"X:\\test.opus", listNode, OutputLists.EndpointFormat)) {
 			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
 			pBaseEmitter->SetState(eReplayState);
 			//fr_f32 x = -2.25;
@@ -83,6 +78,8 @@ void test1()
 	_RELEASE(pAdvancedMixer);
 	_RELEASE(pAudioHardware);
 	_RELEASE(pAudioCallback);
+	_RELEASE(pBaseEmitter);
+	_RELEASE(pBaseEmitterSecond);
 	FrDestroyInstance(pFresponze);
 }
 

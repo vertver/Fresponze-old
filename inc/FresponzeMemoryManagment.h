@@ -15,23 +15,33 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *****************************************************************/
-#pragma once
-#include "FresponzeTask.h"
+#include "FresponzeTypes.h"
+
 /*
-class CTBBTaskManager : public IBaseTaskManager
-{
-private:
-	int TaskThreadCount = 0;
-	tbb::global_control* g_control = nullptr;
-	tbb::task_group* pTaskGroup = nullptr;
-
-public:
-	CTBBTaskManager();
-	~CTBBTaskManager();
-	fr_i32 GetThreadsCount() override;
-
-	void AddTask(FrTaskFunction* pTaskFunction, void* FunctionContext, fr_i32 TaskPriority, void** ppSynchroniser)  override;
-	bool Run(FrTaskFunction* pTaskManagerFunction, void* TaskManagerContext, void* pOtherData) override;
-	bool WaitForTask(void* pSynchroniser) override;
-};
+	Please, don't use 'using namespace Fresponze'. It's can be broke
+	your application code via namespace collusion.
 */
+namespace Fresponze
+{
+	enum CurrentAllocator : fr_i32
+	{
+		eNoneAllocator,
+		eStdAllocator,
+		eVMapAllocator
+	};
+
+	struct AllocatorInformation
+	{
+		fr_i32 AllocatorGranularity;
+		fr_i32 AllocatorPageSize;
+		fr_ptr AllocatorHandle;				// File mapping or heap handle
+	};
+
+	fr_err CheckAllocator(CurrentAllocator* alloc);
+	fr_err GetAllocatorInfo(AllocatorInformation* allocInfo);
+
+	fr_ptr AllocateMemory(fr_i64 Sizeof);
+	fr_err FreeMemory(fr_ptr PtrToMemory);
+
+
+}

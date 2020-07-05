@@ -18,6 +18,8 @@
 #pragma once
 #include "FresponzeTBBTask.h"
 
+/*
+
 CTBBTaskManager::CTBBTaskManager()
 {
     TaskThreadCount = tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism);
@@ -47,3 +49,4 @@ bool CTBBTaskManager::WaitForTask(void* pSynchroniser)
 {
     return true;
 }
+*/

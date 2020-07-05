@@ -68,6 +68,12 @@ public:
 		return pAudioMixer->Flush() ? 0 : -1;
 	}
 
+	fr_err FormatCallback(PcmFormat* fmtToSwitch) override
+	{
+		if (!fmtToSwitch) return -1;
+		return pAudioMixer->SetMixFormat(*fmtToSwitch) ? 0 : -2;
+	}
+
 	fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) override
 	{
 		if (!pAudioMixer) return -1;

@@ -24,9 +24,7 @@ class CAdvancedMixer : public IAdvancedMixer
 protected:
 	fr_i32 BufferedSamples = 0;
 	ListenersNode* pFirstListener = nullptr;
-	EmittersNode* pFirstEmitter = nullptr;
 	ListenersNode* pLastListener = nullptr;
-	EmittersNode* pLastEmitter = nullptr;
 
 	void FreeStuff();
 	bool SetNewFormat(PcmFormat fmt);

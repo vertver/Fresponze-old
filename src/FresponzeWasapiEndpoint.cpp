@@ -139,6 +139,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 	_RELEASE(pRenderClient);
 	_RELEASE(pAudioClient);
 	if (!InitializeToPlay(DelayCustom)) return;
+	PcmFormat fmtToPush = {};
 	bool isFloat = EndpointInfo.EndpointFormat.IsFloat;
 	fr_err errCode = 0;
 	UINT32 CurrentFrames = 0;
@@ -176,15 +177,22 @@ CWASAPIAudioEnpoint::ThreadProc()
 		goto EndOfThread;
 	}
 
+	memcpy(&fmtToPush, &EndpointInfo.EndpointFormat, sizeof(PcmFormat));
+
 	pSyncEvent->Raise();
 	pStartEvent->Wait();
 	pThreadEvent->Reset();
-	if (pAudioCallback) pAudioCallback->FlushCallback();
+	if (pAudioCallback) {
+		pAudioCallback->FlushCallback();
+		pAudioCallback->FormatCallback(&fmtToPush);
+	}
+
 	while (!pThreadEvent->Wait(dwFlushTime)) {
 		try {
 			switch (EndpointInfo.Type) {
 			case ProxyType:
 			case RenderType: {
+				if (!pAudioCallback) continue;
 				UINT32 StreamPadding = 0;
 				hr = pAudioClient->GetCurrentPadding(&StreamPadding);
 				if (FAILED(hr)) { 

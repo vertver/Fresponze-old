@@ -874,6 +874,7 @@ class IAudioCallback : public IBaseInterface
 {
 public:
 	virtual fr_err FlushCallback() = 0;
+	virtual fr_err FormatCallback(PcmFormat* fmtToSwitch) = 0;
 	virtual fr_err EndpointCallback(fr_f32* pData, fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate, fr_i32 CurrentEndpointType) = 0;
 	virtual fr_err RenderCallback(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate) = 0;
 };

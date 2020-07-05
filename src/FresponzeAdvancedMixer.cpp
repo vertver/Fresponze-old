@@ -36,14 +36,10 @@ void
 CAdvancedMixer::FreeStuff()
 {
 	ListenersNode* pNode = pFirstListener;
-	EmittersNode* pENode = pFirstEmitter;
 	while (pNode) {
 		ListenersNode* pNextNode = pNode->pNext;
-		EmittersNode* pNextENode = pENode ? pENode->pNext : nullptr;
-		if (pFirstEmitter) _RELEASE(pFirstEmitter->pEmitter);
 		_RELEASE(pNode->pListener);
 		pNode = pNextNode;
-		pENode = pNextENode;
 	}
 }
 
@@ -239,16 +235,6 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 	OutputBuffer.Resize(Frames * Channels);
 	tempBuffer.Resize(Channels, Frames);
 	mixBuffer.Resize(Channels, Frames);
-	
-	pListNode->pListener->GetFormat(fmt);
-	if (fmt.Channels != Channels || fmt.SampleRate != SampleRate) {
-		fmt.Channels = Channels;
-		fmt.SampleRate = SampleRate;
-		while (pListNode) {
-			pListNode->pListener->SetFormat(fmt);
-			pListNode = pListNode->pNext;
-		}
-	}
 
 	/*	#############################################	
 		OPT 001: Optimization issue with 'for' cycle.
