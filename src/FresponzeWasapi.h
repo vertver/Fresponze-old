@@ -20,6 +20,10 @@
 #include "FresponzeWasapiNotification.h"
 #include "FresponzeWasapiEnumerator.h"
 
+#ifdef WASAPI_USE_SPATIAL_AUDIO
+#include "FresponzeWasapiSpatialEndpoint.h"
+#endif
+
 #ifndef GUID_SECT
 #define GUID_SECT
 #endif

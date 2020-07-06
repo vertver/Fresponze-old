@@ -894,6 +894,20 @@ MixerAddToBuffer(
 
 inline
 void
+LinearToComplex(
+	fr_f32* pData,
+	fr_i32 SamplesCount,
+	fr_i32 Channels
+)
+{
+	for (size_t i = 0; i < SamplesCount ; i++)
+	{
+
+	}
+}
+
+inline
+void
 PlanarToLinear(
 	fr_f32** pPlanar,
 	fr_f32* pLinear,

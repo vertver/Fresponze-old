@@ -322,6 +322,7 @@
     <ClCompile Include="..\..\src\FresponzeWasapiEndpoint.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiEnumerator.cpp" />
     <ClCompile Include="..\..\src\FresponzeWasapiNotifications.cpp" />
+    <ClCompile Include="..\..\src\FresponzeWasapiSpatialEndpoint.cpp" />
     <ClCompile Include="..\..\src\FresponzeWavFile.cpp" />
     <ClCompile Include="..\..\src\FresponzeWindows.cpp" />
     <ClCompile Include="..\..\src\FresponzeXAudio2.cpp" />
@@ -440,6 +441,7 @@
     <ClInclude Include="..\..\src\FresponzeWasapiEnumerator.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiHardware.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiNotification.h" />
+    <ClInclude Include="..\..\src\FresponzeWasapiSpatialEndpoint.h" />
     <ClInclude Include="..\..\src\FresponzeWasapiVolumeLevel.h" />
     <ClInclude Include="..\..\src\FresponzeXAudio2.h" />
     <ClInclude Include="..\..\src\FresponzeXAudio2Endpoint.h" />

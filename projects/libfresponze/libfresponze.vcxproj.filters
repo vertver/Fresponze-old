@@ -561,6 +561,9 @@
     <ClCompile Include="..\..\src\FresponzeTBBTask.cpp">
       <Filter>src\Base\Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FresponzeWasapiSpatialEndpoint.cpp">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\FresponzeWasapi.h">
@@ -910,6 +913,9 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\FresponzeMemoryManagment.h">
       <Filter>src\Base\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\FresponzeWasapiSpatialEndpoint.h">
+      <Filter>src\Platform\Windows\WASAPI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

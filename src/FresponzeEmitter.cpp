@@ -282,7 +282,7 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 				pTempData[i] = &ppData[i][FramesReaded];
 			}
 
-			FramesReaded = ThisListener->Process(pTempData, Frames - FramesReaded);
+			FramesReaded += ThisListener->Process(pTempData, Frames - FramesReaded);
 			BaseEmitterPosition = ThisListener->GetPosition();
 		}
 	} else {
