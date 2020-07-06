@@ -186,11 +186,11 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 		Current state: processing
 		#############################################
 	*/
-	BEGIN_TEST
+	//BEGIN_TEST
 	if (outputFormat.SampleRate != formatOfFile.SampleRate) {
 		resampler->Resample((fr_i32)frame_out, transferBuffers.GetBuffers(), transferBuffers.GetBuffers());
 	}
-	END_TEST
+	//END_TEST
 
 	/* if mono - set middle channels mode for stereo */
 	if (formatOfFile.Channels == 1 && outputFormat.Channels >= 2) {
@@ -206,6 +206,13 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 
 	CalculateFrames64(frame_out - FileReadSize, formatOfFile.SampleRate, outputFormat.SampleRate, ret64);
 	FSeek += frame_out - FileReadSize;
+	if (ret64 < FramesCount) {
+		for (fr_i64 i = 0; i < min(formatOfFile.Channels, outputFormat.Channels); i++) {
+			memset(&ppFloatData[i][ret64], 0, (FramesCount - ret64) * sizeof(fr_f32));
+		}
+	}
+
+
 	return ret64;
 }
 
@@ -219,16 +226,19 @@ fr_i64
 COpusMediaResource::SetPosition(fr_i64 FramePosition)
 {
 	fr_i64 ret = 0;
-	if (!op_seekable(of)) return -1;
+	if (!op_seekable(of)) 
+		return -1;
 	fr_i64 frame_out = 0;
 	ret = op_pcm_seek(of, FramePosition);
 	if (ret == OP_EINVAL) {		// that means we are done
 		FramePosition = 0;
 		ret = op_pcm_seek(of, FramePosition);
+	
 	}
 	BugAssert((!ret), "Can't seek OPUS file");
-	FSeek = FramePosition;
-	return 0;// ret;
+
+	FSeek = op_pcm_tell(of);
+	return FSeek;// ret;
 }
 
 fr_i64

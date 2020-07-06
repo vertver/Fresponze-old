@@ -187,6 +187,13 @@ CWASAPIAudioEnpoint::ThreadProc()
 		pAudioCallback->FormatCallback(&fmtToPush);
 	}
 
+	// Flush WASAPI buffer 
+	{
+		BYTE* tempByte = nullptr;
+		hr = pRenderClient->GetBuffer(FramesInBuffer, &tempByte);
+		hr = pRenderClient->ReleaseBuffer(FramesInBuffer, AUDCLNT_BUFFERFLAGS_SILENT);
+	}
+	
 	while (!pThreadEvent->Wait(dwFlushTime)) {
 		try {
 			switch (EndpointInfo.Type) {
@@ -203,6 +210,7 @@ CWASAPIAudioEnpoint::ThreadProc()
 				BYTE* pByte = nullptr;
 				INT32 AvailableFrames = FramesInBuffer;
 				AvailableFrames -= StreamPadding;
+
 				while (AvailableFrames) {
 					/*
 						In this case, "GetBuffer" function can be failed if

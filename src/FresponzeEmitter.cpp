@@ -259,13 +259,32 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	BaseEmitterPosition = (fr_i32)GetPosition();
 	BaseListenerPosition = (fr_i32)ThisListener->GetPosition();
 
-	/* Set emitter position to listener and read data */
-	ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
-	FramesReaded = ThisListener->Process(ppData, Frames);
-	if (FramesReaded < Frames) {
-		/* We don't want replay audio if we set this flag */
-		if (EmittersState == ePlayState) EmittersState = eStopState;
+	fr_i64 FullFileSize = ThisListener->GetFullFrames();
+	if (BaseEmitterPosition > FullFileSize) {
 		BaseEmitterPosition = 0;
+	}
+
+	/* Set emitter position to listener and read data */
+	fr_i64 SettedListenerPosition = ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
+	FramesReaded = ThisListener->Process(ppData, Frames);
+	fr_i64 CurrentListPosition = ThisListener->GetPosition();
+
+	if (FramesReaded < Frames) {
+		BaseEmitterPosition = 0;
+		ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
+
+		/* We don't want replay audio if we set this flag */
+		if (EmittersState == ePlayState) {
+			EmittersState = eStopState;
+		} else {
+			fr_f32* pTempData[MAX_CHANNELS] = {};
+			for (size_t i = 0; i < ListenerFormat.Channels; i++) {
+				pTempData[i] = &ppData[i][FramesReaded];
+			}
+
+			FramesReaded = ThisListener->Process(pTempData, Frames - FramesReaded);
+			BaseEmitterPosition = ThisListener->GetPosition();
+		}
 	} else {
 		BaseEmitterPosition += FramesReaded;
 	}

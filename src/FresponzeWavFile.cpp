@@ -151,7 +151,7 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	/* Translate current frames count for output buffer to file format sample rate frames count */
 	CalculateFrames64(FramesCount, outputFormat.SampleRate, fileFormat.SampleRate, frame_out);
 	fr_i64 FreeFrames = min(frame_out, FileFrames - FramePosition);
-	if (!FreeFrames) {		
+	if (FreeFrames <= 0) {		
 		/* Set position to 0 for replay */ 
 		FramePosition = 0;
 		return 0;
@@ -175,6 +175,12 @@ CRIFFMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	}
 
 	CalculateFrames64(FreeFrames, fileFormat.SampleRate, outputFormat.SampleRate, frame_out);
+	if (frame_out < FramesCount) {
+		for (fr_i64 i = 0; i < min(fileFormat.Channels, outputFormat.Channels); i++) {
+			memset(&ppFloatData[i][frame_out], 0, (FramesCount - frame_out) * sizeof(fr_f32));
+		}
+	}
+
 	return frame_out;
 }
 

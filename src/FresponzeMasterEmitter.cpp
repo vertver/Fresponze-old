@@ -290,9 +290,21 @@ CSteamAudioEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 	ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
 	FramesReaded = ThisListener->Process(ppData, Frames);
 	if (FramesReaded < Frames) {
-		/* We don't want replay audio if we set this flag */
-		if (EmittersState == ePlayState) EmittersState = eStopState;
 		BaseEmitterPosition = 0;
+		ThisListener->SetPosition((fr_i64)BaseEmitterPosition);
+
+		/* We don't want replay audio if we set this flag */
+		if (EmittersState == ePlayState) {
+			EmittersState = eStopState;
+		} else {
+			fr_f32* pTempData[MAX_CHANNELS] = {};
+			for (size_t i = 0; i < ListenerFormat.Channels; i++) {
+				pTempData[i] = &ppData[i][FramesReaded];
+			}
+
+			FramesReaded = ThisListener->Process(pTempData, Frames - FramesReaded);
+			BaseEmitterPosition = ThisListener->GetPosition();
+		}
 	}
 	else {
 		BaseEmitterPosition += FramesReaded;
