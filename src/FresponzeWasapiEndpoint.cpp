@@ -386,15 +386,15 @@ CWASAPIAudioEnpoint::GetEndpointDeviceInfo()
 
 		/* Translate UTF-16 string to normalized UTF-8 string */
 		if (StringSize && StringSize < 259) {
-			if (WideCharToMultiByte(CP_UTF8, 0, value.pwszVal, -1, lpNewString, 260, NULL, NULL)) {
-				strcpy_s(EndpointInfo.EndpointName, lpNewString);
+			if (WideCharToMultiByte(CP_UTF8, 0, lpwDeviceId, -1, lpNewString, 260, NULL, NULL)) {
+				strcpy_s(EndpointInfo.EndpointUUID, lpNewString);
 			} else {
-				strcpy_s(EndpointInfo.EndpointName, "Unknown Device UUID");
+				strcpy_s(EndpointInfo.EndpointUUID, "Unknown Device UUID");
 			}
 		}
 	} else {
 		TypeToLog("WASAPI: Failed to get device UUID");
-		strcpy_s(EndpointInfo.EndpointName, "Unknown Device UUID");
+		strcpy_s(EndpointInfo.EndpointUUID, "Unknown Device UUID");
 	}
 
 	_RELEASE(pPropertyStore);
@@ -483,14 +483,9 @@ CWASAPIAudioEnpoint::InitializeToPlay(fr_f32 Delay)
 	} 
 
 	EndpointInfo.EndpointFormat.Frames = (fr_i32)BufferFrames;
-	{
-		fr_string512 temp_string = {};
-		_snprintf_s(temp_string, sizeof(temp_string),
-			"WASAPI: Device initialized (Shared, Sample rate: %i, Channels: %i, Latency: %i",
-			EndpointInfo.EndpointFormat.SampleRate, EndpointInfo.EndpointFormat.Channels, EndpointInfo.EndpointFormat.Frames
-		);
-		TypeToLog(temp_string);
-	}
+	TypeToLogFormated("WASAPI: Device initialized (Shared, Sample rate: %i, Channels: %i, Latency: %i)", EndpointInfo.EndpointFormat.SampleRate, EndpointInfo.EndpointFormat.Channels, EndpointInfo.EndpointFormat.Frames);
+	TypeToLogFormated("WASAPI: Device name: %s", EndpointInfo.EndpointName);
+	TypeToLogFormated("WASAPI: Device GUID: %s", EndpointInfo.EndpointUUID);
 
 	pTempBuffer = (fr_f32*)FastMemAlloc(sizeof(fr_f32) * EndpointInfo.EndpointFormat.Frames * EndpointInfo.EndpointFormat.Channels);
 	CoTaskMemFree(pWaveFormat);

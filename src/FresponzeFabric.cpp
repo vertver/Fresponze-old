@@ -21,6 +21,47 @@
 
 void* hModule = nullptr;
 
+void 
+TypeToLogFormated(const char* Text, ...)
+{
+	static fr_string1k outputString = {};
+	static fr_wstring1k woutputString = {};
+	va_list arg;
+	int done;
+
+#ifndef WINDOWS_PLATFORM
+	va_start(arg, Text);
+	vsprintf(outputString, Text, arg);
+	TypeToLog(outputString);
+	va_end(arg);
+#else
+	va_start(arg, Text);
+	vsprintf(outputString, Text, arg);
+	if (MultiByteToWideChar(CP_UTF8, 0, outputString, -1, woutputString, sizeof(woutputString))) {
+		TypeToLogW(woutputString);
+	} else {
+		TypeToLog(outputString);
+	}
+	va_end(arg);
+#endif
+}
+
+#ifdef WINDOWS_PLATFORM
+void
+TypeToLogW(const wchar_t* Text)
+{
+	static fr_wstring1k outputString = {};
+	GetDebugTimeW(outputString, sizeof(outputString));
+	wprintf_s(L"%s%s\n", outputString, Text);
+
+#ifdef _DEBUG
+	wcscat_s(outputString, Text);
+	OutputDebugStringW(outputString);
+	OutputDebugStringW(L"\n");
+#endif
+}
+#endif
+
 void
 TypeToLog(const char* Text)
 {

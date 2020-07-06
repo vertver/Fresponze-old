@@ -59,7 +59,7 @@ void test1()
 		pAudioHardware->GetEndpointInfo(RenderType, OutputLists);
 		pAdvancedMixer->SetBufferSamples(OutputLists.EndpointFormat.Frames);
 		/* Create base listener with emitter to play */
-		if (pAdvancedMixer->CreateListener((void*)"X:\\test.wav", listNode, OutputLists.EndpointFormat)) {
+		if (pAdvancedMixer->CreateListener((void*)"X:\\test.opus", listNode, OutputLists.EndpointFormat)) {
 			pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
 			pBaseEmitter->SetState(eReplayState);
 			//fr_f32 x = -2.25;
