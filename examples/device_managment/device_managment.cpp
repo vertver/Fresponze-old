@@ -16,7 +16,6 @@
 * limitations under the License.
 *****************************************************************/
 #include <windows.h>
-#include <stdio.h>
 #include "Fresponze.h"
 #include "FresponzeFileSystemWindows.h"
 #include "FresponzeWavFile.h"
@@ -24,6 +23,7 @@
 #include "FresponzeMixer.h"
 #include "FresponzeMasterEmitter.h"
 
+#ifdef _WIN32
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 #include "spectrum.h"
@@ -35,6 +35,7 @@ IFresponze* pFresponze = nullptr;
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <tchar.h>
+#endif
 
 fr_i32 OutputCount = 0;
 fr_i32 InputCount = 0;
@@ -56,6 +57,7 @@ float items_delay[] = { 30.f, 50.f, 80.f, 100.f, 150.f, 200.f, 1000.f };
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+#ifdef _WIN32
 // Data
 static ID3D11Device* g_pd3dDevice = NULL;
 static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
@@ -68,11 +70,14 @@ void CleanupDeviceD3D();
 void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 
 void DrawImGui()
 {
+#ifdef _WIN32
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
+#endif
 	ImGui::NewFrame();
 
 	{
@@ -87,6 +92,14 @@ void DrawImGui()
 		ImGui::Begin("Fresponze Device enumerating", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 		ImGui::ListBox("Delays", &current_delay, items_delay_names, 7);
 		if (ImGui::Button("Run", ImVec2(80, 35))) {
+			/* 
+				If current instance of device is exist - we must to stop it and
+				restart all mixer stuff (such as media listeners and etc.) to
+				update info about device.
+
+				#NOTE: You can process listeners manually by inserting current device
+				format to it.
+			*/
 			if (is_already_runned) {
 				pAudioHardware->Close();
 				if (listNode) {
@@ -97,14 +110,22 @@ void DrawImGui()
 				is_already_runned = false;
 			}
 
+			/*
+				If we want to play audio - you must to set your delay time and convert it
+				to frames for listeners and emitters
+			*/
 			fr_i32 samples = OutputLists[current_item].EndpointFormat.SampleRate * (items_delay[current_delay] / 1000.f);
 			OutputLists[current_item].EndpointFormat.Frames = samples;
 			if (pAudioHardware->Open(RenderType, items_delay[current_delay], OutputLists[current_item].EndpointUUID)) {
 				pAdvancedMixer->SetBufferSamples(samples);
+
+				/* Must exist, because mixer after restarting doesn't know about new format */
+				pAdvancedMixer->SetMixFormat(OutputLists[current_item].EndpointFormat);
+				
+				/* Just update emitter and set listener */
 				if (pAdvancedMixer->CreateListener((void*)"X:\\test.opus", listNode, OutputLists[current_item].EndpointFormat)) {
 					pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
 					pBaseEmitter->SetState(eReplayState);
-					pAdvancedMixer->SetMixFormat(OutputLists[current_item].EndpointFormat);
 				}
 
 				is_already_runned = true;
@@ -112,6 +133,10 @@ void DrawImGui()
 		}
 
 		if (ImGui::SliderFloat("Volume level", &volume, 0.0, 1.0f)) {
+			/* 
+				You can manage this values manually from your custom emitter class
+				and setting to it your indexes of values
+			*/
 			pBaseEmitter->SetOption(0, &volume, sizeof(float));
 		}
 
@@ -121,16 +146,20 @@ void DrawImGui()
 	}
 
 	ImGui::Render();
+
+#ifdef _WIN32
 	g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
 	g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_color);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	g_pSwapChain->Present(1, 0);
+#endif
 }
 
 // Main code
 int main(int, char**)
 {
+#ifdef _WIN32
 	// Create application window
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("Fresponze device enumerating"), NULL };
 	::RegisterClassEx(&wc);
@@ -147,6 +176,7 @@ int main(int, char**)
 	// Show the window
 	::ShowWindow(hwnd, SW_SHOWDEFAULT);
 	::UpdateWindow(hwnd);
+#endif
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -155,9 +185,11 @@ int main(int, char**)
 
 	ImGui::Spectrum::StyleColorsSpectrum();
 
+#ifdef _WIN32
 	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+#endif
 
 	ImFontConfig font_config;
 	font_config.OversampleH = 1; //or 2 is the same
@@ -179,20 +211,38 @@ int main(int, char**)
 	bool show_demo_window = true;
 	bool show_another_window = false;
 
+	/* Initialize internal instance of library */
 	if (FrInitializeInstance((void**)&pFresponze) != 0) {
 		return -1;
 	}
 
+	/* 
+		Create advanced Fresponze default mixer and create emitter to 
+		play audio with repeat
+	*/
 	pFresponze->GetMixerInterface(eMixerAdvancedType, (void**)&pAdvancedMixer);
 	pAdvancedMixer->CreateEmitter(pBaseEmitter, 0);
-	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
-	pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
 
+	/* 
+		#WARNING:
+		In this case, we can use custom callback with your handler, but on Windows you
+		must process buffer equals or smaller device buffer length, because system
+		buffer padding can't always be 0 or max buffer size.
+	*/
+	pAudioCallback = new CMixerAudioCallback(pAdvancedMixer);
+
+	/* Create our system dependent hardware */
+	if constexpr ((SUPPORTED_HOSTS & eWindowsCoreHost)) {
+		pFresponze->GetHardwareInterface(eEndpointWASAPIType, pAudioCallback, (void**)&pAudioHardware);
+	}
+
+	/* Enumerate internal list of audio devices */
 	if (!pAudioHardware->Enumerate()) {
-		MessageBoxA(NULL, "Can't enumerate devices", "Fresponze error", MB_OK | MB_ICONERROR);
 		return -1;
 	}
 
+
+	/* Get all device count and list to process it to GUI */
 	pAudioHardware->GetDevicesList(InputLists, OutputLists);
 	pAudioHardware->GetDevicesCount(CaptureType, InputCount);
 	pAudioHardware->GetDevicesCount(RenderType, OutputCount);
@@ -203,12 +253,10 @@ int main(int, char**)
 	// Main loop
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
-	while (msg.message != WM_QUIT)
-	{
-		if (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
-		{
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
+	while (msg.message != WM_QUIT) {
+		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 			continue;
 		}
 
@@ -221,8 +269,8 @@ int main(int, char**)
 	ImGui::DestroyContext();
 
 	CleanupDeviceD3D();
-	::DestroyWindow(hwnd);
-	::UnregisterClass(wc.lpszClassName, wc.hInstance);
+	DestroyWindow(hwnd);
+	UnregisterClass(wc.lpszClassName, wc.hInstance);
 
 	return 0;
 }

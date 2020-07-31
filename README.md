@@ -14,6 +14,7 @@ will compile and run on Windows, macOS and Linux.
 * [Opusfile](https://github.com/xiph/opusfile)
 * [OGG](https://github.com/xiph/ogg)
 * [libnx](https://github.com/switchbrew/libnx)
+* [ImGui (for examples)](https://github.com/ocornut/imgui)
 
 # Audio backends
 * WASAPI (95%, perfectly working)
