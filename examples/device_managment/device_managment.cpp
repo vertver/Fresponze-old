@@ -302,10 +302,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		Window_Flag_Resizeing = false;
 		return 0;
 	case WM_PAINT:
-		if (g_pd3dDevice != NULL) {
-			//if (Window_Flag_Resizeing) {
+		if (g_pd3dDevice != NULL && Window_Flag_Resizeing) {
 			DrawImGui();
-			//}
 		}
 		break;
 	case WM_SIZE:
