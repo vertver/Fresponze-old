@@ -250,6 +250,7 @@ int main(int, char**)
 		items[i] = OutputLists[i].EndpointName;
 	}
 
+#ifdef _WIN32
 	// Main loop
 	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
@@ -271,12 +272,13 @@ int main(int, char**)
 	CleanupDeviceD3D();
 	DestroyWindow(hwnd);
 	UnregisterClass(wc.lpszClassName, wc.hInstance);
+#endif
 
 	return 0;
 }
 
 // Helper functions
-
+#ifdef _WIN32
 bool CreateDeviceD3D(HWND hWnd)
 {
 	// Setup swap chain
@@ -382,4 +384,5 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+#endif
 
