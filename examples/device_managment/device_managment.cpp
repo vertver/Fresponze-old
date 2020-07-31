@@ -119,15 +119,15 @@ void DrawImGui()
 			OutputLists[current_item].EndpointFormat.Frames = samples;
 			if (pAudioHardware->Open(RenderType, items_delay[current_delay], OutputLists[current_item].EndpointUUID)) {
 				pAdvancedMixer->SetBufferSamples(samples);
-
-				/* Must exist, because mixer after restarting doesn't know about new format */
-				pAdvancedMixer->SetMixFormat(OutputLists[current_item].EndpointFormat);
 				
 				/* Just update emitter and set listener */
 				if (pAdvancedMixer->CreateListener((void*)"X:\\test.opus", listNode, OutputLists[current_item].EndpointFormat)) {
 					pAdvancedMixer->AddEmitterToListener(listNode, pBaseEmitter);
 					pBaseEmitter->SetState(eReplayState);
 				}
+
+				/* Must exist, because mixer after restarting doesn't know about new format */
+				pAdvancedMixer->SetMixFormat(OutputLists[current_item].EndpointFormat);
 
 				is_already_runned = true;
 			}

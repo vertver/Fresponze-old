@@ -49,3 +49,7 @@ projects/test_project/x64
 projects/libfresponze/x64
 projects/test_project/x86
 projects/libfresponze/x86
+build/x64/Debug_DLL/imgui.ini
+build/x64/Debug_DLL/Montserrat-Medium.ttf
+build/x64/Release_DLL/Montserrat-Medium.ttf
+build/x64/Release_DLL/tbb.map
