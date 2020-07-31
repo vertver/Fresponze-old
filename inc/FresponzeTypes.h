@@ -379,6 +379,7 @@ CalculateFrames64(
 	fr_i64& OutputFramesCount
 )
 {
+	if (!InputSampleRate) return;
 	OutputFramesCount = FramesCount * OutputSampleRate / InputSampleRate;;
 }
 

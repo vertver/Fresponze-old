@@ -110,6 +110,7 @@ CWASAPIAudioEnumerator::GetDeviceInfoByDevice(
 	}
 
 	/* Set local format struct */
+	UINT32 BufferFrames = 0;
 	pEndpointStruct->EndpointFormat.IsFloat = (pWaveFormat->wFormatTag == 3);
 	pEndpointStruct->EndpointFormat.Bits = pWaveFormat->wBitsPerSample;
 	pEndpointStruct->EndpointFormat.Channels = pWaveFormat->nChannels;

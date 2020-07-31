@@ -148,6 +148,8 @@ COpusMediaResource::Read(fr_i64 FramesCount, fr_f32** ppFloatData)
 	const OpusTags* tags = nullptr;
 	fr_i64 frame_out = 0;
 
+	if (!TempChannels) return 0;
+
 	/* Translate current frames count for output buffer to file format frames count */
 	CalculateFrames64(FramesCount, outputFormat.SampleRate, formatOfFile.SampleRate, frame_out);
 	transferBuffers.Resize(formatOfFile.Channels, (fr_i32)max(FramesCount, frame_out));

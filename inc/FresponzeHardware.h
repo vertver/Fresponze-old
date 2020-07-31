@@ -46,6 +46,7 @@ protected:
 public:
 	virtual bool Enumerate() = 0;
 	virtual void GetDevicesList(EndpointInformation*& InputList, EndpointInformation*& OutputList) = 0;
+	virtual bool GetDevicesCount(fr_i32 EndpointType, fr_i32& Count) = 0;
 
 	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime) = 0;
 	virtual bool Open(fr_i32 DeviceType, fr_f32 DelayTime, char* pUUID) = 0;

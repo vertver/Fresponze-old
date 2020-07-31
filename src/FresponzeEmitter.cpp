@@ -242,6 +242,12 @@ CAdvancedEmitter::ProcessInternal(fr_f32** ppData, fr_i32 Frames, fr_i32 Channel
 			ppData[1][o] *= rightcoeff;
 		}
 	}
+
+	for (size_t i = 0; i < Channels; i++) {
+		for (size_t o = 0; o < Frames; o++) {
+			ppData[i][o] *= VolumeLevel;
+		}
+	}
 }
 
 bool 
@@ -283,6 +289,9 @@ CAdvancedEmitter::Process(fr_f32** ppData, fr_i32 Frames)
 			}
 
 			FramesReaded += ThisListener->Process(pTempData, Frames - FramesReaded);
+			if (FramesReaded != Frames) {
+				TypeToLogFormated("Wrong formated buffer: expected %u, but value is %u", Frames, FramesReaded);
+			}
 			BaseEmitterPosition = ThisListener->GetPosition();
 		}
 	} else {

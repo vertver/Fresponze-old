@@ -254,6 +254,7 @@ CAdvancedMixer::Render(fr_i32 Frames, fr_i32 Channels, fr_i32 SampleRate)
 		while (pListNode) {
 			/* Source restart issue  */
 			EmittersNode* pEmittersNode = nullptr;
+			if (!pListNode->pListener) break;
 			pListNode->pListener->GetFirstEmitter(&pEmittersNode);
 			while (pEmittersNode) {
 				tempBuffer.Clear();

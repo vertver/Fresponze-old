@@ -103,7 +103,7 @@ CSteamAudioEmitter::AddEffect(IBaseEffect* pNewEffect)
 	}
 	else {
 		EffectNodeStruct* pTemp = new EffectNodeStruct;
-		memset(pFirstEffect, 0, sizeof(EffectNodeStruct));
+		memset(pTemp, 0, sizeof(EffectNodeStruct));
 		pNewEffect->Clone((void**)&pTemp->pEffect);
 		pLastEffect->pNext = pTemp;
 		pTemp->pPrev = pLastEffect;

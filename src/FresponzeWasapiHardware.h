@@ -145,11 +145,16 @@ public:
 		return pAudioEnumerator->EnumerateDevices();
 	}
 
-	void GetDevicesList(EndpointInformation*& InputList, EndpointInformation*& OutputList)
+	void GetDevicesList(EndpointInformation*& InputList, EndpointInformation*& OutputList) override
 	{
 		Enumerate();
 		pAudioEnumerator->GetInputDeviceList(InputList);
 		pAudioEnumerator->GetOutputDeviceList(OutputList);
+	}
+
+	bool GetDevicesCount(fr_i32 EndpointType, fr_i32& Count)  override
+	{
+		return pAudioEnumerator->GetDevicesCount(EndpointType, Count);
 	}
 
 	bool Open(fr_i32 DeviceType, fr_f32 DelayTime) override
