@@ -1,5 +1,5 @@
 # Fresponze transferred to new repository
-https://github.com/suirless/Fresponze
+https://github.com/vertver/fresponze
 
 Fast, simple and modern middleware for game engines
 
